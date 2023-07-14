@@ -4,6 +4,7 @@
 - Staging Area: 임시 공간
 - Repository: 외부 컴퓨터
 <br><br>
+
 ## git 사용 방법
 ```bash
 #이 폴더에서 git을 사용하겠다는 의미(초기에 한 번만)
@@ -42,7 +43,8 @@ git pull origin master
 #저장할 곳 주소 별칭 확인
 git remote -v
 ```
-<br><br>
+<br>
+
 ## branch
 ```bash
 #branch 생성
@@ -58,11 +60,13 @@ git checkout [branch 이름]
 git push --set-upstream origin [branch 이름]
 
 ```
-<br><br>
+<br>
+
 ## gitignore
 - push 할 때 push하지 않을 파일은 commit되지 않도록 함
 - [gitignore 생성 사이트](https://www.toptal.com/developers/gitignore)
-<br><br>
+<br>
+
 ## 참고
 - pull request 하고 나서 conflict 난 후 수정하면, main이랑 내용이 달라질 수 있음
     - main인 repository remote add해서 다시 pull 해오면 sync 맞출 수 있음
