@@ -1,7 +1,7 @@
 # Markdown
 - 일반 텍스트로 문서를 작성하는 간단한 방법
 <br><br>
-### 글자 크기 바꾸기(제목, 부제, 내용 ...)
+### | 글자 크기 바꾸기(제목, 부제, 내용 ...)
 ---
 ex)
 # 제목
@@ -16,7 +16,7 @@ ex)
 - 6개 까지 사용 가능(h1 ~ h6)
 <br>
 
-### 구분선 긋기
+### | 구분선 긋기
 ---
 ex)
 ### 내용내용
@@ -31,7 +31,7 @@ ex)
 - h1, h2에는 자동으로 생성됨
 <br>
 
-### 리스트
+### | 리스트
 ---
 ex)
 1. 일
@@ -52,7 +52,7 @@ ex)
 ```
 <br>
 
-### 코드 넣기
+### | 코드 넣기
 ---
 ex)
 ```python
@@ -63,7 +63,7 @@ print("Hello World")
     - ex) ```python
 <br>
 
-### 링크 넣기
+### | 링크 넣기
 ---
 [싸피](https://www.ssafy.com/ksp/jsp/swp/swpMain.jsp)
 ```markdown
@@ -71,7 +71,7 @@ print("Hello World")
 ```
 <br>
 
-### 이미지 넣기
+### | 이미지 넣기
 ---
 ![다운로드 (1)](https://github.com/yuj1818/TIL/assets/95585314/8dc6ce37-e71f-4570-be1a-300fa8dfab95)
 ```markdown
@@ -79,7 +79,7 @@ print("Hello World")
 ```
 <br>
 
-### 글꼴 바꾸기
+### | 글꼴 바꾸기
 ---
 - **강조**
 ```markdown
@@ -95,7 +95,7 @@ print("Hello World")
 ```
 <br>
 
-### 참고 Tool
+### | 참고 Tool
 ---
 - Typora
 - Markdown All in One(VSC extension)
