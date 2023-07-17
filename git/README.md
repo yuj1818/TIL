@@ -1,11 +1,11 @@
 # Git
-## 용어 정리
+## | 용어 정리
 - Working Directory: 내 컴퓨터
 - Staging Area: 임시 공간
 - Repository: 외부 컴퓨터
 <br><br>
 
-## git 사용 방법
+## | git 사용 방법
 ```bash
 #이 폴더에서 git을 사용하겠다는 의미(초기에 한 번만)
 git init
@@ -45,7 +45,7 @@ git remote -v
 ```
 <br>
 
-## branch
+## | branch
 ```bash
 #branch 생성
 git branch [branch 이름]
@@ -62,12 +62,12 @@ git push --set-upstream origin [branch 이름]
 ```
 <br>
 
-## gitignore
+## | gitignore
 - push 할 때 push하지 않을 파일은 commit되지 않도록 함
 - [gitignore 생성 사이트](https://www.toptal.com/developers/gitignore)
 <br>
 
-## 참고
+## | 참고
 - pull request 하고 나서 conflict 난 후 수정하면, main이랑 내용이 달라질 수 있음
     - main인 repository remote add해서 다시 pull 해오면 sync 맞출 수 있음
     - github에 있는 sync fork 사용할 수도 있음
