@@ -174,7 +174,7 @@
     l2 = [1, 2, 3, 'Python', ['hello', 'world', '!']]
     ```
     
-    <img src = "https://github.com/yuj1818/TIL/assets/95585314/ac4ce534-cc96-4c21-b8c6-a5cfddb5afc1" width="50%" height="50%">
+    <img src = "https://github.com/yuj1818/TIL/assets/95585314/ac4ce534-cc96-4c21-b8c6-a5cfddb5afc1" width="30%" height="30%">
     
 - tuple
     - 리스트와 동일하나 변경 불가능한 시퀀스 자료형
