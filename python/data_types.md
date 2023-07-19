@@ -1,6 +1,8 @@
 # Data Types
 
-값의 종류와 그 값에 적용 가능한 연산과 동작을 결정하는 속성
+- 값의 종류와 그 값에 적용 가능한 연산과 동작을 결정하는 속성
+- 값이 어떤 종류의 데이터인지, 어떻게 해석되고 처리되어야 하는지를 정의
+- 값, 값에 적용할 수 있는 연산으로 이루어짐
 
 ## | Data Type의 역할
 
@@ -9,6 +11,25 @@
 - 잘못된 데이터 타입으로 인한 오류를 미리 예방
 
 ## | 종류
+- 데이터 타입
+    - Numeric Type
+        - int
+        - float
+        - complex
+    - Sequence Types
+        - list
+        - tuple
+        - range
+    - Text Sequence Type
+        - str
+    - Set Types
+        - set
+    - Mapping Types
+        - dict
+    - 기타
+        - None
+        - Boolean
+        - Functions
 
 ### | Numeric Types
 
@@ -66,7 +87,7 @@
         
         print(number)    # 3.14
         ```
-        
+- complex
 
 ### | Sequence Types❗
 
@@ -298,3 +319,15 @@
 - 컬렉션의 차이점
 
 <img src = "https://github.com/yuj1818/TIL/assets/95585314/740101f0-4e99-4aba-af2f-2823d0db1270" width="50%" height="50%">
+
+### | 산술 연산자
+| 기호 | 연산자 | 우선 순위 |
+| --- | --- | --- |
+| - | 음수 부호 | 2 |
+| + | 덧셈 | 4 |
+| - | 뺄셈 | 4 |
+| * | 곱셈 | 3 |
+| / | 나눗셈 | 3 |
+| // | 몫 | 3 |
+| % | 나머지 | 3 |
+| ** | 지수 | 1 |
