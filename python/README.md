@@ -14,6 +14,12 @@
 
 ### | [변수(Variable)](./variable.md)
 
+### | [함수(Functio)](./function.md)
+
+### | [모듈(Module)](./module.md)
+
+### | [패키지(Package)](./package.md)
+
 ### | [Style Guide](./style_guide.md)
 
 ### | [주석](./annotation.md)
