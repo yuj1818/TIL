@@ -320,7 +320,54 @@
 
 <img src = "https://github.com/yuj1818/TIL/assets/95585314/740101f0-4e99-4aba-af2f-2823d0db1270" width="50%" height="50%">
 
+
+## | Type Conversion
+
+### | 암시적 형변환(Implicit Type Conversion)
+
+- 파이썬이 자동으로 형변환을 하는 것
+
+```python
+print(3 + 5.0)    # 8.0
+
+print(True + 3)    # 4
+
+print(True + False)    # 1
+```
+
+### | 명시적 형변환(Explicit Type Conversion)
+
+- 개발자가 직접 형변환을 하는 것
+- 암시적 형변환이 아닌 경우를 모두 포함
+
+```python
+# str -> integer: 형식에 맞는 숫자만 가능
+# integer -> str: 모두 가능
+
+print(int('1'))    # 1
+
+print(str(1) + '등')    # 1등
+
+print(float('3.5'))    # 3.5
+
+print(int(3.5))    # 3
+
+print(int('3.5'))    # ValueError: invalid literal for int() with base 10: '3.5'
+```
+
+|  | str | list | tuple | range | set | dict |
+| --- | --- | --- | --- | --- | --- | --- |
+| str |  | O | O | X | O | X |
+| list | O |  | O | X | O | X |
+| tuple | O | O |  | X | O | X |
+| range | O | O | O |  | O | X |
+| set | O | O | O | X |  | X |
+| dict | O | O(key만) | O(key만) | X | O(key만) |  |
+
+## | 연산자
+
 ### | 산술 연산자
+
 | 기호 | 연산자 | 우선 순위 |
 | --- | --- | --- |
 | - | 음수 부호 | 2 |
@@ -331,3 +378,120 @@
 | // | 몫 | 3 |
 | % | 나머지 | 3 |
 | ** | 지수 | 1 |
+
+### | 복합 연산자
+
+| 기호 |  |  |
+| --- | --- | --- |
+| += | a += b | a = a + b |
+| -= | a -= b | a = a - b |
+| *= | a *= b | a = a * b |
+| /= | a /= b | a = a / b |
+| //= | a //= b | a = a // b |
+| %= | a %= b | a = a % b |
+| **= | a **= b | a = a ** b |
+
+### | 비교 연산자
+
+| 기호 | 내용 |
+| --- | --- |
+| < | 미만 |
+| ≤ | 이하 |
+| > | 초과 |
+| ≥ | 이상 |
+| == | 같음 |
+| ≠ | 같지 않음 |
+| is | 같음 |
+| is not | 같지 않음 |
+- is 비교 연산자 📙
+    - 메모리 내에서 같은 객체를 참조하는지 확인
+    - ==와 달리 주소를 비교
+    - 되도록이면 None, True, False 등을 비교할 때 사용
+    
+    ```python
+    print(2.0 == 2)    # True
+    
+    print(2.0 is 2)    # False
+    ```
+    
+
+### | 논리 연산자
+
+| 기호 | 연산자 | 내용 |
+| --- | --- | --- |
+| and | 논리곱 | 두 피연산자 모두 True인 경우에만 전체 표현식을 True로 평가 |
+| or | 논리합 | 두 피연산자 중 하나라도 True인 경우 전체 표현식을 True로 평가 |
+| not | 논리부정 | 단일 피연산자를 부정 |
+- 단축 평가 📙
+    - 논리 연산에서 두 번째 피연산자를 평가하지 않고 결과를 결정하는 동작
+    
+    ```python
+    vowels = 'aeiou'
+    
+    print(('a' and 'b') in vowels)    # => 'b' in vowels => False
+    print(('b' and 'a') in vowels)    # => 'a' in vowels => True
+    
+    print(3 and 5)    # 5
+    print(3 and 0)    # 0
+    print(0 and 3)    # 0
+    print(0 and 0)    # 0
+    
+    print(5 or 3)    # 5
+    print(3 or 0)    # 3
+    print(0 or 3)    # 3
+    print(0 or 0)    # 0
+    ```
+    
+    - and
+        - 첫 번째 피연산자가 False인 경우, 전체 표현식은 False로 결정
+        - 두 번째 피연산자 평가X
+        - 첫 번째 피연산자가 True인 경우, 전체 표현식은 두 번째 피연산자에 의해 결정
+        - 두 번째 피연산자가 평가되고 그 결과가 전체 표현식의 결과로 반환
+    - or
+        - 첫 번째 피연산자가 True이면 전체 표현식을 True로 결정
+        - 두 번째 피연산자 평가X
+        - 첫 번째 피연산자가 Fasle이 경우, 전체 표현식은 두 번째 피연산자에 의해 결정
+        - 두 번째 피연산자가 평가되고 그 결과가 전체 표현식의 결과로 반환
+    - 코드 실행을 최적화하고, 불필요한 연산을 피할 수 있도록 함
+
+### | 멤버십 연산자
+
+- 특정 값이 시퀀스나 다른 컬렉션에 속하는지 여부를 확인
+- in
+    - 왼쪽 피연산자가 오른쪽 피연산자의 시퀀스에 속하는지 확인
+- not in
+    - 왼쪽 피연산자가 오른쪽 피연산자의 시퀀스에 속하지 않는지를 확인
+
+### | 시퀀스형 연산자
+
+- +와 *는 연산에서 산술 연산자일때와 다른 역할을 가짐
+- + : 결합 연산자
+
+```python
+print('Gildong' + 'Hong')    # Gildong Hong
+
+print([1, 2] + [3, 4])    # [1, 2, 3, 4]
+```
+
+- * : 반복 연산자
+
+```python
+print([1, 2] * 2)    # [1, 2, 1, 2]
+```
+
+### | 연산자 우선순위
+
+| 우선순위 | 연산자 |
+| --- | --- |
+| 높음 | () |
+|  | [] |
+|  | ** |
+|  | +, - |
+|  | *, /, //, % |
+|  | +, - |
+|  | <, ≤, >, ≥, ==, ≠ |
+|  | is, is not |
+|  | in, not in |
+|  | not |
+|  | and |
+| 낮음 | or |
