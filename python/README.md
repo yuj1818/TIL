@@ -26,6 +26,8 @@
 
 ### | [반복문(Loop Statement)](./loop_statement.md)
 
+### | [데이터 구조(Data Structure)](./data_structure.md)
+
 ### | [Style Guide](./style_guide.md)
 
 ### | [주석](./annotation.md)
