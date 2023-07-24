@@ -34,7 +34,7 @@
 ## Sequence Types
 
 - 여러 개의 값들을 순서대로 나열하여 저장하는 자료형
-- [Sequence Types 특징](https://www.notion.so/Day2_20230718-6f0d12c5099f417c93ada02e218b7a61?pvs=21)
+- [Sequence Types 특징](./data_types.md#sequence-types❗)
 
 ## 문자열
 
