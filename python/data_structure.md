@@ -29,16 +29,16 @@
     ```
     
 
-# 시퀀스 데이터 구조
+## 시퀀스 데이터 구조
 
-## Sequence Types
+### Sequence Types
 
 - 여러 개의 값들을 순서대로 나열하여 저장하는 자료형
 - [Sequence Types 특징](./data_types.md#sequence-types❗)
 
-## 문자열
+### 문자열
 
-### 문자열 조회/탐색 및 검증 메서드
+#### 문자열 조회/탐색 및 검증 메서드
 
 | 메서드 | 설명 |
 | --- | --- |
@@ -89,7 +89,7 @@
     ```
     
 
-### 문자열 조작 메서드 (새 문자열 반환)
+#### 문자열 조작 메서드 (새 문자열 반환)
 
 | 메서드 | 설명 |
 | --- | --- |
@@ -164,9 +164,9 @@
     ```
     
 
-## 리스트
+### 리스트
 
-### 리스트 값 추가 및 삭제 메서드
+#### 리스트 값 추가 및 삭제 메서드
 
 | 메서드 | 설명 |
 | --- | --- |
@@ -239,7 +239,7 @@
     ```
     
 
-### 리스트 탐색 및 정렬 메서드
+#### 리스트 탐색 및 정렬 메서드
 
 | 문법 | 설명 |
 | --- | --- |
@@ -291,9 +291,378 @@
     my_list.reverse()
     print(my_list)    # [9, 1, 8, 2, 3, 1]
     ```
+
+## 비시퀀스 데이터 구조
+
+### set
+
+- 고유한 항목들의 **정렬되지 않은** 컬렉션
+
+#### 세트 관련 메서드
+
+| 메서드 | 설명 |
+| --- | --- |
+| s.add(x) | 세트 s에 항목 x를 추가.
+이미 x가 있다면 변화 없음 |
+| s.clear() | 세트 s의 모든 항목을 제거 |
+| s.remove(x) | 세트 s에서 항목 x를 제거
+항목 x가 없을 경우 key error |
+| s.pop() | 세트 s에서 랜덤하게 항목을 반환하고, 해당 항목을 제거 |
+| s.discard(x) | 세트 s에서 항목 x를 제거 |
+| s.update(iterable) | 세트 s에 다른 iterable 요소를 추가 |
+- .add(x)
+    - 세트에 x를 추가
+    
+    ```python
+    my_set = {1, 2, 3}
+    my_set.add(4)
+    print(my_set)    # {1, 2, 3, 4}
+    
+    my_set.add(4)
+    print(my_set)    # {1, 2, 3, 4}
+    ```
+    
+- .clear()
+    - 세트의 모든 항목을 제거
+    
+    ```python
+    my_set = {1, 2, 3}
+    my_set.clear()
+    print(my_set)    # set()
+    ```
+    
+- .remove(x)
+    - 세트에서 항목 x를 제거
+    
+    ```python
+    my_set = {1, 2, 3}
+    my_set.remove(2)
+    print(my_set)    # {1, 3}
+    
+    my_set.remove(10)
+    print(my_set)    # KeyError
+    ```
+    
+- .discard(x)
+    - 세트 s에서 항목 x를 제거. remove와 달리 에러 없음
+    
+    ```python
+    my_set = {1, 2, 3}
+    my_set.discard(2)
+    print(my_set)    # {1, 3}
+    
+    my_set.discard(10)
+    ```
+    
+- .pop()
+    - 세트에서 **임의의 요소**를 제거하고 반환
+    
+    ```python
+    my_set = {1, 2, 3}
+    element = my_set.pop()
+    
+    print(element)    # 1
+    print(my_set)    # {2, 3}
+    ```
+    
+- .update(iterable)
+    - 세트에 다른 iterable 요소를 추가
+    
+    ```python
+    my_set = {1, 2, 3}
+    my_set.update([4, 5, 1])
+    print(my_set)    # {1, 2, 3, 4, 5}
+    ```
     
 
-# 참고
+#### 세트의 집합 메서드
+
+| 메서드 | 설명 | 연산자 |
+| --- | --- | --- |
+| set1.difference(set2) | set1에는 들어있지만 set2에는 없는 항목으로 세트를 생성 후 반환 | set1 - set2 |
+| set1.itersection(set2) | set1과 set2에 모두 들어있는 항목으로 세트를 생성 후 반환 | set1 & set2 |
+| set1.issubset(set2) | set1의 항목이 모두 set2에 들어있으면 True를 반환 | set1 ≤ set2 |
+| set1.issuperset(set2) | set1가 set2의 항목을 모두 포함하면 True를 반환 | set1 ≥ set2 |
+| set1.union(set2) | set1 또는 set2에(혹은 둘 다) 들어있는 항목으로 세트를 생성 후 반환 | set1 | set2 |
+
+```python
+set1 = {0, 1, 2, 3, 4}
+set2 = {1, 3, 5, 7, 9]
+
+print(set1.difference(set2))    # {0, 2, 4}
+print(set1.intersection(set2))    # {1, 3}
+print(set1.issubset(set2))    # False
+print(set1.issuperset(set2))    # False
+print(set1.union(set2))    # {0, 1, 2, 3, 4, 5, 7, 9}
+```
+
+### dictionary
+
+- 고유한 항목들의 정렬되지 않은 컬렉션
+
+#### 딕셔너리 메서드
+
+| 메서드 | 설명 |
+| --- | --- |
+| D.clear() | 딕셔너리 D의 모든 키/값 쌍을 제거 |
+| D.get(k) | 키 k에 연결된 값을 반환(키가 없으면 None 반환) |
+| D.get(k, v) | 키 k에 연결된 값을 반환하거나 키가 없으면 기본 값으로 v 반환 |
+| D.keys() | 딕셔너리 D의 키를 모은 객체를 반환 |
+| D.values() | 딕셔너리 D의 값을 모은 객체를 반환 |
+| D.items() | 딕셔너리 D의 키/값 쌍을 모은 객체를 반환 |
+| D.pop(k) | 딕셔너리 D에서 키 k를 제거하고 연결됐던 값을 반환(없으면 오류) |
+| D.pop(k, v) | 딕셔너리 D에서 키 k를 제거하고 연결됐던 값을 반환(없으면 v 반환) |
+| D.setdefault(k) | 딕셔너리 D에서 키 k와 연결된 값을 반환 |
+| D.setdefault(k, v) | 딕셔너리 D에서 키 k와 연결된 값을 반환
+k가 D의 키가 아니면 값 v와 연결한 키 k를 D에 추가하고 v를 반환 |
+| D.update(other) | other 내 각 키에 대해 D에 있는 키면 D에 있는 그 키의 값을 other에 있는 값으로 대체.
+other에 있는 각 키에 대해 D에 없는 키면 키/값 쌍을 D에 추가 |
+- .clear()
+    - 딕셔너리 D의 모든 키/값 쌍을 제거
+    
+    ```python
+    person = {'name': 'Alice', 'age': 25}
+    person.clear()
+    print(person)    # {}
+    ```
+    
+- .get(key[, default])
+    - 키 연결된 값을 반환하거나 키가 없으면 None 혹은 기본 값을 반환
+    
+    ```python
+    person = {'name': 'Alice', 'age': 25}
+    
+    print(person.get('name'))    # Alice
+    print(person.get('country'))    # None
+    print(person.get('country', 'Unknown'))    # Unknown
+    ```
+    
+- .keys()
+    - 딕셔너리 키를 모은 객체를 반환
+    
+    ```python
+    person = {'name': 'Alice', 'age': 25}
+    print(person.keys())    # dict_keys(['name', 'age'])
+    
+    for k in person.keys():
+        print(k)
+    
+    """
+    name
+    age
+    """
+    ```
+    
+- .values()
+    - 딕셔너리 값을 모은 객체를 반환
+    
+    ```python
+    person = {'name': 'Alice', 'age': 25}
+    print(person.keys())    # dict_keys(['name', 'age'])
+    
+    for v in person.values():
+        print(v)
+    
+    """
+    Alice
+    25
+    """
+    ```
+    
+- .items()
+    - 딕셔너리 키/값 쌍을 모은 객체를 반환
+    
+    ```python
+    person = {'name': 'Alice', 'age': 25}
+    
+    print(person.items())    # dict_items([('name', 'Alice'), ('age', 25)])
+    for k,v in person.items():
+        print(k, v)
+    """
+    name Alice
+    age 25
+    """
+    ```
+    
+- .pop(key[, default])
+    - 키를 제거하고 연결됐던 값을 반환(없으면 에러나 default를 반환)
+    
+    ```python
+    person = {'name': 'Alice', 'age': 25}
+    
+    print(person.pop('age'))    # 25
+    print(person)    # {'name': 'Alice'}
+    print(person.pop('country', None))    # None
+    print(person.pop('country'))    # KeyError
+    ```
+    
+- .setdefault(key[, default])
+    - 키와 연결된 값을 반환
+    - 키가 없다면 default와 연결한 키를 딕셔너리에 추가하고 default를 반환
+    
+    ```python
+    person = {'name': 'Alice', 'age': 25}
+    
+    print(person.setdefault('country', 'KOREA'))    # KOREA
+    print(person)    # {'name': 'Alice', 'age': 25, 'country': 'KOREA'}
+    ```
+    
+- .update([other])
+    - other가 제공하는 키/값 쌍으로 딕셔너리를 갱신
+    - 기존 키는 덮어씀
+    
+    ```python
+    person = {'name': 'Alice', 'age': 25}
+    other_person = {'name': 'Jane', 'gender': 'Female'}
+    
+    person.update(other_person)
+    print(person)   # {'name': 'Jane', 'age': 25, 'gender': 'Female'}
+    
+    person.update(age=50)
+    print(person)   # {'name': 'Jane', 'age': 50, 'gender': 'Female'}
+    
+    person.update(country='KOREA')
+    print(person)   # {'name': 'Jane', 'age': 25, 'gender': 'Female', 'country': 'KOREA'}
+    ```
+    
+- key 사용, get() 사용, setdefault() 사용 비교
+    
+    ```python
+    # 혈액형 인원수 세기
+    # 결과 => {'A': 3, 'B': 3, 'O': 3, 'AB': 3}
+    
+    blood_types = ['A', 'B', 'A', 'O', 'AB', 'AB', 'O', 'A', 'B', 'O', 'B', 'AB']
+    
+    #[]
+    new_dict = {}
+    
+    for blood_type in blood_types:
+        if blood_type in new_dict.keys():
+            new_dict[blood_type] += 1
+        else:
+            new_dict[blood_type] = 1
+    
+    print(new_dict)    # {'A': 3, 'B': 3, 'O': 3, 'AB': 3}
+    
+    # .get()
+    new_get_dict = {}
+    
+    for blood_type in blood_types:
+        new_get_dict[blood_type] = new_get_dict.get(blood_type, 0) + 1
+    
+    print(new_get_dict)    # {'A': 3, 'B': 3, 'O': 3, 'AB': 3}
+    
+    # .setdefault()
+    new_set_dict = {}
+    
+    for blood_type in blood_types:
+        new_set_dict.setdefault(blood_type, 0)
+        new_set_dict[blood_type] += 1
+    
+    print(new_set_dict)    # {'A': 3, 'B': 3, 'O': 3, 'AB': 3}
+    ```
+    
+
+## 복사
+
+### 데이터 타입과 복사
+
+- 파이썬에서는 데이터에 분류에 따라 복사가 달라짐
+- “변경 가능한 데이터 타입”과 “변경 불가능한 데이터 타입”을 다르게 다룸
+
+#### 변경 가능한 데이터 타입의 복사
+
+```python
+a = [1, 2, 3, 4]
+b = a
+b[0] = 100
+
+print(a)    # [100, 2, 3, 4]
+print(b)    # [100, 2, 3, 4]
+```
+
+<img src = "https://github.com/yuj1818/TIL/assets/95585314/557cfeb1-965e-4853-a958-66f00d0f9656">
+
+#### 변경 불가능한 데이터 타입의 복사
+
+```python
+a = 20
+b = a
+b = 10
+
+print(a)    # 20
+print(b)    # 10
+```
+
+<img src = "https://github.com/yuj1818/TIL/assets/95585314/564dcafa-0080-4921-bed4-9c0d7cb09ddc">
+
+### 복사 유형
+
+#### 할당(Assignment)
+
+```python
+# 리스트 복사 예시
+
+original_list = [1, 2, 3]
+copy_list = original_list
+print(original_list, copy_list)    # [1, 2, 3] [1, 2 ,3]
+
+copy_list[0] = 'hi'
+print(original_list, copy_list)    # ['hi', 2, 3] ['hi', 2, 3]
+```
+
+ > 할당 연산자(=)를 통한 복사는 해당 객체에 대한 객체 참조를 복사
+
+#### 얕은 복사(Shallow Copy)
+
+```python
+# 리스트 얕은 복사 예시
+
+a = [1, 2, 3]
+b = a[:]
+print(a, b)    # [1, 2, 3] [1, 2, 3]
+
+b[0] = 100
+print(a, b)    # [1, 2, 3] [100, 2, 3]
+```
+
+ > 슬라이싱을 통해 생성된 객체는 원본 객체와 독립적으로 존재
+
+```python
+# 얕은 복사의 한계
+# 2차원 리스트와 같이 변경가능한 객체 안에 변경 가능한 객체가 있는 경우
+
+g = [1, 2, [3, 4]]
+h = g[:]
+
+g[2][0] = 30
+
+print(g, h)    # [1, 2, [30, 4]] [1, 2, [30, 4]]
+```
+
+<img src = "https://github.com/yuj1818/TIL/assets/95585314/fdaa2f28-f325-4689-b874-c306318bc9f7" width="50%" height="50%">
+
+ > a와 b의 주소는 다르지만 내부 객체의 주소는 같기 때문에 함께 변경됨
+
+#### 깊은 복사(Deep Copy)
+
+```python
+# 리스트 깊은 복사 예시
+
+import copy
+
+original_list = [1, 2, [1, 2]]
+deep_copied_list = copy.deepcopy(original_list)
+
+deep_copied_list[2][0] = 100
+
+print(original_list)    # [1, 2, [1, 2]]
+print(deep_copied_list)    # [1, 2, [100, 2]]
+```
+
+ > 내부에 중첩된 모든 객체까지 새로운 객체 주소를 참조하도록 함
+
+## 참고
 
 ### 문자열에 포함된 문자들의 유형을 판별하는 메서드
 
@@ -305,36 +674,108 @@
     - isdigit()과 유사하지만, 몇 가지 추가적인 유니코드 문자들을 인식
     - 분수, 지수, 루트 기호도 숫자로 인식
 
-### 얕은 복사, 깊은 복사
+### 해시 테이블 (Hash Table)
+
+- 데이터를 효율적으로 저장하고 검색하기 위해 사용되는 자료 구조
+
+- 키-값 쌍을 연결하여 저장하는 방식
+
+- 키를 해시 함수를 통해 해시 값으로 변환하고, 이 해시 값을 인덱스로 사용하여 데이터를 저장하거나 검색
+  - 이렇게 하면 데이터의 검색이 매우 빠르게 이루어짐
+
+- 파이썬에서 세트의 요소와 딕셔너리의 키는 해시 테이블을 이용하여 중복되지 않는 고유한 값을 저장
+
+- 세트 내의 각 요소는 해시 함수를 통해 해시 값으로 변환되고, 이 해시 값을 기반으로 해시 테이블에 저장됨
+- 마찬가지로 딕셔너리의 키는 고유해야 하므로, 키를 해시 함수를 통해 해시 값으로 변환하여 해시 테이블에 저장
+
+- 따라서 세트와 딕셔너리의 키는 매우 빠른 탐색 속도를 제공하며, 중복된 값을 허용하지 않음
+
+### 해시(Hash)
+
+- 임의의 크기를 가진 데이터를 고정된 크기의 고유한 값으로 변환하는 것
+- 이렇게 생성된 고유한 값은 해당 데이터를 식별하는 데 사용될 수 있음
+- 일종의 "지문"과 같은 역할
+- 지문은 개인을 고유하게 식별하는 것처럼, 해시 값은 데이터를 고유하게 식별
+- 파이썬에서는 해시 함수를 사용하여 데이터를 해시 값으로 변환하며, 이 해시 값은 정수로 표현됨
+
+### set의 pop 메서드 예시
+
+- set에서 임의의 요소를 제거하고 반환
+
+- 실행할 때마다 다른 요소를 얻는다는 의미에서의 "무작위"가 아니라 "임의"라는 의미에서 "무작위"
+
+  > By `"arbitrary"` the docs don't mean `"random"`
+
+- 해시 테이블에 나타나는 순서대로 반환
 
 ```python
-# shallow copy
-c = [1, 2, 3, 4]
-d = c[:]
+# 정수
 
-c[0] = 10
+my_set = {1, 2, 3, 9, 100, 4, 87, 39, 10, 52}
 
-print(c, d)    # [10, 2, 3, 4] [1, 2, 3, 4]
+print(my_set.pop())
+print(my_set.pop())
+print(my_set.pop())
+print(my_set.pop())
+print(my_set.pop())
+print(my_set.pop())
+print(my_set.pop())
+print(my_set.pop())
+print(my_set.pop())
+print(my_set.pop())
+print(my_set)
 ```
+
+> 정수 값 자체가 곧 해시 값
 
 ```python
-# shallow copy
-g = [1, 2, [3, 4]]
-h = g[:]
+# 문자열
 
-g[2][0] = 30
+my_str_set = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'}
 
-print(g, h)    # [1, 2, [30, 4]] [1, 2, [30, 4]]
+print(my_str_set.pop())
+print(my_str_set.pop())
+print(my_str_set.pop())
+print(my_str_set.pop())
+print(my_str_set.pop())
 ```
 
-<img src = "https://github.com/yuj1818/TIL/assets/95585314/fdaa2f28-f325-4689-b874-c306318bc9f7">
+> 반환 값이 매번 다름
+
 
 ```python
-import copy
-
-i = [1, 2, [3, 4]]
-j = copy.deepcopy(i)
-
-i[2][0] = 30
-print(i, j)    # [1, 2, [30, 4]] [1, 2, [3, 4]]
+print(hash(1))  # 1
+print(hash(1))  # 1
+print(hash('a'))  # 실행시마다 다름
+print(hash('a'))  # 실행시마다 다름
 ```
+
+- 파이썬에서 해시 함수의 동작 방식은 객체의 타입에 따라 달라짐
+- 정수와 문자열은 서로 다른 타입이며, 이들의 해시 값을 계산하는 방식도 다름
+- 정수 타입의 경우, 정수 값 자체가 곧 해시 값이 됨
+  - 즉, 같은 정수는 항상 같은 해시 값을 가짐
+  - 해시 테이블에 정수를 저장할 때 효율적인 방법
+  - 예를 들어, hash(1)과 hash(2)는 항상 서로 다른 해시 값을 갖지만, hash(1)은 항상 동일한 해시 값을 갖게 됨
+- 반면에 문자열은 가변적인 길이를 갖고 있고, 문자열에 포함된 각 문자들의 유니코드 코드 포인트 등을 기반으로 해시 값을 계산
+  - 이로 인해 문자열의 해시 값은 문자열의 내용에 따라 다르게 계산됨
+
+### 해시 함수
+
+- 주어진 객체의 해시 값을 계산하는 함수
+
+- 해시 값은 객체의 고유한 식별자로 사용될 수 있으며, 해시 테이블과 같은 자료 구조에서 빠른 검색을 위해 사용됨
+
+  ```python
+  # TypeError: unhashable type: 'list'
+  my_set = {[1, 2, 3], 1, 2, 3, 4, 5}
+  
+  # TypeError: unhashable type: 'list
+  my_dict = {[1, 2, 3]: 'a'}
+  ```
+
+  > `해시 가능성(hashable)`은 객체를 "딕셔너리의 키"나 "세트의 요소"로 사용할 수 있게 하는데, 이 자료 구조들이 내부적으로 해시 값을 사용하기 때문
+
+### 참고 문헌
+
+- https://docs.python.org/ko/3.9/library/stdtypes.html#set-types-set-frozenset
+- https://docs.python.org/ko/3.9/glossary.html#term-hashable
