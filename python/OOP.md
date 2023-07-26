@@ -8,7 +8,7 @@
 - “데이터”와 해당 데이터를 처리하는 “함수(절차)”가 분리되어 있으며, 함수 호출의 흐름이 중요
 - 코드의 순차적인 흐름과 함수 호출에 의해 프로그램이 진행
 
-<img src = "https://github.com/yuj1818/TIL/assets/95585314/819cceb0-bac9-4dbe-8c77-93595ef44620" width="30%" height="30%">
+<img src = "https://github.com/yuj1818/TIL/assets/95585314/819cceb0-bac9-4dbe-8c77-93595ef44620" width="50%" height="50%">
 
 - 데이터를 다시 재사용 하기보다는 처음부터 끝까지 실행되는 결과물이 중요한 방식
 
@@ -16,7 +16,7 @@
 
 - 하드웨어의 발전으로 컴퓨터 계산 용량과 문제의 복잡성이 급격히 증가함에 따라 소프트웨어에 발생한 충격
 
-<img src = "https://github.com/yuj1818/TIL/assets/95585314/4e81caa8-ccb4-4043-a65a-4abe6266d669" width="30%" height="30%">
+<img src = "https://github.com/yuj1818/TIL/assets/95585314/4e81caa8-ccb4-4043-a65a-4abe6266d669" width="50%" height="50%">
 
 ### 객체 지향 프로그래밍(Object Oriented Programming)
 
@@ -32,14 +32,14 @@
 | 데이터와 해당 데이터를 처리하는 함수(절차)가 분리 | 데이터와 해당 데이터를 처리하는 메서드(메시지)를 하나의 객체(클래스)로 묶음 |
 | 함수 호출의 흐름이 중요 | 객체 간 상호작용과 메시지 전달이 중요 |
 
-<img src = "https://github.com/yuj1818/TIL/assets/95585314/a6de738a-98f7-49b0-91d2-4e69ecad2a63" width="30%" height="30%">
+<img src = "https://github.com/yuj1818/TIL/assets/95585314/a6de738a-98f7-49b0-91d2-4e69ecad2a63" width="50%" height="50%">
 
 ## 객체(object)
 
 - 클래스와 정의한 것을 토대로 메모리에 할당된 것
 - ‘속성’과 ‘행동’으로 구성된 모든 것
     
-    <img src = "https://github.com/yuj1818/TIL/assets/95585314/d6ad2f55-f31c-448d-ae33-21e134f33e77" width="30%" height="30%">
+    <img src = "https://github.com/yuj1818/TIL/assets/95585314/d6ad2f55-f31c-448d-ae33-21e134f33e77" width="50%" height="50%">
     
 
 ### 클래스와 객체
@@ -142,7 +142,7 @@ p1.address = 'korea'
 print(p1.address)    # korea
 ```
 
-<img src = "https://github.com/yuj1818/TIL/assets/95585314/97c8b0c3-48e8-4366-a940-baa19ab0ea2a" width="30%" height="30%">
+<img src = "https://github.com/yuj1818/TIL/assets/95585314/97c8b0c3-48e8-4366-a940-baa19ab0ea2a" width="50%" height="50%">
 
 - 독립적인 이름 공간을 가지는 이점
     - 각 인스턴스는 독립적인 메모리 공간으로 가지며, 클래스와 다른 인스턴스 간에는 서로의 데이터나 상태에 직접적인 접근이 불가능
