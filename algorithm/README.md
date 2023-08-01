@@ -44,3 +44,7 @@
 ### | [배열](./array.md)
 
 ### | [정렬](./sort.md)
+
+### | [완전탐색](./exaustive_search.md)
+
+### | [그리디](./greedy.md)
