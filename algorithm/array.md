@@ -50,3 +50,122 @@ for i in range(N-1):
 
 print(max_fall)
 ```
+
+## 2차원 배열
+
+- 1차원 리스트를 묶어 놓은 리스트
+- 2차원 이상의 다차원 리스트는 차원에 따라 index를 선언
+- 2차원 리스트의 선언
+    - 세로 길이(행의 개수), 가로 길이(열의 개수)를 필요로 함
+- Python에서는 데이터 초기화를 통해 변수 선언과 초기화가 가능
+- ex) arr = [[0, 1, 2, 3], [4, 5, 6, 7]] ⇒ 2행 4열의 2차원 리스트
+
+### ⭐ 배열 순회 ⭐
+
+- n X m 배열의 n * m 개의 모든 원소를 빠짐 없이 조사하는 바업ㅂ
+
+### 행 우선 순회
+
+```python
+# i 행의 좌표
+# j 열의 좌표
+for i in range(n):
+	for j in range(m):
+		func(Array[i][j])    # 필요한 연산 수행
+```
+
+### 열 우선 순회
+
+```python
+# i 행의 좌표
+# j 열의 좌표
+for j in range(m):
+	for i in range(n):
+		func(Array[i][j])    # 필요한 연산 수행
+```
+
+### 지그재그 순회
+
+<img src="https://github.com/yuj1818/TIL/assets/95585314/ae9e9636-c7e1-4685-91ad-4dcdfd223a07" />
+
+```python
+# i 행의 좌표
+# j 열의 좌표
+for i in range(n):
+	for j in range(m):
+		func(Array[i][j + (m - 1 - 2 * j) * (i % 2)])    # 필요한 연산 수행
+```
+
+### ⭐⭐ 델타를 이용한 2차 배열 탐색 ⭐⭐
+
+- 2차 배열의 한 좌표에서 4방향의 인접 배열 요소를 탐색하는 방법
+
+```python
+arr = [[0 for _ in range(N)] for _ in range(N)]
+
+di = [0, 1, 0, -1]
+dj = [1, 0, -1, 0]
+
+for i in range(N):
+    for j in range(N):
+        for k in range(4):
+            ni = i + di[k]
+            nj = j + dj[k]
+            if 0 <= ni < N and 0 <= nj < N: #유효한 인덱스면
+                func(arr[ni][nj])   # 필요한 연산 수행
+```
+
+### 전치 행렬
+
+<img src="https://github.com/yuj1818/TIL/assets/95585314/5f5cf954-d83e-4c0a-bb11-6f63b1a2bf26" />
+
+```python
+# i 행의 좌표, len(arr)
+# j 열의 좌표, len(arr[0])
+
+arr = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] # 3*3 행렬
+
+for i in range(3):
+    for j in range(3):
+        if i < j:
+            arr[i][j], arr[j][i] = arr[j][i], arr[i][j]
+```
+
+### 연습문제(배열 탐색)
+
+- 5x5 2차 배열에 무작위로 25개의 숫자로 초기화 한 후, 25개의 각 요소에 대해서 그 요소와 이웃한 요소와의 차의 절댓값을 구하시오
+- 예를 들어, 아래 그림에서 7 값의 이웃한 값은 2, 6, 8, 12 이며 차의 절댓값의 합은 12이다.
+
+<img src="https://github.com/yuj1818/TIL/assets/95585314/cbf2c966-d783-4f2e-938a-cb413722e021" />
+
+- 25개의 요소에 대해서 모두 조사하여 총합을 구하시오.
+- 벽에 있는 요소는 이웃한 요소가 없을 수 있음을 주의하시오.
+
+```python
+arr = []
+for i in range(5):
+    arr.append([])
+    for j in range(1, 6):
+        arr[i].append(5 * i + j)
+        
+# arr
+# [1,  2,  3,  4,  5]
+# [6,  7,  8,  9,  10]
+# [11, 12, 13, 14, 15]
+# [16, 17, 18, 19, 20]
+# [21, 22, 23, 24, 25]
+
+di = [-1, 1, 0, 0]
+dj = [0, 0, -1, 1]
+
+for i in range(5):
+    for j in range(5):
+        n_sum = 0
+        for k in range(4):
+            ni = i + di[k]
+            nj = j + dj[k]
+
+            if 0 <= ni < 5 and 0 <= nj < 5:
+                n_sum += abs(arr[ni][nj] - arr[i][j])
+        print(n_sum)
+```

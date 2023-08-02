@@ -48,3 +48,5 @@
 ### | [완전탐색](./exaustive_search.md)
 
 ### | [그리디](./greedy.md)
+
+### | [부분집합](./subset.md)
