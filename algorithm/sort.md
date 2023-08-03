@@ -87,3 +87,66 @@ def Counting_Sort(A, B, k):
         C[A[i]] -= 1
         B[C[A[i]]] = A[i]
 ```
+
+### 선택 정렬(Selection Sort)
+
+- **인덱스**
+    - 인덱스라는 용어는 Database에서 유래
+    - 테이블에 대한 동작 속도를 높여주는 자료 구조
+    - Loo up table 등의 용어를 사용하기도 함
+    - 인덱스를 저장하는데 필요한 디스크 공간은 보통 테이블을 저장하는데 필요한 디스크 공간보다 작음
+    - 인덱스는 키-필드만 갖고 있고, 테이블의 다른 세부 항목들은 갖고 있지 않기 때문
+    - 배열을 사용한 인덱스
+        - 대량의 데이터를 매번 정렬하면, 프로그램의 반응은 느려질 수 밖에 없다
+        - 이러한 대량 데이터의 성능 저하 문제를 해결하기 위해 배열 인덱스를 사용
+- 주어진 자료들 중 가장 작은 값의 원소부터 차례대로 선택하여 위치를 교환하는 방식
+- 정렬 과정
+    - 주어진 리스트 중에서 최소값을 찾는다
+    
+    <img src="https://github.com/yuj1818/TIL/assets/95585314/f09b0df0-ac1a-4c19-80e1-7d7d1e02fc87" />
+    
+    - 그 값을 리스트의 맨 앞에 위치한 값과 교환
+    
+    <img src="https://github.com/yuj1818/TIL/assets/95585314/3617b860-7acf-4e79-adf0-72bf0c986e5d" />
+    
+    - 맨 처음 위치를 제외한 나머지 리스트를 대상으로 위의 과정 반복
+    
+    <img src="https://github.com/yuj1818/TIL/assets/95585314/64adb230-e391-463f-8ea4-efb2f00e5d78" />
+    
+    <img src="https://github.com/yuj1818/TIL/assets/95585314/5d5b9939-a0cc-4c8a-ac6f-949f26647022" />
+    
+    <img src="https://github.com/yuj1818/TIL/assets/95585314/e2babff9-8551-4631-acae-5fe772a22762" />
+    
+    - 미정렬원소가 하나 남은 상황에서는 마지막 원소가 가장 큰 값을 갖게 되므로, 실행을 종료하고 선택 정렬이 완료된다.
+    
+    ```python
+    def selectionSort(a, N):
+        for i in range(N - 1):
+            minIdx = i
+            for j in range(i + 1, N):
+                if a[minIdx] > a[j]:
+                    minIdx = j
+            a[i], a[minIdx] = a[minIdx], a[i]
+    ```
+    
+- 시간 복잡도 : O(n^2)
+
+### 셀렉션 알고리즘(Selection Algorithm)
+
+- 저장되어 있는 자료로부터 k번째로 큰 혹은 작은 원소를 찾는 방법을 셀렉션 알고리즘이라 함
+    - 최소값, 최대값 혹은 중간값을 찾는 알고리즘
+- 선택 과정
+    - 정렬 알고리즘을 이용하여 자료 정렬
+    - 원하는 순서에 있는 원소 가져오기
+- k번째로 작은 원소를 찾는 알고리즘
+    
+    ```python
+    def select(arr, k):
+        for i in range(0, k):
+            minIdx = i
+            for j in range(i + 1, len(arr)):
+                if arr[minIdx] > arr[j]:
+                    minIdx = j
+            arr[i], arr[minIdx] = arr[minIdx], arr[i]
+        return arr[k - 1]
+    ```
