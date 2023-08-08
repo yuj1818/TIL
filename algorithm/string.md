@@ -180,3 +180,78 @@ False
             n = n // 10
         return sig + chr(n + ord('0')) + i
     ```
+
+## 패턴 매칭
+
+### 고지식한 패턴 검색 알고리즘
+
+- 본문 문자열을 처음부터 끝까지 차례대로 순회하면서 패턴 내의 문자들을 일일이 비교하는 방식으로 동작
+
+<center><img src="https://github.com/yuj1818/TIL/assets/95585314/9df116fd-4d7f-4cd1-a3e1-c16bb9d8f2b0" width=50%/></center>
+
+<center><img src ="https://github.com/yuj1818/TIL/assets/95585314/6ed3e1e3-33cf-48c5-b98d-561b277e884c" width=50% /></center>
+
+```python
+p = "is"    # 찾을 패턴
+t = "This is a book~!"  # 전체 텍스트
+M = len(p)  # 찾을 패턴의 길이
+N = len(t)  # 전체 텍스트의 길이
+
+def BruteForce(p, t):
+    i = 0   # t의 인덱스
+    j = 0   # p의 인덱스
+    while j < M and i < N:
+        if t[i] != p[j]:
+            i = i - j
+            j = -1
+        i += 1
+        j += 1
+    if j == M: return i - M # 검색 성공
+    else: return -1 # 검색 실패
+```
+
+- 시간 복잡도
+    - 최악의 경우 시간 복잡도는 텍스트의 모든 위치에서 패턴을 비교해야 하므로 O(MN)이 됨
+    - 길이가 10000인 문자열에서 길이 80인 패턴을 찾는다고 할 때, 최악의 경우 약 10000*80 = 800000번의 비교가 일어난다.
+
+### 카프-라빈 알고리즘
+
+### KMP 알고리즘
+
+- 불일치가 발생한 텍스트 스트링의 앞 부분에 어떤 문자가 있는지를 미리 알고 있으므로, 불일치가 발생한 앞 부분에 대하여 다시 비교하지 않고 매칭을 수행
+- 패턴을 전처리하여 배열 next[M]을 구해서 잘못된 시작을 최소화함
+    - next[M]: 불일치가 발생했을 경우, 이동할 다음 위치
+    
+    <center><img src="https://github.com/yuj1818/TIL/assets/95585314/46df1203-b0ac-49b6-a6b0-7b304c08d7a1" width=80% /></center>
+    
+- 시간 복잡도
+    - O(M+N)D
+- abcdabc까지 매치, e에서 실패한 경우, 맨 앞의 abc와 실패 직전의 abc는 동일함을 이용
+
+<center><img src="https://github.com/yuj1818/TIL/assets/95585314/f11444b3-d98a-4321-b187-d28a795ac718" width=80% /></center>
+
+### 보이어-무어 알고리즘
+
+- 오른쪽에서 왼쪽으로 비교
+- 대부분의 상용 소프트웨어에서 채택하고 있는 알고리즘
+- 보이어-무어 알고리즘은 패턴에 오른쪽 끝에 있는 문자가 불일치 하고 이 문자가 패턴 내에 존재하지 않는 경우, 이동 거리는 무려 패턴의 길이 만큼이 된다.
+
+<center><img src="https://github.com/yuj1818/TIL/assets/95585314/2dd28133-98ea-4fa1-8d67-c51115dcabb1" /></center>
+
+- 오른쪽 끝에 있는 문자가 불일치 하고 이 문자가 패턴 내에 존재할 경우, 패턴에서 일치하는 문자를 찾아서 세 칸을 점프한다.
+
+<center><img src="https://github.com/yuj1818/TIL/assets/95585314/69d3f336-b3d8-45a2-a42d-888e5bf91d31" /></center>
+
+<center><img src="https://github.com/yuj1818/TIL/assets/95585314/c9f30cbf-5457-44fa-ac75-95d426a07eab" width=88% /></center>
+
+### 문자열 매칭 알고리즘 비교
+
+- 찾고자 하는 문자열 패턴의 길이 m, 총 문자열 길이 n
+- 고지식한 패턴 검색 알고리즘: 수행시간 O(mn)
+- 카프-라빈 알고리즘: 수행시간 Θ(n)
+- KMP 알고리즘: 수행시간 Θ(n)
+- 보이어-무어 알고리즘
+    - 앞의 매칭 알고리즘들은 텍스트 문자열의 문자를 적어도 한 번씩 훑으므로 최선의 경우에도 Ω(n)
+    - 보이어-무어 알고리즘은 텍스트 문자를 다 보지 않아도 됨
+    - 최악의 경우 수행시간: Θ(mn)
+    - 입력에 따라 다르지만 일반적으로 Θ(n)보다 시간이 덜 든다.
