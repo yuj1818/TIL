@@ -254,3 +254,205 @@ def fibo2(n):
 3. 스택이 공백이 될 때까지 2를 반복
 
 <img src="https://github.com/yuj1818/TIL/assets/95585314/9ef974c8-5c3b-4111-8990-83c6ac49b40b" />
+
+## 백트래킹
+
+- 백트래킹(Backtracking) 기법은 해를 찾는 도중에 ‘막히면’ (즉, 해가 아니면) 되돌아가서 다시 해를 찾아 가는 기법
+- 백트래킹 기법은 최적화(optimization) 문제와 결정(decision) 문제를 해결할 수 있다.
+- 결정 문제: 문제의 조건을 만족하는 해가 존재하는지의 여부를 ‘yes’ 또는 ‘no’가 답하는 문제
+    - 미로 찾기
+    - n-Queen 문제
+    - Map coloring
+    - 부분 집합의 합(Subset Sum) 문제 등
+
+### 백트래킹과 깊이우선탐색과의 차이
+
+- 어떤 노드에서 출발하는 경로가 해결책으로 이어질 것 같지 않으면 더 이상 그 경로를 따라가지 않음으로써 시도의 횟수를 줄임(Prunning 가지치기)
+- 깊이우선탐색이 모든 경로를 추적하는데 비해 백트래킹은 불필요한 경로를 조기에 차단
+- 깊이우선탐색을 가하기에는 경우의 수가 너무나 많음
+- 즉, N! 가지의 경우의 수를 가진 문제에 대해 깊이우선탐색을 가하면 당연히 처리 불가능한 문제
+- 백트래킹 알고리즘을 적용하면 일반적으로 경우의 수가 줄어들지마 이 역시 최악의 경우에는 여전히 지수함수 시간(Exponential Time)을 요하므로 처리 불가능
+
+### 백트래킹 기법
+
+- 어떤 노드의 유망성을 점검한 후에 유망(promising)하지 않다고 결정되면 그 노드의 부모로 되돌아가(backtracking) 다음 자식 노드로 감
+- 어떤 노드를 방문하였을 때, 그 노드를 포함한 경로가 해답이 될 수 없으면 그 노드는 유망하지 않다고 하며, 반대로 해답의 가능성이 있으면 유망하다고 판단
+- 가지치기(pruning): 유망하지 않는 노드가 포함되는 경로는 더 이상 고려하지 않는 것
+
+### 백트래킹 알고리즘의 절차
+
+1. 상태 공간 트리의 깊이 우선 검색을 실시
+2. 각 노드가 유망한지 점검
+3. 만일 그 노드가 유망하지 않으면, 그 노드의 부모 노드로 돌아가서 검색을 계속 진행
+
+### [참고] 재귀함수 사용법
+
+```python
+def f(i, N):
+    if i == N:
+        return
+    else:
+        B[i] = A[i]
+        f(i + 1, N)
+        return
+N = 3
+A = [1, 2, 3]
+B = [0] * N
+f(0, N)
+print(A)
+print(B)
+```
+
+## [참고] 부분 집합의 합(재귀)
+
+<img src="https://github.com/yuj1818/TIL/assets/95585314/1bde493e-56af-46e2-ac7a-dd3ba794e7bb" />
+
+```python
+# 부분집합 만들기
+def f(i, N):
+    if i == N:
+        print(bit, end = ' ')
+        for j in range(N):
+            if bit[j]:
+                print(A[j], end = ' ')
+        print()
+        return
+    else:
+        bit[i] = 1
+        f(i + 1, N)
+        bit[i] = 0
+        f(i + 1, N)
+        return
+N = 3
+A = [1, 2, 3]
+bit = [0] * N
+f(0, N)
+
+'''
+[1, 1, 1] 1 2 3 
+[1, 1, 0] 1 2 
+[1, 0, 1] 1 3 
+[1, 0, 0] 1 
+[0, 1, 1] 2 3 
+[0, 1, 0] 2 
+[0, 0, 1] 3 
+[0, 0, 0]
+'''
+```
+
+```python
+# 부분집합의 합
+def f(i, N, s): # s : i-1원소까지 부분집합의 합(포함된 원소의 합)
+    if i == N:
+        print(bit, end=' ')
+        print(f' : {s}')
+        return
+    else:
+        bit[i] = 1  # bit mask가 1이면 부분집합에 A[i] 포함
+        f(i + 1, N, s + A[i])
+        bit[i] = 0  # bit mask가 0이면 부분집합에 A[i] 포함되지 않음
+        f(i + 1, N, s)
+        return
+N = 3
+A = [1, 2, 3]
+bit = [0] * N
+f(0, N, 0)
+
+'''
+[1, 1, 1]  : 6
+[1, 1, 0]  : 3
+[1, 0, 1]  : 4
+[1, 0, 0]  : 1
+[0, 1, 1]  : 5
+[0, 1, 0]  : 2
+[0, 0, 1]  : 3
+[0, 0, 0]  : 0
+'''
+```
+
+```python
+# 합이 45인 부분집합
+def f(i, N, s, t):
+    global cnt
+    cnt += 1
+    if sum(A) == t:
+        return
+    elif s + sum(range(i + 1, N + 1)) < t:
+        return
+    elif s == t:
+        print(bit)
+        return
+    elif i == N:
+        return
+    else:
+        bit[i] = 1
+        if s + A[i] <= t:
+            f(i + 1, N, s + A[i], t)
+        bit[i] = 0
+        if s <= t:
+            f(i + 1, N, s, t)
+        return
+
+N = 10
+A = [i for i in range(1, N + 1)]
+bit = [0] * N
+cnt = 0
+f(0, N, 0, 45)
+print(cnt)
+```
+
+## [참고]순열(재귀)
+
+```python
+def f(i, N):
+    if i == N:
+        print(A)
+    else:
+        for j in range(i, N):
+            A[i], A[j] = A[j], A[i]
+            f(i + 1, N)
+            A[i], A[j] = A[j], A[i]
+
+N = 3
+A = [1, 2, 3]
+f(0, N)
+```
+
+## 분할 정복 알고리즘
+
+### 설계 전략
+
+- 분할(Divide) : 해결한 문제를 여러 개의 작은 부분으로 나눈다.
+- 정복(Conquer) : 나눈 작은 문제를 각각 해결한다.
+- 통합(Combine) : (필요하다면) 해결된 해답을 모은다.
+
+### 예제) 거듭제곱
+
+```python
+def f1(b, e):
+    global cnt1
+    if b == 0:
+        return 1
+    r = 1
+    for i in range(e):
+        cnt1 += 1
+        r *= b
+    return r
+
+def f2(b, e):
+    global cnt2
+    cnt2 += 1
+    if b == 0 or e == 0:
+        return 1
+    if e % 2:   # 홀수면
+        r = f2(b, (e - 1) // 2)
+        return r * r * b
+    else:   # 짝수면
+        r = f2(b, e // 2)
+        return r * r
+
+cnt1 = 0
+cnt2 = 0
+print(f1(2, 50), cnt1)    # 1125899906842624 50
+print(f2(2, 50), cnt2)    # 1125899906842624 7 반복 횟수 차이남
+```
