@@ -388,3 +388,223 @@ while m < N:
     p += 1 #처음 줄서는 사람 번호
 print(f'마지막 사탕을 받은사람{v}')
 ```
+
+## ⭐⭐BFS(Breadth Frist Search)⭐⭐
+
+- 너비우선탐색은 탐색 시작점의 인접한 정점들을 먼저 모두 차례로 방문한 후에, 방문했던 정점을 시작점으로 하여 다시 인접한 정점들을 차례로 방문하는 방식
+- 인접한 정점들에 대해 탐색을 한 후, 차례로 다시 너비 우선 탐색을 진행해야 하므로, 선입선출 형태의 자료구조인 큐를 활용
+
+<div style="text-align : center;"><img src="https://github.com/yuj1818/TIL/assets/95585314/14e312a6-66f2-41c3-825e-05a42ade8a82" width=50% /></div>
+
+### 예제1
+
+```python
+def BFS(G, v):                      # G: 그래프, v: 탐색 시작점
+    visited = [0] * (n + 1)         # n: 정점의 개수
+    queue = []                      # 큐 생성
+    queue.append(v)                 # 시작점 v를 큐에 삽입
+    while queue:                    # 큐가 비어있지 않은 경우
+        t = queue.pop(0)            # 큐의 첫번째 원소 반환
+        if not visited[t]:          # 방문되지 않은 곳이라면
+            visited[t] = True       # 방문한 것으로 표시
+            visit(t)                # 정점 t에서 할 일
+            for i in G[t]:          # t와 연결된 모든 정점에 대해
+                if not visited[i]:  # 방문되지 않은 곳이라면
+                    queue.append(i) # 큐에 넣기
+```
+<table>
+    <tr>
+        <td>
+            1. 초기 상태<br>
+            - visited 배열 초기화<br>
+            - Q 생성<br>
+            - 시작점 enqueue
+        </td>
+        <td>
+            <div style="text-align : center;">
+                <img src="https://github.com/yuj1818/TIL/assets/95585314/949b681b-f2fe-4586-9b42-779953111ee7" width=80%/>
+            </div>
+        </td>
+    <tr>
+</table>
+
+<table>
+    <tr>
+        <td>
+            2. A점부터 시작<br>
+            - dequeue: A<br>
+            - A 방문<br>
+            - A의 인접점 enqueue
+        </td>
+        <td>
+            <div style="text-align : center;">
+                <img src="https://github.com/yuj1818/TIL/assets/95585314/3d5caf06-e145-4f81-b6e5-a71b09948bdc" width=80%/>
+            </div>
+        </td>
+    <tr>
+</table>
+
+<table>
+    <tr>
+        <td>
+            3. 탐색 진행<br>
+            - dequeue: B<br>
+            - B 방문<br>
+            - B의 인접점 enqueue
+        </td>
+        <td>
+            <div style="text-align : center;">
+                <img src="https://github.com/yuj1818/TIL/assets/95585314/b498ff42-f262-4979-93d9-4ed387987beb" width=80%/>
+            </div>
+        </td>
+    <tr>
+</table>
+
+4. 중략(4 ~ 9)
+    - C 방문
+    - D 방문(G, H, I enqueue)
+    - E 방문
+    - F 방문
+    - G 방문
+    - H 방문
+    
+<table>
+    <tr>
+        <td>
+            5. 탐색 진행<br>
+            - dequeue: I<br>
+            - I 방문<br>
+            - I 인접점 enqueue
+        </td>
+        <td>
+            <div style="text-align : center;">
+                <img src="https://github.com/yuj1818/TIL/assets/95585314/5b649347-edbf-4d85-ba83-de97b6136e6f" width=80%/>
+            </div>
+        </td>
+    <tr>
+</table>
+
+6. Q가 비었으므로 탐색 종료
+
+### [참고]예제2
+
+<img src="https://github.com/yuj1818/TIL/assets/95585314/4f49e11a-927c-45e9-a685-78b3bf379407" />
+
+```python
+def BFS(G, v, n):    # G: 그래프, v: 탐색 시작점
+    visited = [0] * (n + 1)    # n: 정점의 개수
+    queue = []    # 큐 생성
+    queue.append(v)    # 시작점 v를 큐에 삽입
+    visited[v] = 1
+    while queue:    # 큐가 비어있지 않은 경우
+        t = queue.pop(0)    # 큐의 첫번째 원소 반환
+        visit(t)    # 정점 t에서 할 일
+        for i in G[t]:    # t와 연결된 모든 정점에 대해
+            if not visited[i]:    # 방문되지 않은 곳이라면
+                queue.append(i)    # 큐에 넣기
+                visited[i] = visited[n] + 1    # n으로 부터 1만큼 이동
+```
+
+### 연습문제3 - 인접 리스트 사용
+
+- 장점
+    - 메모리 낭비를 막을 수 있음
+- 단점
+    - 순서가 없기 때문에 비교를 위해 순회를 해야하므로 조회에서 불리
+- 너비 우선 탐색 경로 출력하기. 시작 정점: 1
+
+<img src="https://github.com/yuj1818/TIL/assets/95585314/57e6cc30-ad75-411c-a697-d1de6722dae1" />
+
+```python
+'''
+테스트 케이스
+7 8
+1 2 1 3 2 4 2 5 4 6 5 6 6 7 3 7
+'''
+def bfs(s, V):    # 시작정점 s, 정점 개수 V
+    visited = [0] * (V+1)    # visited 생성
+    q = []    # 큐 생성
+    q.append(s)    # 시작점 enqueue
+    visited[s] = 1    # 시작점 방문 표시
+    while q:    # 큐에 정점이 남아있으면 front != rear
+        t = q.pop(0)    # dequeue
+        print(t)    # 방문한 정점에서 할 일
+        # 인접한 정점 중 enqueue 되지 않은 정점 w가 있으면
+        # w enqueue, 방문하였음을 표시
+        for w in adj_l[t]:
+            if not visited[w]:
+                q.append(w)
+                visited[w] = visited[t] + 1
+
+V, E = map(int, input().split())
+arr = list(map(int, input().split()))
+# 인접 리스트
+adj_l = [[] for _ in range(V + 1)]
+for i in range(E):
+    v1, v2 = arr[i * 2], arr[i * 2 + 1]
+    adj_l[v1].append(v2)
+    adj_l[v2].append(v1)    # 방향이 없는 경우
+
+bfs(1, 7)
+
+'''
+1
+2
+3
+4
+5
+7
+6
+'''
+```
+
+### 예제3 - 인접 행렬 사용
+
+- 장점
+    - 작성하기 편리함
+    - 조회가 빠름
+- 단점
+    - 메모리의 낭비가 심하다
+
+```python
+'''
+테스트 케이스
+7 8
+1 2 1 3 2 4 2 5 4 6 5 6 6 7 3 7
+'''
+def bfs(s, V):    # 시작정점 s, 정점 개수 V
+    visited = [0] * (V+1)    # visited 생성
+    q = []    # 큐 생성
+    q.append(s)    # 시작점 enqueue
+    visited[s] = 1    # 시작점 방문 표시
+    while q:    # 큐에 정점이 남아있으면 front != rear
+        t = q.pop(0)    # dequeue
+        print(t)    # 방문한 정점에서 할 일
+        # 인접한 정점 중 enqueue 되지 않은 정점 w가 있으면
+        # w enqueue, 방문하였음을 표시
+        for w in range(1, V + 1):
+            if adj_m[t][w] and not visited[w]:
+                q.append(w)
+                visited[w] = visited[t] + 1
+
+V, E = map(int, input().split())
+arr = list(map(int, input().split()))
+# 인접 행렬
+adj_m = [[0]*(V + 1) for _ in range(V + 1)]
+for i in range(E):
+    v1, v2 = arr[i * 2], arr[i * 2 + 1]
+    adj_m[v1][v2] = 1
+    adj_m[v2][v1] = 1
+
+bfs(1, 7)
+
+'''
+1
+2
+3
+4
+5
+7
+6
+'''
+```
