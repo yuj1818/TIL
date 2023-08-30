@@ -60,3 +60,5 @@
 ### | [큐](./queue.md)
 
 ### | [트리](./tree.md)
+
+### | [완전탐색](./brute_force.md)
