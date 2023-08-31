@@ -232,3 +232,55 @@ used = [0] * N #카드의 사용유무 표시
 p =[0] * K #카드를 늘어놓은 결과
 f(0,N,K)
 ```
+
+# 조합
+
+- 서로 다른 n개의 원소 중 r개를 순서 없이 골라낸 것을 조합이라고 부른다.
+- 조합의 수식
+
+$$
+nCr = {n!\over(n-r)!r!}, (n \geq r)
+$$
+
+$$
+nCr = _{n-1}C_{r-1} + _{n-1}C_r
+$$
+
+$$
+_nC_0 = 1
+$$
+
+- 재귀 호출을 이용한 조합 생성 알고리즘
+
+```python
+def comb(n, r):
+		if r == 0:
+				print(arr)
+		elif n < r:
+				return
+		else:
+				tr[r - 1] = an[n - 1]
+				comb(n - 1, r - 1)
+				comb(n - 1, r)
+```
+
+![Untitled](https://github.com/yuj1818/TIL/assets/95585314/b762c1db-3cd0-4a15-862e-dcd37af8be57)
+
+```python
+# 10개의 원소 중 3개를 고르는 조합
+for i in range(0, 8):
+		for j in range(i + 1, 9):
+				for k in range(j + 1, 10):
+						f(a[i], a[j], a[k])
+```
+
+```python
+# n개에서 r개를 고르는 조합(재귀)
+def nCr(n, r, s):
+		if r == 0:
+				print(*comb)
+		else:
+				for i in range(s, n - r + 1):
+						comb[r - 1] = A[i]
+						nCr(n, r - 1, i + 1)
+```
