@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+        <style>
+            input:focus {
+                outline-color: blue;
+            }
+
+            div {
+                width: 300px;
+                display: flex;
+                flex-direction: row;
+                gap: 5px;
+            }
+
+            input {
+                width: 100%;
+            }
+
+            button {
+                width: 30%;
+            }
+        </style>
+    </head>
+    <body>
+        <form>
+            <div class="id">
+                <label onclick="document.getElementById('input_id').focus()">USERNAME:</label>
+                <input id="input_id" type="text" placeholder="아이디를 입력 해 주세요."/>
+            </div>
+            <div class="pwd">
+                <label onclick="document.getElementById('input_pwd').focus()">PWD:</label>
+                <input id="input_pwd" type="text"/>
+                <button>로그인</button>
+            </div>
+        </form>
+    </body>
+</html>
