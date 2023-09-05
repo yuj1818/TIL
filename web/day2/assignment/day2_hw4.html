@@ -1,0 +1,33 @@
+<!-- 
+    자손 결합자와 자식 결합자의 차이는?
+    - 형식: 첫 번째 요소 (결합자) 두 번째 요소
+    - 자손 결합자는 첫 번째 요소의 안에 있는 모든 두 번째 요소를 선택하여 css 적용
+    - 자식 결합자는 첫 번째 요소의 한 단계 아래 자식 중 두 번째 요소를 선택하여 css 적용
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        div span {
+            color: blue;
+            margin-left: 15px;
+        }
+        div > p {
+            color: crimson;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <p>자식</p>
+        <p>
+            <span>손자</span>
+        </p>
+        <p>자식</p>
+    </div>
+</body>
+</html>

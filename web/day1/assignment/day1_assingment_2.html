@@ -5,15 +5,14 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Document</title>
         <style>
-            input:focus {
-                outline-color: blue;
+            div {
+                display: flex;
+                width: 300px;
+                gap: 5px;
             }
 
-            div {
-                width: 300px;
-                display: flex;
-                flex-direction: row;
-                gap: 5px;
+            input:focus {
+                outline-color: blue;
             }
 
             input {
@@ -27,13 +26,13 @@
     </head>
     <body>
         <form>
-            <div class="id">
-                <label onclick="document.getElementById('input_id').focus()">USERNAME:</label>
-                <input id="input_id" type="text" placeholder="아이디를 입력 해 주세요."/>
+            <div>
+                <label for="id">USERNAME:</label>
+                <input id="id" type="text" placeholder="아이디를 입력 해 주세요."/>
             </div>
-            <div class="pwd">
-                <label onclick="document.getElementById('input_pwd').focus()">PWD:</label>
-                <input id="input_pwd" type="text"/>
+            <div>
+                <label for="pwd">PWD:</label>
+                <input id="pwd" type="text"/>
                 <button>로그인</button>
             </div>
         </form>

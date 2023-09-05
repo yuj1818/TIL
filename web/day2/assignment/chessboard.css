@@ -1,0 +1,22 @@
+.chessboard {
+    width: 800px;
+    height: 800px;
+    border: 2px solid black
+}
+
+.cell {
+    width: 100px;
+    height: 100px;
+}
+
+.row {
+    display: flex;
+}
+
+.black {
+    background: black;
+}
+
+.chess {
+    width: 100%;
+}
