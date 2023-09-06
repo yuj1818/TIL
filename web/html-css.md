@@ -120,6 +120,68 @@ HTML, CSS 등의 웹 기술을 이용하여 만들어진, Web site를 구성하�
 
 ![Untitled 4](https://github.com/yuj1818/TIL/assets/95585314/567a5855-ca0f-459f-bc05-058cb8f991dc)
 
+## Semantic Web
+
+웹 데이터를 의미론적으로 구조화된 형태로 표현하는 방식
+
+![Untitled 5](https://github.com/yuj1818/TIL/assets/95585314/83855b92-19ed-4814-b2dd-225bcaaba84a)
+
+### HTML Semantic Element
+
+- 기본적인 모양과 기능 이외에 의미를 가지는 HTML 요소
+    - 검색엔진 및 개발자가 웹 페이지 콘텐츠를 이해하기 쉽도록
+- header, nav, main, article, section, aside, footer
+
+![Untitled 6](https://github.com/yuj1818/TIL/assets/95585314/c14998f1-acf6-4280-bfcb-a96b4fe36ced)
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <header>
+    <h1>Header</h1>
+  </header>
+
+  <nav>
+    <ul>
+      <li><a href="#">Home</a></li>
+      <li><a href="#">About Us</a></li>
+      <li><a href="#">Contact</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <article>
+      <h2>Article Title</h2>
+      <p>Article content goes here...</p>
+    </article>
+    <aside>
+      <h3>Aside</h3>
+      <ol>
+        <li><a href="#">Lorem, ipsum.</a></li>
+        <li><a href="#">Lorem, ipsum.</a></li>
+        <li><a href="#">Lorem, ipsum.</a></li>
+      </ol>
+    </aside>
+  </main>
+
+  <footer>
+    <p>&copy; All rights reserved.</p>
+  </footer>
+
+</body>
+
+</html>
+```
+
 # 웹 스타일링
 
 ## CSS(Cascading Style Sheet)
@@ -842,6 +904,71 @@ h1 {    /* 선택자 */
     </html>
     ```
     
+## Semantic in CSS
+
+### OOCSS(Object Oriented CSS)
+
+- 객체 지향적 접근법을 적용하여 CSS를 구성하는 `방법론`
+- 기본 원칙
+    - 구조와 스킨을 분리
+        - 구조와 스킨을 분리함으로써 재사용 가능성을 높임
+        - 예) 버튼
+            - 모든 버튼의 공통 구조를 정의 + 각각의 스킨(배경색과 폰트 색상)을 정의
+            
+            ```css
+            .button {
+            		border: none;
+            		font-size: 1em;
+            		padding: 10px 20px;
+            }
+            
+            .button-blue {
+            		background-color: blue;
+            		color: white;
+            }
+            
+            .button-red {
+            		background-color: red;
+            		color: white;
+            }
+            ```
+            
+    - 컨테이너와 콘텐츠를 분리
+        - 객체에 직접 적용하는 대신 객체를 둘러싸는 컨테이너에 스타일을 적용
+        - 스타일을 정의할 때 위치에 의존적이 스타일을 사용하지 않도록 함
+        - 콘텐츠를 다른 컨테이너로 이동시키거나 재배치할 때 스타일이 깨지는 것을 방지
+        - 예) .header와 .footer 클래스가 폰트 크기와 색 둘 다 영향을 줌
+            - ⇒ .container .title이 폰트 크기 담당(콘텐츠 스타일)
+            - ⇒ .header와 .footer가 폰트 색 담당(컨테이너 스타일)
+            
+            ```css
+            /* bad */
+            .header h2 {
+            		font-size: 24px;
+            		color: white;
+            }
+            
+            .footer h2 {
+            		font-size: 24px;
+            		color: black;
+            }
+            
+            /* good */
+            .container .title {
+            	font-size: 24px;
+            }
+            
+            .header {
+            		color: white;
+            }
+            
+            .footer {
+            		color: black;
+            }
+            ```
+            
+
+`CSS 방법론` : CSS를 효율적이고 유지 보수가 용이하게 작성하기 위한 일련의 가이드라인
 
 # 참고
 
@@ -940,3 +1067,10 @@ h1 {    /* 선택자 */
 - 두 block 타입 요소의 margin top과 bottom이 만나 더 큰 margin으로 결합되는 현상
 - 웹 개발자가 레이아웃을 더욱 쉽게 관리할 수 있도록 함
     - 각 요소에 대한 상/하 margin을 각각 설정하지 않고 한 요소에 대해서만 설정하기 위함
+
+### 의미론적인 마크업의 이점
+
+- 검색엔진 최적화(SEO)
+    - 검색 엔진이 해당 웹 사이트를 분석하기 쉽게 만들어 검색 순위에 영향을 줌
+- 웹 접근성(Web Accessibility)
+    - 시각 장애 사용자가 스크린 리더기로 웹 페이지를 사용할 때 추가적으로 도움

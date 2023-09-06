@@ -1,0 +1,134 @@
+/* style.css */
+body {
+    padding: 0;
+    margin: 70px 0;
+}
+
+.fixed {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+}
+
+.fixedbottom {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.text_white {
+    color: white;
+}
+
+.bg_olive {
+    background-color: olivedrab;
+}
+
+.end {
+    padding: 20px;
+    margin: 0;
+}
+
+.bigtitle {
+    font-size: 48px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.text_black {
+    color: #121212;
+}
+
+.subbigtitle {
+    margin: 0px;
+    font-size: 36px;
+    font-weight: bold;
+}
+
+.bg_yellow {
+    background-color: rgb(255, 196, 0);
+}
+
+.subtitlebox {
+    text-align: center;
+    padding: 20px;
+}
+
+.text_darkgray {
+    color: #454545
+}
+
+.article {
+    margin: 40px;
+}
+
+.bg_white {
+    background-color: #f8f8f8;
+}
+
+.card {
+    padding: 20px;
+    box-shadow: 2px 2px 5px 5px rgba(0, 0, 0, .2);
+    border-radius: 5px;
+    margin: 30px 0px;
+}
+
+.flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0px 30px;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.subtitle { 
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.bg_khaki {
+    background-color: rgba(255, 213, 127, .3);
+}
+
+.descrition {
+    padding: 15px;
+}
+
+.flexbox {
+    display: flex;
+    align-items: center;
+    height: 70px;
+}
+
+ul {
+    list-style: none;
+    font-size: 20px;
+    padding: 0;
+    margin: 0;
+}
+
+li {
+    margin: 10px 20px;
+}
+
+.bg_orangered {
+    background-color: orangered;
+}
+
+.home {
+    margin: 0;
+    width: 100px;
+    height: 70px;
+    text-align: center;
+    line-height: 70px;
+}
+
+.link {
+    text-decoration: none;
+}

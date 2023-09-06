@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Bootstrap demo</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+        <style>
+            .alert {
+                background-color: red;
+                border: none;
+                color: white;
+            }
+
+            h1 {
+                font-weight: bold;
+            }
+
+            form {
+                border: 1px solid lightgrey;
+                border-radius: 2%;
+                padding: 1rem 0;
+            }
+
+            .check {
+                display: flex;
+                justify-content: space-between;
+            }
+
+            .forgot_pwd {
+                text-decoration: none;
+            }
+
+            .blue-line {
+                border: 1px solid rgba(var(--bs-link-color-rgb));
+                opacity: 1;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container-sm">
+            <div class="alert alert-primary" role="alert">
+                Invalid Login or password
+            </div>
+            <h1>SSAFY 전용 Gitlab 시스템</h1>
+            <hr>
+            <form class="d-grid">
+                <label class="form-label text-center fw-bold">Sign in</label>
+                <hr class="blue-line">
+                <div class="mb-3 mx-3">
+                    <label for="exampleInputEmail1" class="form-label fw-bold">Username or Email</label>
+                    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+                </div>
+                <div class="mb-3  mx-3">
+                    <label for="exampleInputPassword1" class="form-label fw-bold">Password</label>
+                    <input type="password" class="form-control" id="exampleInputPassword1">
+                </div>
+                <div class="check mx-3">
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                        <label class="form-check-label" for="exampleCheck1">Remember me</label>
+                    </div>
+                    <a class="forgot_pwd" href="#">Forgot your password?</a>
+                </div>
+                <button type="submit" class="btn btn-success mx-3">Sign in</button>
+            </form>    
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+    </body>
+</html>
