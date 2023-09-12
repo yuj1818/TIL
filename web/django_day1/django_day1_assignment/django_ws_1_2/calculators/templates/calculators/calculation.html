@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>숫자 입력</title>
+</head>
+<body>
+    <h1>연산할 두 숫자를 입력하세요</h1>
+    <form action="{% url 'result' %}" method="GET">
+        <label for="num1">첫번째 숫자 : </label>
+        <input id="num1" type="int" name="num1">
+        <label for="num2">두번째 숫자 : </label>
+        <input id="num2" type="int" name="num2">
+        <button type="submit">계산!</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>second</title>
+</head>
+<body>
+    <p>catch! I catch {{msg}}</p>
+
+    <form action="{% url 'third' %}">
+        <label for="msg1">and throw!</label>
+        <input type="text" id="msg1" name="msg1">
+        <label for="msg2">twice!</label>
+        <input type="text" id="msg2" name="msg2">
+        <button type="submit">휙</button>
+    </form>
+</body>
+</html>

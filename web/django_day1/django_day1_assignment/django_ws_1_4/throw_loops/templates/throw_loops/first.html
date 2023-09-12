@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>first</title>
+</head>
+<body>
+    {% if msg is not None %}
+        <p>catch! I catch {{msg}}</p>
+    {% else %}
+        <p>catch! I catch nothing!</p>
+    {% endif %}
+
+    <form action="{% url 'second' %}">
+        <label for="msg">throw!</label>
+        <input type="text" id="msg" name="msg">
+        <button type="submit">휙</button>
+    </form>
+</body>
+</html>

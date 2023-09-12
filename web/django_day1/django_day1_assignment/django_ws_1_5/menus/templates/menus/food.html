@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% for menu in food %}
+        <p>{{menu}}</p>
+    {% endfor %}
+    {% include "_order.html" %}
+{% endblock content %}
