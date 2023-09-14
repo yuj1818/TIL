@@ -874,7 +874,7 @@ $ python manage.py migrate
 
 ### 추가 Migrations
 
-**추가 모델 필드 작성**
+#### 추가 모델 필드 작성
 
 ```python
 # articles/models.py
@@ -922,16 +922,16 @@ $ python manage.py migrate
 
 - DB 테이블의 필드(열)을 정의하며, 해당 필드에서 저장되는 데이터 타입과 제약조건을 정의
 
-**CharField()**
+#### CharField()
 
 - 길이의 제한이 있는 문자열을 넣을 때 사용
 - 필드의 최대 길이를 결정하는 max_length는 필수 인자
 
-**TextField()**
+#### TextField()
 
 - 글자의 수가 많을 때 사용
 
-**DateTimeField()**
+#### DateTimeField()
 
 - 날짜와 시간을 넣을 때 사용
 - 📒DateTimeField의 선택 인자
