@@ -967,6 +967,149 @@ from .models import Article
 admin.site.register(Article)
 ```
 
+## ORM(Object-Relational-Mapping)
+
+객체 지향 프로그래밍 언어를 사용하여 호환되지 않는 유형의 시스템 간에 데이터를 변환하는 기술
+
+### ORM의 역할
+
+- django(Python Object)와 DB(SQL)는 서로 다른 언어를 사용하기 때문에 소통이 불가
+- ORM이 django와 DB의 중간에서 소통을 가능하게 함
+
+### QuerySet API
+
+- ORM에서 데이터를 검색, 필터링, 정렬 및 그룹화 하는데 사용하는 도구
+- API를 사용하여 SQL이 아닌 Python 코드로 데이터를 처리
+- Python의 모델 클래스와 인스턴스를 활용해 DB에 데이터를 저장, 조회, 수정, 삭제하는 것
+
+<img src="https://github.com/yuj1818/TIL/assets/95585314/3c1eb412-a2de-421e-9866-46c06ac3ff16" width="50%">
+
+#### QuerySet API 구문
+
+- (Model class).(Manager).(Queryset API)’
+- Manager가 method를 가지고 있음
+- 예) Article.objects.all()
+
+#### Query
+
+- 데이터베이스에 특정한 데이터를 보여 달라는 요청
+- 쿼리문을 작성한다 ⇒ 원하는 데이터를 얻기 위해 데이터베이스에 요청을 보낼 코드를 작성한다
+- 파이썬으로 작성한 코드가 ORM에 의해 SQL로 변환되어 데이터베이스에 전달되며, 데이터베이스의 응답 데이터를 ORM이 QuerySet이라는 자료 형태로 변환하여 우리에게 전달
+
+#### QuerySet
+
+- 데이터베이스에게서 전달 받은 객체 목록(데이터 모음)
+    - 순회가 가능한 데이터로써 1개 이상의 데이터를 불러와 사용할 수 있음
+- Django ORM을 통해 만들어진 자료형
+- 단, 데이터베이스가 단일한 객체를 반환 할 때는 QuerySet이 아닌 모델(Class)의 인스턴스로 반환됨
+
+### QuerySet API 실습
+
+#### QuerySet API 실습 사전 준비
+
+```bash
+pip install ipython
+pip install django-extensions
+```
+
+```python
+# settings.py
+
+INSTALLED_APPS = [
+		# local applications
+		'articles',
+		# 외부 라이브러리
+		'django_extensions',
+		# 장고 내부
+		...,
+]
+```
+
+```bash
+pip freeze > requirements.txt
+```
+
+#### Django shell
+
+- Django 환경 안에서 실행되는 python shell
+- 입력하는 QuerySet API 구문이 Django 프로젝트에 영향을 미침
+
+```bash
+# Django shell 실행
+python manage.py shell_plus
+```
+
+#### Create
+
+```bash
+# 방법 1
+article = Article() # Article(class)로부터 article(instance) 생성
+article.title = 'first' # 인스턴스 변수(title)에 값을 할당
+article.content = 'django!' # 인스턴스 변수(content)에 값을 할당
+article.save() # save를 하지 않으면 아직 DB에 값이 저장되지 않음
+```
+
+```bash
+# 방법 2
+article = Article(title='second', content='django!')
+article.save()
+```
+
+```bash
+# 방법 3
+Article.objects.create(title='third', content='django!')
+```
+
+`save()` : 객체를 데이터베이스에 저장하는 메서드
+
+#### Read
+
+```bash
+Article.objects.all()
+```
+
+`all()` : 전체 데이터 조회
+
+```bash
+Article.objects.get(pk=1) # 1번째 데이터 조회
+Article.objects.get(pk=100) # 100번째 데이터 조회
+Article.objects.get(content='django!')
+# content 필드 값이 django!인 데이터가 여러 개이므로 에러가 일어남.
+# get()은 객체를 찾을 수 없으면 DoesNotExist 예외를 발생시키고, 둘 이상의 객체를 찾으면 MultipleObjectsReturned 예외를 발생시킴
+# 위와 같은 특징을 가지고 있기 때문에 primary key와 같이 고유성(uniqueness)을 보장하는 조회에서 사용해야 함
+```
+
+`get()` : 단일 데이터 조회
+
+```bash
+Article.objects.filter(content='django!') # content 필드 값이 django!인 데이터 다 조회
+Article.objects.filter(title='abc') # title 필드 값이 abc이 데이터 다 조회
+Article.objects.filter(title='first') # title 필드 값이 first인 데이터 다 조회
+```
+
+`filter()` : 특정 조건 데이터 조회
+
+#### Update
+
+- 데이터 수정
+- 인스턴스 변수를 변경 후 save 메서드 호출
+
+```bash
+article = Artile.objects.get(pk=1) # 수정할 인스턴스 조회
+article.title = 'byebye' # 인스턴스 변수 변경
+article.save() # 저장
+```
+
+#### Delete
+
+- 데이터 삭제
+- 삭제하려는 데이터 조회 후 delete 메서드 호출
+
+```bash
+article = Article.objects.get(pk=1) # 삭제할 인스턴스 조회
+article.delete() # delete 메서드 호출
+```
+
 ## 참고
 
 ### Django 프로젝트 생성 루틴 정리 + git
