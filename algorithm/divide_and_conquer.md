@@ -19,14 +19,14 @@
 
 ```python
 def recursive_power(x, n):
-		if n == 1:
-				return x
-		if n % 2 == 0:
-				y = recursive_power(x, n/2)
-				return y * y
-		else:
-				y = recursive_power(x, (n-1)/2)
-				return y * y * x
+	if n == 1:
+		return x
+	if n % 2 == 0:
+		y = recursive_power(x, n/2)
+		return y * y
+	else:
+		y = recursive_power(x, (n-1)/2)
+		return y * y * x
 ```
 
 ## 병합 정렬
@@ -46,19 +46,19 @@ def recursive_power(x, n):
     
     ```python
     def merge_sort(m)):
-    		if len(m) == 1:
-    				return m
-    		left = []
-    		right = []
-    		middle = len(m) // 2
-    		for x in m[:middle]:
-    				left.append(x)
-    		for x in m[middle:]:
-    				right.append(x)
-    		left = merge_sort(left)
-    		right = merge_sort(right)
-    		
-    		return merge(left, right)    # 하나의 정렬된 리스트로 반환
+			if len(m) == 1:
+				return m
+			left = []
+			right = []
+			middle = len(m) // 2
+			for x in m[:middle]:
+				left.append(x)
+			for x in m[middle:]:
+				right.append(x)
+			left = merge_sort(left)
+			right = merge_sort(right)
+			
+			return merge(left, right)    # 하나의 정렬된 리스트로 반환
     ```
     
     - 병합 - 2개의 부분 집합을 정렬하면서 하나의 집합으로 병합
@@ -68,18 +68,18 @@ def recursive_power(x, n):
     
     ```python
     def merge(left, right):
-    		result = []
-    		while len(left) > 0 or len(right) > 0:
-    				if len(left) > 0 and len(right) > 0:
-    						if left[0] <= right[0]:    # 더 작은 것을 result 배열에 넣음
-    								result.append(left.pop(0))
-    						else:
-    								result.append(right.pop(0))
-    				elif len(left) > 0:    # 남은 데이터 모두 넣음
-    						result.append(left.pop(0))
-    				elif len(right) > 0:
-    						result.append(right.pop(0))
-    		return result
+			result = []
+			while len(left) > 0 or len(right) > 0:
+				if len(left) > 0 and len(right) > 0:
+					if left[0] <= right[0]:    # 더 작은 것을 result 배열에 넣음
+						result.append(left.pop(0))
+					else:
+						result.append(right.pop(0))
+				elif len(left) > 0:    # 남은 데이터 모두 넣음
+					result.append(left.pop(0))
+				elif len(right) > 0:
+					result.append(right.pop(0))
+			return result
     ```
     
 
@@ -117,25 +117,25 @@ def recursive_power(x, n):
 
 ```python
 def partition(l, r):
-		p = A[l]
-		i = l
-		j = r
-		while i <= j:
-				while i <= j and A[i] <= p:
-						i += 1
-				while i <= j and A[j] >= p:
-						j -= 1
-				if i < j:
-						A[i], A[j] = A[j], A[i]
-		A[l], A[j] = A[j], A[l]
-		return j
+	p = A[l]
+	i = l
+	j = r
+	while i <= j:
+		while i <= j and A[i] <= p:
+			i += 1
+		while i <= j and A[j] >= p:
+			j -= 1
+		if i < j:
+			A[i], A[j] = A[j], A[i]
+	A[l], A[j] = A[j], A[l]
+	return j
 
 def quick_sort(left, right):
-		if left >= right:
-				return
-		pivot = partition(left, right)
-		quick_sort(left, pivot - 1)
-		quick_sort(pivot + 1, right)
+	if left >= right:
+		return
+	pivot = partition(left, right)
+	quick_sort(left, pivot - 1)
+	quick_sort(pivot + 1, right)
 
 A = [3, 2, 4, 6, 9, 1, 8, 7, 5]
 quick_sort(0, len(arr) - 1)
@@ -146,21 +146,21 @@ print(arr)
 
 ```python
 def partition(A, p, r):
-		x = A[r]
-		i = p - 1
-		
-		for j in range(p, r):
-				if A[j] <= x:
-						i += 1
-						A[i], A[j] = A[j], A[i]
-		A[i + 1], A[r] = A[r], A[i + 1]
-		return i + 1
+	x = A[r]
+	i = p - 1
+	
+	for j in range(p, r):
+		if A[j] <= x:
+			i += 1
+			A[i], A[j] = A[j], A[i]
+	A[i + 1], A[r] = A[r], A[i + 1]
+	return i + 1
 
 def quick_sort(A, l, r):
-		if l < r:
-				pivot = partition(A, l, r)
-				quick_sort(A, l, pivot - 1)
-				quick_sort(A, pivot + 1, right)
+	if l < r:
+		pivot = partition(A, l, r)
+		quick_sort(A, l, pivot - 1)
+		quick_sort(A, pivot + 1, right)
 
 quick_sort(A, 0, len(A) - 1)
 print(arr)
@@ -185,17 +185,17 @@ print(arr)
 ```python
 # loop
 def binarySearch(a, N, key):
-    start = 0
-    end = N - 1
-    while start <= end:
-        mid = (start + end) // 2
-        if a[mid] == key:
-            return True
-        elif a[mid] > key:
-            end = mid - 1
-        else:
-            start = mid + 1
-    return False
+	start = 0
+	end = N - 1
+	while start <= end:
+		mid = (start + end) // 2
+		if a[mid] == key:
+			return True
+		elif a[mid] > key:
+			end = mid - 1
+		else:
+			start = mid + 1
+	return False
 
 arr = [2, 4, 7, 9, 11, 19, 23]
 
@@ -206,16 +206,16 @@ print(binarySearch(arr, len(arr), 20))  # 검색 실패, False 반환
 ```python
 # 재귀
 def binarySearch2(a, low, high, key):
-    if low > high:  # 검색 실패
-        return False
-    else:
-        mid = (low + high) // 2
-        if key == a[mid]:
-            return True
-        elif key < a[mid]:
-            return binarySearch2(a, low, mid - 1, key)
-        elif a[mid] < key:
-            return binarySearch2(a, mid + 1, high, key)
+	if low > high:  # 검색 실패
+		return False
+	else:
+		mid = (low + high) // 2
+		if key == a[mid]:
+			return True
+		elif key < a[mid]:
+			return binarySearch2(a, low, mid - 1, key)
+		elif a[mid] < key:
+			return binarySearch2(a, mid + 1, high, key)
 
 arr = [2, 4, 7, 9, 11, 19, 23]
 
