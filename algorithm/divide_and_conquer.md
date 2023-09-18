@@ -45,7 +45,7 @@ def recursive_power(x, n):
     ![Untitled 1](https://github.com/yuj1818/TIL/assets/95585314/86d1ccea-05cc-4331-971b-4915e8211840)
     
     ```python
-    def merge_sort(m)):
+    def merge_sort(m):
 			if len(m) == 1:
 				return m
 			left = []
