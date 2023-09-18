@@ -39,17 +39,32 @@
     
     <img src="https://github.com/yuj1818/TIL/assets/95585314/a51928c3-2d4f-4a02-91a2-287b2a0e54f9" />
 
+## 알고리즘 설계 기법의 종류
+
+1. 전체를 다 보기(Brute Force - 완전 탐색)
+    - 배열 - 반복문을 다 돌리기
+    - 그래프 - DFS, BFS
+2. 상황마다 좋은 걸 고르기(Greedy - 탐욕)
+    - 규칙을 찾는 것
+    - 주의사항 - 항상 좋은 것을 뽑아도, 최종 결과가 제일 좋다는 것은 보장되지 않음
+3. 하나의 큰 문제를 작은 문제로 나누어 부분적으로 해결하는 것(Dynamic Programming)
+    - Memoization 기법 활용
+    - 점화식(bottom-up), 재귀(top-down)
+4. 큰 문제를 작은 문제로 쪼개서 해결하는 것(Divide and Conquer - 분할 정복)
+5. 전체 중 가능성 없는 것을 빼고 보는 것(Backtracking - 백트래킹)
+    - 가지치기
+
 ## 알고리즘 종류
 
 ### | [배열](./array.md)
 
 ### | [정렬](./sort.md)
 
-### | [완전탐색](./exaustive_search.md)
+### | [완전 검색](./exaustive_search.md)
 
 ### | [그리디](./greedy.md)
 
-### | [부분집합](./subset.md)
+### | [부분 집합](./subset.md)
 
 ### | [검색](./search.md)
 
@@ -61,4 +76,6 @@
 
 ### | [트리](./tree.md)
 
-### | [완전탐색](./brute_force.md)
+### | [완전 탐색](./brute_force.md)
+
+### | [분할 정복](./divide_and_conquer.md)
