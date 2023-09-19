@@ -150,3 +150,7 @@ def Counting_Sort(A, B, k):
             arr[i], arr[minIdx] = arr[minIdx], arr[i]
         return arr[k - 1]
     ```
+
+### [퀵 정렬(Quick sort)](./divide_and_conquer.md#퀵-정렬)
+
+### [병합 정렬(Merge sort)](./divide_and_conquer.md#병합-정렬)
