@@ -168,7 +168,7 @@ print(arr)
 
 [https://ldgeao99.tistory.com/376](https://ldgeao99.tistory.com/376) 참고
 
-## [⭐⭐⭐이진 검색(Binary Search)⭐⭐⭐](./search.md#⭐⭐이진-검색(Binary-Search)⭐⭐)
+## [⭐⭐⭐이진 검색(Binary Search)⭐⭐⭐](./search.md#⭐⭐이진-검색binary-search⭐⭐)
 
 - 자료의 가운데에 있는 항목의 키 값과 비교하여 다음 검색의 위치를 결정하고 검색을 계속 진행하는 방법
     - 목적 키를 찾을 때 까지 이진 검색을 순환적으로 반복 수행함으로써 검색 범위를 반으로 줄여가면서 보다 빠르게 검색을 수행
