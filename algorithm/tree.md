@@ -2,6 +2,10 @@
 
 ## 트리의 개념
 
+- cycle이 없는 무향 연결 그래프
+    - 두 노드 사이에는 유일한 경로가 존재
+    - 각 노드는 최대 하나의 부모 노드가 존재
+    - 각 노드는 자식 노드가 없거나 하나 이상이 존재
 - 비선형 구조
 - 원소들 간에 1:n 관계를 가지는 자료 구조
 - 원소들 간에 계층 관계를 가지는 계층형 자료 구조
@@ -238,6 +242,35 @@ root = c
 - 배열을 이용한 이진 트리의 표현의 단점
     - 편향 이진 트리의 경우에 사용하지 않는 배열 원소에 대한 메모리 공간 낭비 발생
     - 트리의 중간에 새로운 노드를 삽입하거나 기존의 노드를 삭제할 경우 배열 크기 변경 어려워 비효율적
+```python
+        # 문제 풀이용
+        arr = [1, 2, 1, 3, 2, 4, 3, 5, 3, 6]
+        # arr = [1, 2, 1, 3, 2, 4, 3, 5, 3, 6, 4, 7, 5, 8, 5, 9, 6, 10, 6, 11, 7, 12, 11, 13]
+        
+        # 이진 트리 생성
+        nodes = [[] for _ in range(14)]
+        for i in range(0, len(arr), 2):
+            parentNode = arr[i]
+            childNode = arr[i + 1]
+            nodes[parentNode].append(childNode)
+        
+        # 자식이 없다는 걸 표현하기 위해 None 을 삽입
+        for li in nodes:
+            for _ in range(len(li), 2):
+                li.append(None)
+        
+        # 전위 순회
+        def preorder(nodeNum):
+            if nodeNum == None:
+                return
+            # print(nodeNum, end=' ')
+            preorder(nodes[nodeNum][0])
+            # print(nodeNum, end=' ')
+            preorder(nodes[nodeNum][1])
+            # print(nodeNum, end=' ')
+        
+        preorder(1)
+        ```
 
 ### 트리의 표현 - 연결리스트
 
@@ -250,6 +283,65 @@ root = c
 - 완전 이진 트리의 연결 리스트 표현
 
 <img src="https://github.com/yuj1818/TIL/assets/95585314/7de59e87-699d-4ce8-aab9-8b2910c74294" />
+
+```python
+        # 정석 개발
+        arr = [1, 2, 1, 3, 2, 4, 3, 5, 3, 6, 4, 7, 5, 8, 5, 9, 6, 10, 6, 11, 7, 12, 11, 13]
+        
+        class TreeNode:
+            def __init__(self, value):
+                self.value = value
+                self.left = None
+                self.right = None
+        
+            def insert(self, child):
+                if(not self.left):
+                    self.left = child
+                    return
+                if(not self.right):
+                    self.right = child
+                    return
+                return
+        
+            def preorder(self):
+                if self != None:
+                    print(self.value, end=' ')
+                    if self.left:
+                        self.left.preorder()
+                    if self.right:
+                        self.right.preorder()
+        
+            # 중위 순회
+            def inorder(self):
+                if self != None:
+                    if self.left:
+                        self.left.inorder()
+                    print(self.value, end=' ')
+                    if self.right:
+                        self.right.inorder()
+        
+            # 후위 순회
+            def postorder(self):
+                if self != None:
+                    if self.left:
+                        self.left.postorder()
+                    if self.right:
+                        self.right.postorder()
+                    print(self.value, end=' ')
+        
+        # 이진 트리 만들기
+        nodes = [TreeNode(i) for i in range(0, 14)]
+        for i in range(0, len(arr), 2):
+            parentNode = arr[i]
+            childNode = arr[i + 1]
+            nodes[parentNode].insert(nodes[childNode])
+        
+        nodes[1].preorder()
+        print()
+        nodes[1].inorder()
+        print()
+        nodes[1].postorder()
+        ```
 
 ### 연습 문제
 
@@ -363,6 +455,94 @@ preorder_traversal(1)
     - 다음 트리에 대하여 13, 12, 9를 차례로 삭제해 보자
     
     <img src="https://github.com/yuj1818/TIL/assets/95585314/4de70c39-fad5-4270-9267-8e673dbd6767" />
+```python
+class TreeNode:
+    def __init__(self, key):
+        self.left = None
+        self.right = None
+        self.value = key
+
+def insert(root, key):
+    if root is None:
+        return TreeNode(key)
+    else:
+        if key < root.value:
+            root.left = insert(root.left, key)
+        else:
+            root.right = insert(root.right, key)
+    return root
+
+def search(root, key):
+    if root is None or root.value == key:
+        return root
+    if root.value < key:
+        return search(root.right, key)
+    return search(root.left, key)
+
+def inorder_traversal(root):
+    if root:
+        print(root.value, end=" ")
+        inorder_traversal(root.left)
+        inorder_traversal(root.right)
+
+def find_min_node(node):
+    current = node
+    while current.left is not None:
+        current = current.left
+    return current
+
+def delete_node(root, key):
+    if root is None:
+        return root
+
+    if key < root.value:
+        root.left = delete_node(root.left, key)
+    elif key > root.value:
+        root.right = delete_node(root.right, key)
+    else:
+        # 삭제하려는 노드가 리프 노드이거나 하나의 자식만 가지는 경우
+        if root.left is None:
+            temp = root.right
+            root = None
+            return temp
+        elif root.right is None:
+            temp = root.left
+            root = None
+            return temp
+
+        # 삭제하려는 노드가 두 개의 자식을 가지는 경우
+        # 1. 왼쪽 서브 트리의 가장 큰 값
+        # 2. 오른쪽 서브 트리의 가장 작은 값
+        # 두 가지가 가능한 후보
+        temp = find_min_node(root.right)
+        root.value = temp.value
+        root.right = delete_node(root.right, temp.value)
+
+    return root
+
+# 이진 탐색 트리 생성 및 사용 예제
+arr = [8, 3, 10, 2, 5, 14]
+root = insert(None, arr[0])
+for el in arr[1:]:
+    insert(root, el)
+
+# 특정 값 검색 예제
+key_to_search = 10
+result = search(root, key_to_search)
+if result:
+    print(f"{key_to_search}를 찾았습니다.")
+else:
+    print(f"{key_to_search}를 찾을 수 없습니다.")
+
+# 노드 삭제 예제
+key_to_delete = 5
+inorder_traversal(root)
+print()
+root = delete_node(root, key_to_delete)
+inorder_traversal(root)
+
+test = 1
+```
     
 
 ## [참고] 힙(heap)
@@ -399,3 +579,37 @@ preorder_traversal(1)
 - 힙의 종류에 따라 최대값 또는 최소값을 구할 수 있다.
 
 <img src="https://github.com/yuj1818/TIL/assets/95585314/1dc8bc86-3f98-4a64-8d9a-23d9fd49cf6a" />
+
+```python
+from heapq import heappush, heappop
+
+arr = [20, 15, 19, 4, 13, 11]
+
+# 최소힙
+min_heap = []
+
+for el in arr:
+    heappush(min_heap, el)
+
+print(min_heap)  # [4, 13, 11, 20, 15, 19] 출력
+
+while len(min_heap) > 0:
+    print(heappop(min_heap), end=' ')
+print()
+
+# 최대힙
+max_heap = []
+for el in arr:
+    heappush(max_heap, -el)
+
+print(max_heap)  # [-20, -15, -19, -4, -13, -11] 출력
+
+while len(max_heap) > 0:
+    print(-heappop(max_heap), end=' ')
+```
+
+- 힙의 활용
+    - 특별한 큐의 구현
+        - 우선 순위 큐를 구현하는 가장 효율적인 방법
+        - 노드 하나의 추가/삭제가 시간 복잡도가 O(logN)이고 최대값/최소값을 O(1)에 구할 수 있음
+    - 정렬
