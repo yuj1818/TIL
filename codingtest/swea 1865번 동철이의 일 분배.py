@@ -2,7 +2,7 @@ T = int(input())
 
 def dfs(i, percent):
 	global max_v
-	if percent < max_v:
+	if percent <= max_v:
 		return
 	if i == N:
 		max_v = percent
