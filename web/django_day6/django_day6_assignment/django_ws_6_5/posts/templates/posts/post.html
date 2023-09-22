@@ -1,0 +1,6 @@
+<div class="card me-2" style="width: 32%;">
+  <div class="card-body">
+    <p>{{post.content}}</p>
+    <a href="{% url "posts:delete" post.pk %}" class="btn btn-danger">Delete</a>
+  </div>
+</div>

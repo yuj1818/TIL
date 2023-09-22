@@ -1,0 +1,33 @@
+* {
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+form *:not(button){
+  width: 100%;
+}
+
+form > input, textarea {
+  border: 1px solid lightgray;
+  border-radius: 5px;
+}
+
+.card {
+  width: 32%;
+}
+
+.description {
+  font-size: 0.8rem;
+  color: gray;
+}
+
+@media (max-width: 768px) {
+  .card {
+    width: 49%;
+  }
+}
+
+@media (max-width: 576px) {
+  .card {
+    width: 100%;
+  }
+}

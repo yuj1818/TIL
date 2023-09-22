@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>맛집 리스트</h1>
+<a href="{% url "new" %}">[CREATE]</a>
+<ul>
+  {% for restaurant in restaurants %}
+    <li>{{ restaurant.name }}</li>
+      <ul>
+        <li>{{ restaurant.address }}</li>
+      </ul>
+      <a href="{% url "detail" restaurant.pk %}">[DETAIL]</a>
+  {% endfor %}
+</ul>
+{% endblock content %}

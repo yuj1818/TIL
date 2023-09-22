@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+  <p>요약 : {{memo.summary}}</p>
+  <p>메모 : {{memo.memo}}</p>
+  <p>작성 시각: {{memo.created_at}}</p>
+  <p>수정 시각: {{memo.updated_at}}</p>
+  <button onclick="location.href='{% url "delete" memo.pk %}'">삭제</button><br>
+  <a href="{% url "index" %}">[back]</a>
+{% endblock content %}

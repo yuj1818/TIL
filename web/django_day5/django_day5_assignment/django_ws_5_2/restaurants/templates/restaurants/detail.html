@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>맛집 상세 정보</h1>
+  <p>식당 번호 : {{ info.id }}</p>
+  <p>식당 이름 : {{ info.name }}</p>
+  <p>식당 설명 : {{ info.description }}</p>
+  <p>식당 위치 : {{ info.address }}</p>
+  <p>전화 번호 : {{ info.phone_number }}</p>
+  <hr>
+  <a href="{% url "edit" info.pk %}">[UPDATE]</a>
+  <br>
+  <button type="button" onclick="location.href='{% url "delete" info.pk %}'">DELETE</button>
+  <hr>
+  <a href="{% url "index" %}">[BACK]</a>
+{% endblock content %}
