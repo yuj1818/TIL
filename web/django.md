@@ -1110,6 +1110,570 @@ article = Article.objects.get(pk=1) # 삭제할 인스턴스 조회
 article.delete() # delete 메서드 호출
 ```
 
+### ORM with view
+
+#### Read
+
+- 전체 게시글 조회
+
+```python
+# articles/views.py
+
+from .models import Article
+
+def index(request):
+articles = Article.objects.all()
+context = {
+	'articles': articles,
+}
+return render(request, 'articles/index.html', context)
+```
+
+```html
+<!-- articles/index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <h1>Articles</h1>
+  <hr>
+  {% for article in articles %}
+    <p>글번호: {{article.pk}}</p>
+    <p>글 제목: {{article.title}}</p>
+    <p>글 내용: {{article.content}}</p>
+    <hr>
+  {% endfor %}
+</body>
+</html>
+```
+
+- 단일 게시글 조회
+
+```python
+# articles/urls.py
+
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.index, name='index'),
+    path('<int:pk>/', views.detail, name='detail'),
+]
+```
+
+```python
+# articles/views.py
+
+def detail(request, pk):
+    article = Article.objects.get(pk=pk)
+    context = {
+        'article': article,
+    }
+    return render(request, 'articles/detail.html', context)
+```
+
+```html
+<!-- templates/articles/detail.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <h2>DETAIL</h2>
+  <h3>{{article.pk}} 번째 글</h3>
+  <hr>
+  <p>제목: {{article.title}}</p>
+  <p>내용: {{article.content}}</p>
+  <p>작성 시각: {{article.created_at}}</p>
+  <p>수정 시각: {{article.updated_at}}</p>
+  <hr>
+  <a href="{% url "index" %}">[back]</a>
+</body>
+</html>
+```
+
+#### Create
+
+```python
+# articles/urls.py
+
+from django.urls import path
+from . import views
+
+app_name = 'articles'
+
+urlpatterns = [
+    ...
+    path('new/', views.new, name='new'),
+    path('create/', views.create, name='create'),
+]
+```
+
+```python
+# articles/views.py
+
+def new(request):
+    return render(request, 'articles/new.html')
+
+def create(request):
+    title = request.GET.get('title')
+    content = request.GET.get('content')
+
+    article = Article(title=title, content=content)
+    article.save()
+
+    return render(request, 'articles/create.html')
+```
+
+```html
+<!-- templates/articles/new.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <h1>NEW</h1>
+  <form action="">
+    <div>
+      <label for="title">Title: </label>
+      <input type="text" id="title" name="title">
+    </div>
+    <div>
+      <label for="content">Content: </label>
+      <textarea name="content" id="content"></textarea>
+    </div>
+    <input type="submit" value="제출">
+  </form>
+  <hr>
+  <a href="articles:index">[back]</a>
+</body>
+</html>
+```
+
+#### HTTP request methods
+
+- HTTP
+    - 네트워크 상에서 데이터를 주고 받기 위한 약속
+- HTTP request methods
+    - 데이터(리소스)에 어떤 요청(행동)을 원하는지를 나타내는 것
+    - GET
+        - 특정 리소스를 조회하는 요청
+        - GET으로 데이터를 전달하면 Query string 형식으로 보내짐
+    - POST
+        - 특정 리소스에 변경(생성, 수정, 삭제)을 요구하는 요청
+        - POST로 데이터를 전달하면 HTTP Body에 담겨 보내짐
+- HTTP response status code
+    - 특정 HTTP 요청이 성공적으로 완료되었는지를 3자리 숫자로 표현하기로 약속한 것
+    - [https://developer.mozilla.org/en-US/docs/Web/HTTP/Status](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status)
+    - 403 Forbidden
+        - 서버에 요청이 전달되었지만, 권한 때문에 거절되었다는 것을 의미
+- CSRF(Cross-Site-Request-Forgery)
+    - 사이트 간 요청 위조
+    - 사용자가 자신의 의지와 무관하게 공격자가 의도한 행동을 하여 웹 페이지를 보안에 취약하게 하거나 수정, 삭제 등의 작업을 하게 만드는 공격 방법
+    - 요청 시 CSRF Token을 함께 보내야 하는 이유
+        - Django 서버는 해당 요청이 DB에 데이터를 하나 생성하는 (DB에 영향을 주느) 요청에 대해 “Django 가 직접 제공한 페이ㅣ에서 데이터를 작성하고 있는지에 대한 확인 요소 필요
+        - 겉모습이 똑같은 위조 사이트나 정상적이지 않은 요청에 대한 방어 수단
+        - 기존 - 요청 데이터 → 게시글 작성
+        - 변경 - 요청 데이터 + 인증 토큰 → 게시글 작성
+    - POST일 때만 Token을 확인하는 이유
+        - POST는 단순 조회를 위한 GET과 달리 특정 리소스에 변경
+        - DB에 조작을 가하는 요청은 반드시 인증 수단이 필요
+        - 데이터베이스에 대한 변경사항을 만드는 요청이기 때문에 토큰을 사용하여 최소한의 신원을 확인하는 것
+- redirect
+    - 클라이언트가 인자에 작성된 주소로 다시 요청을 보내도록 하는 함수
+    - 게시글 작성 후 완료를 알리는 페이지를 응답하는 것
+    - 데이터 저장 후 페이지를 주는 것이 아닌 다른 페이지로 사용자를 보내야 함
+    
+    ```python
+    # articles/views.py
+    
+    from django.shortcuts import render, redirect
+    
+    def create(request):
+        title = request.GET.get('title')
+        content = request.GET.get('content')
+    
+        article = Article(title=title, content=content)
+        article.save()
+    
+        return redirect('articles:detail', article.pk)
+    ```
+    
+    - 해당 redirect에서 클라이언트는 detail url로 요청을 다시 보내게 됨
+    - 결과적으로 detail view 함수가 호출되어 detail view 함수의 반환 결과인 detail 페이지를 응답 받음
+    - 결국 사용자는 게시글 작성 후 작성된 게시글의 detail 페이지로 이동하는 것으로 느끼게 되는 것
+
+#### Delete
+
+```python
+# articles/urls.py
+
+from django.urls import path
+from . import views
+
+app_name = 'articles'
+
+urlpatterns = [
+    ...
+    path('<int:pk>/delete/', views.delete, name='delete'),
+]
+```
+
+```python
+# article.views.py
+
+def delete(request, pk):
+    article = Article.objects.get(pk=pk)
+    article.delete()
+    return redirect('articles:index')
+```
+
+```html
+<!-- templates/articles/detail.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <h2>DETAIL</h2>
+  <h3>{{article.pk}} 번째 글</h3>
+  <hr>
+  <p>제목: {{article.title}}</p>
+  <p>내용: {{article.content}}</p>
+  <p>작성 시각: {{article.created_at}}</p>
+  <p>수정 시각: {{article.updated_at}}</p>
+  <hr>
+  <form action="{% url "articles:delete" article.pk %}" method="POST">
+    <input type="submit" value="DELETE">
+  </form>
+  <a href="{% url "articles:index" %}">[back]</a>
+</body>
+</html>
+```
+
+#### Update
+
+```python
+# articles/urls.py
+
+from django.urls import path
+from . import views
+
+app_name = 'articles'
+
+urlpatterns = [
+    ...
+    path('<int:pk>/edit/', views.edit, name='edit'),
+    path('<int:pk>/update', views.update, name='update'),
+]
+```
+
+```python
+# articles/views.py
+
+def edit(request, pk):
+    article = Article.objects.get(pk=pk)
+    context = {
+        'article': article,
+    }
+    return render(request, 'articles/edit.html', context)
+
+def update(request, pk):
+    article = Article.objects.get(pk=pk)
+    article.title = request.POST.get('title')
+    article.content = request.POST.get('content')
+    article.save()
+
+    return redirect('articles:detail', article.pk)
+```
+
+```html
+<!-- templates/articles/edit.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <h1>EDIT</h1>
+  <form action="{% url "articles:update" article.pk %}" method="POST">
+    {% csrf_token %}
+    <div>
+      <label for="title">Title: </label>
+      <input type="text" id="title" name="title" value="{{article.title}}">
+    </div>
+    <div>
+      <label for="content">Content: </label>
+      <textarea name="content" id="content">{{article.content}}</textarea>
+    </div>
+    <input type="submit" value="제출">
+  </form>
+  <hr>
+  <a href="{% url "articles:detail" article.pk %}">[back]</a>
+</body>
+</html>
+```
+
+## Django Form
+
+- 사용자 입력 데이터를 수집하고, 처리 및 유효성 검사를 수행하기 위한 도구
+- 유효성 검사를 단순화하고 자동화 할 수 있는 기능을 제공
+- HTML form의 생성, 데이터 유효성 검사 및 처리를 쉽게 할 수 있도록 도움
+
+### HTML ‘form’ 의 한계
+
+- form 태그는 지금까지 사용자로부터 데이터를 받기 위해 활용한 방법
+- 비정상적 혹은 악의적인 요청을 필터링 할 수 없음
+    - 수집한 데이터가 정확하고 유효한지에 대한 확인이 필요(유효성 검사)
+        - 유효성 검사를 구현하기 위해서는 입력 값, 형식, 중복, 범위, 보안 등 많은 것들을 고려해야 함
+        - 이런 과정과 기능을 직접 개발하는 것이 아닌 Django가 제공하는 Form을 사용
+
+### Form class 정의
+
+```python
+# articles/forms.py
+
+from django import forms
+
+class ArticleForm(forms.Form):
+    title = forms.CharField(max_length=10)
+    content = forms.CharField()
+```
+
+```python
+# articles/views.py
+
+def new(request):
+    form = ArticleForm()
+    context = {
+        'form': form,
+    }
+    return render(request, 'articles/new.html', context)
+```
+
+```html
+<!-- templates/articles/new.html -->
+<body>
+  <h1>NEW</h1>
+  <form action="{% url "articles:create" %}" method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}    <!-- form rendering options -->
+    <input type="submit">
+  </form>
+  <hr>
+  <a href="{% url 'articles:index' %}">[back]</a>
+</body>
+```
+
+#### Form rendering options
+
+- label, input 쌍을 특정 HTML 태그로 감싸는 옵션
+    - [https://docs.djangoproject.com/en/4.2/topics/forms/#form-rendering-options](https://docs.djangoproject.com/en/4.2/topics/forms/#form-rendering-options)
+
+### Widgets
+
+- HTML ‘input’ element의 표현을 담당
+- Widget은 단순히 input 요소의 속성 및 출력되는 부분을 변경하는 것
+    - https://docs.djangoproject.com/ko/4.2/ref/forms/widgets/#built-in-widgets
+
+```python
+# articles/forms.py
+
+from django import forms
+
+class ArticleForm(forms.Form):
+	title = form.CharField(max_length=10)
+	content = forms.CharField(widget=forms.Textarea)
+```
+
+## Django ModelForm
+
+- Model과 연결된 Form을 자동으로 생성해주는 기능을 제공
+    - Form + Model
+
+| Form | ModelForm |
+| --- | --- |
+| 사용자 입력 데이터를 DB에 저장하지 않을 때 | 사용자 입력 데이터를 DB에 저장해야 할 때 |
+| 로그인 | 게시글, 회원가입 |
+
+### ModelForm class 정의
+
+- 기존 ArticleForm 클래스 수정
+
+```python
+# articles/forms.py
+
+from django import forms
+from .models import Article
+
+class ArticleForm(forms.ModelForm):
+    
+    class Meta:
+        model = Article
+        fields = '__all__'
+```
+
+#### Meta class
+
+- ModelForm의 정보를 작성하는 곳
+- ‘fields’ 및 ‘exclude’ 속성
+    - exclude 속성을 사용하여 모델에서 포함하지 않을 필드를 지정할 수도 있음
+
+```python
+# articles/forms.py
+
+class ArticleForm(forms.ModelForm):
+	class Meta:
+		model = Article
+		fields = ('title',)
+```
+
+```python
+# articles/forms.py
+
+class ArticleForm(forms.ModelForm):
+	class Meta:
+		model = Article
+		exclude = ('title',)
+```
+
+- ModelForm 적용한 create 로직
+
+#### is_valid()
+
+- 여러 유효성 검사를 실행하고, 데이터가 유효한지 여부를 Boolean으로 반환
+
+```python
+# articles/views.py
+
+def create(request):
+    form = ArticleForm(request.POST)
+    if form.is_valid():
+        article = form.save()
+        return redirect('articles:detail', article.pk)
+    context = {
+        'form': form,
+    }
+    return render(request, 'articles/new.html', context)
+```
+
+- ModelForm을 적용한 edit 로직
+
+```python
+# articles.views.py
+
+def edit(request, pk):
+    article = Article.objects.get(pk=pk)
+    form = ArticleForm(instance=article)
+    context = {
+        'article': article,
+        'form': form,
+    }
+    return render(request, 'articles/edit.html', context)
+```
+
+```html
+<!-- articles/edit.html -->
+
+<body>
+  <h1>Edit</h1>
+  <form action="{% url "articles:update" article.pk %}" method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit">
+  </form>
+  <hr>
+  <a href="{% url 'articles:index' %}">[back]</a>
+</body>
+```
+
+- ModelForm을 적용한 update 로직
+
+```python
+# articles/views.py
+
+def update(request, pk):
+    article = Article.objects.get(pk=pk)
+    form = ArticleForm(request.POST, instance=article)
+    if form.is_valid():
+        form.save()
+        return redirect('articles:detail', article.pk)
+    context = {
+        'form': form,
+    }
+    return render(request, 'articles/edit.html', context)
+```
+
+#### save()
+
+- 데이터베이스 객체를 만들고 저장
+- 키워드 인자 instance 여부를 통해 생성할 지, 수정할 지를 결정
+
+## Handling HTTP requests
+
+### view 함수 구조 변화
+
+- new, create 함수
+    - 공통점 - 데이터 생성을 구현하기 위함
+    - 차이점 - new는 GET method 요청만을 create는 POST method 요청만을 처리
+- new, create 함수 결합
+
+```python
+# articles/views.py
+
+def create(request):
+    if request.method == 'POST':
+        form = ArticleForm(request.POST)
+        if form.is_valid():
+            article = form.save()
+            return redirect('articles:detail', article.pk)
+    else:
+        form = ArticleForm()
+    context = {
+        'form': form,
+    }
+    return render(request, 'articles/new.html', context
+```
+
+- edit, update 함수 결합
+
+```python
+# articles/views.py
+
+def update(request, pk):
+    article = Article.objects.get(pk=pk)
+    if request.method == 'POST':
+        form = ArticleForm(request.POST, instance=article)
+        if form.is_valid():
+            form.save()
+            return redirect('articles:detail', article.pk)
+    else:
+        form = ArticleForm(instance=article)
+    context = {
+        'article': article,
+        'form': form,
+    }
+    return render(request, 'articles/update.html', context)
+```
+
 ## 참고
 
 ### Django 프로젝트 생성 루틴 정리 + git
@@ -1264,3 +1828,68 @@ $ python manage.py sqlmigrate articles 0001
 - Read(조회)
 - Update(갱신)
 - Delete(삭제)
+
+### Field lookups
+
+- 특정 레코드에 대한 조건을 설정하는 방법
+- QuerySet 메서드 filter(), exclude() 및 get()에 대한 키워드 인자로 지정됨
+- [https://docs.djangoproject.com/en/4.2/ref/models/querysets/#field-lookups](https://docs.djangoproject.com/en/4.2/ref/models/querysets/#field-lookups)
+
+### ORM, QuerySet API를 사용하는 이유
+
+- 데이터베이스 쿼리를 추상화하여 Django 개발자가 데이터베이스와 직접 상호작용하지 않아도 되도록 함
+- 데이터베이스와의 결합도를 낮추고 개발자가 더욱 직관적이고 생산적으로 개발할 수 있도록 도움
+
+### QuerySet API 관련 문서
+
+- [https://docs.djangoproject.com/en/4.2/ref/models/querysets](https://docs.djangoproject.com/en/4.2/ref/models/querysets)
+- [https://docs.djangoproject.com/en/4.2/topics/db/queries/](https://docs.djangoproject.com/en/4.2/topics/db/queries/)
+
+### HTTP request methods 사용 예시
+
+- HTTP request methods를 활용한 효율적인 URL 구성
+    - 동일한 URL이지만 method에 따라 서버에 요구하는 행동을 다르게 요구
+        - (GET) articles/1/ ⇒ 1번 게시글 조회 요청
+        - (POST) articles/1/ ⇒ 1번 게시글 조작 요청
+
+### ModelForm 키워드 인자 data와 instance 살펴보기
+
+- https://github.com/django/django/blob/main/django/forms/models.py#L341
+
+```python
+class BaseModelForm(BaseForm):
+	def __init__(self, data=None, files=None, auto_id='id_%s', prefix=None,
+							 initial=None, error_class=ErrorList, label_suffix=None, 
+               empty_permitted=False, instance=None, use_required_attribute=None,
+               renderer=None):
+```
+
+### Widget 응용
+
+```python
+# articles/forms.py
+
+class ArticleForm(forms.ModelForm):
+    title = forms.CharField(
+        label='제목',
+        widget=forms.TextInput(
+            attrs={
+                'class': 'my-title',
+                'placeholder': 'Enter the title',
+                'maxlength': 10,
+            }
+        )
+    )
+    content = forms.CharField(
+        label='내용',
+        widget=forms.Textarea(
+            attrs={
+                'class': 'my-content',
+                'placeholder': 'Enter the content',
+                'rows': 5,
+                'cols': 50,
+            }
+        ),
+        error_messages={'required':'내용을 입력해주세요.'},
+    )
+```
