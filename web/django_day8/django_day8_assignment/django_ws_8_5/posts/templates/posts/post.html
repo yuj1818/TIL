@@ -1,0 +1,10 @@
+<div class="card me-2" style="width: 32%;">
+  {% if post.image %}
+    <img src="{{post.image.url}}" alt="image" class="card-img-top">
+  {% endif %}
+  <div class="card-body">
+    <p>{{post.content}}</p>
+    <a href="{% url "posts:update" post.pk %}" class="btn btn-info">Edit</a>
+    <a href="{% url "posts:delete" post.pk %}" class="btn btn-danger">Delete</a>
+  </div>
+</div>

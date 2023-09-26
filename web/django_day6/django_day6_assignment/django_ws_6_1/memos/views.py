@@ -23,10 +23,10 @@ def create(request):
             return redirect('index')
     else:
         form = MemoForm()
-        context = {
-            'form': form,
-        }
-        return render(request, 'memos/create.html', context)
+    context = {
+        'form': form,
+    }
+    return render(request, 'memos/create.html', context)
 
 @require_http_methods(["GET"])
 def detail(request, memo_pk):

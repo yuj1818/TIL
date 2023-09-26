@@ -4,7 +4,7 @@
   <form action="{% url "create" %}" method="POST">
     {% csrf_token %}
     {{form.as_p}}
-    <button type="submit">제출</button>
+    <input type="submit" value="제출">
   </form>
   <hr>
   <a href="{% url "index" %}">[back]</a>

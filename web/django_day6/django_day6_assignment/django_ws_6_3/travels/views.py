@@ -17,12 +17,7 @@ def create(request):
     if request.method == "POST":
         form = Form(request.POST)
         if form.is_valid():
-            article = travels()
-            article.location = form.cleaned_data['location']
-            article.plan = form.cleaned_data['plan']
-            article.start_date = form.cleaned_data['start_date']
-            article.end_date = form.cleaned_data['end_date']
-            article.save()
+            article = form.save()
             return redirect('detail', article.pk)
     else:
         form = Form()
@@ -43,13 +38,9 @@ def detail(request, article_pk):
 def update(request, article_pk):
     article = get_object_or_404(travels, pk=article_pk)
     if request.method == "POST":
-        form = Form(request.POST)
+        form = Form(request.POST, instance=article)
         if form.is_valid():
-            article.location = form.cleaned_data['location']
-            article.plan = form.cleaned_data['plan']
-            article.start_date = form.cleaned_data['start_date']
-            article.end_date = form.cleaned_data['end_date']
-            article.save()
+            form.save()
             return redirect('detail', article.pk)
     else:
         form = Form(instance=article)

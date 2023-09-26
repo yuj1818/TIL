@@ -17,19 +17,14 @@ def create(request):
     if request.method == 'POST':
         form = Form(request.POST)
         if form.is_valid():
-            article = travels()
-            article.location = form.cleaned_data['location']
-            article.plan = form.cleaned_data['plan']
-            article.start_date = form.cleaned_data['start_date']
-            article.end_date = form.cleaned_data['end_date']
-            article.save()
+            article = form.save()
             return redirect('detail', article.pk)
     else:
         form = Form()
-        context = {
-            'form': form,
-        }
-        return render(request, 'travels/create.html', context)
+    context = {
+        'form': form,
+    }
+    return render(request, 'travels/create.html', context)
     
 
 @require_GET

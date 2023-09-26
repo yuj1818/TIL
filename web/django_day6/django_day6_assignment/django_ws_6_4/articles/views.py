@@ -23,10 +23,10 @@ def create(request):
             return redirect('articles:detail', article.pk)
     else:
         form = ArticleForm()
-        context={
-            'form':form
-        }
-        return render(request,'articles/create.html',context)
+    context={
+        'form':form
+    }
+    return render(request,'articles/create.html',context)
 
 @require_safe
 def detail(request,pk):

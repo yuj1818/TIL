@@ -3,6 +3,7 @@ from .models import Post
 
 class Form(forms.ModelForm):
     content = forms.CharField(
+        label_suffix="",
         widget=forms.Textarea(attrs={
             'rows': 5,
             'style': 'width: 100%'
