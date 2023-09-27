@@ -2099,7 +2099,7 @@ def articles_image_path(instance, filename):
 image = models.ImageField(blank=True, upload_to=articles_image_path)
 ```
 
-### request.FILES가 두번재 위치 인자인 이유
+### request.FILES가 두번째 위치 인자인 이유
 
 - ModelForm 상위 클래스 BaseModelForm의 생성자 함수 키워드 인자
 
