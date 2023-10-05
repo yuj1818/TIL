@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+  {% if request.user.is_authenticated %}
+    <h1>Hello!</h1>
+    <form action="{% url "accounts:logout" %}">
+      <input type="submit" value="Log out" class="btn btn-danger">
+    </form>
+  {% else %}
+    <h1>This is Index</h1>
+    <a href="{% url "accounts:login" %}">Log in</a>
+  {% endif %}
+  <div class="d-flex flex-wrap row-gap-2">
+    {% for post in posts %}
+      {% include "posts/post.html" %}
+    {% endfor %}
+  </div>
+{% endblock content %}

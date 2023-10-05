@@ -1861,6 +1861,771 @@ def create(request):
 - update view 함수에서 업로드 파일에 대한 추가 코드 작성
     - update view 함수 form 정의 부분에 request.FILES 추가
 
+## Django Authentication
+
+### Cookie & Session
+
+#### HTTP
+
+- HTML 문서와 같은 리소스들을 가져올 수 있도록 해주는 규약
+- 웹(WWW)에서 이루어지는 모든 데이터 교환의 기초
+- 특징
+    - 비연결 지향(connectionless)
+        - 서버는 요청에 대한 응답을 보낸 후 연결을 끊음
+    - 무상태(stateless)
+        - 연결을 끊는 순간 클라이언트와 서버 간의 통신이 끝나며 상태 정보가 유지되지 않음
+        - ex) 장바구니 담기 유지 불가능, 로그인 상태 유지 불가능
+
+#### Cookie
+
+- 서버가 사용자의 웹 브라우저에 전송하는 작은 데이터 조각
+- 클라이언트 측에서 저장되는 작은 데이터 파일이며, 사용자 인증, 추적, 상태 유지 등에 사용되는 데이터 저장 방식
+- 같은 서버에 다른 페이지로 재요청시마다 받고 저장해 놓았던 쿠키를 함께 전송
+- 쿠키 사용 원리
+    - 브라우저(클라이언트)는 쿠키를 KEY-VALUE의 데이터 형식으로 저장
+    - 쿠키를 저장해 놓았다가, 동일한 서버에 재요청 시 저장된 쿠키를 함께 전송
+        - 쿠키는 두 요청이 동일한 브라우저에서 들어왔는지 아닌지를 판단할 때 주로 사용됨
+            - 이를 이용해 사용자의 로그인 상태를 유지할 수 있음
+            - 상태가 없는(stateless) HTTP 프로토콜에서 상태 정보를 기억 시켜주기 때문
+    
+    <img src="https://github.com/yuj1818/TIL/assets/95585314/3223825e-0461-45b0-abc9-b07814300cea" width="30%">
+    
+- 쿠키 사용 목적
+    - 세션 관리(Session Management)
+        - 로그인, 아이디 자동완성, 공지 하루 안 보기, 팝업 체크, 장바구니 등의 정보 관리
+    - 개인화(Personalization)
+        - 사용자 선호, 테마 등의 설정
+    - 트래킹(Tracking)
+        - 사용자 행동을 기록 및 분석
+
+#### Session
+
+- 서버 측에서 생성되어 클라이언트와 서버 간의 상태를 유지
+- 상태 정보를 저장하는 데이터 저장 방식
+- 쿠키에 세션 데이터를 저장하여 매 요청시마다 세션 데이터를 함께 보냄
+- 세션 작동 원리
+    - 클라이언트가 로그인을 하면 서버가 session 데이터를 생성 후 저장
+    - 생성된 session 데이터에 인증 할 수 있는 session id를 발급
+    - 발급한 session id를 클라이언트에게 응답
+    - 클라이언트는 응답 받은 session id 를 쿠키에 저장
+    - 클라이언트가 다시 동일한 서버에 접속하면 요청과 함께 쿠키(session id가 저장된)를 서버에 전달
+    - 쿠키는 요청 때마다 서버에 함께 전송 되므로 서버에서 session id를 확인해 로그인 되어있다는 것을 알도록 함
+
+#### Cookie & Session 작동 원리
+
+- 서버 측에서는 세션 데이터를 생성 후 저장하고 세션 ID를 생성
+- 이 ID를 클라이언트 측으로 전달하여, 클라이언트는 쿠키에 이 ID를 저장
+- 서버로부터 쿠키를 받아 브라우저에 저장
+- 클라이언트가 같은 서버에 재요청 시마다 저장해 두었던 쿠키도 요청과 함께 전송
+    - 예를 들어 로그인 상태 유지를 위해 로그인 되어 있다는 사실을 입증하는 데이터를 매 요청마다 계속해서 보내는 것
+
+<img src="https://github.com/yuj1818/TIL/assets/95585314/a5cd6174-c3d9-49a0-ab11-77e1721cfe4f" width="30%">
+
+#### Cookie & Session 목적
+
+- 서버와 클라이언트 간의 상태를 유지
+
+### Django Authentications System
+
+- 사용자 인증과 관련된 기능을 모아 놓은 시스템
+
+`Authentication(인증)` : 사용자가 자신이 누구인지 확인하는 것(신원 확인)
+
+#### 사전 준비
+
+- 두 번째 app accounts 생성 및 등록
+    - auth와 관련된 경로나 키워드들을  django 내부적으로 accounts라는 이름으로 사용하고 있기 때문에 되도록 ‘accounts’로 지정하는 것을 권장
+
+```python
+# accounts/urls.py
+
+from django.urls import path
+from . import views
+
+app_name = 'accounts'
+
+urlpatterns = [
+    
+]
+```
+
+```python
+# crud/urls.py
+
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('articles/', include('articles.urls')),
+    path('accounts/', include('accounts.urls')),
+]
+```
+
+### [Custom User Model](https://www.notion.so/Django-184fb8301b824409a8227e6747e99fd9?pvs=21)
+
+- django 가 기본적으로 제공하는 User model은 내장된 auth 앱의 User 클래스를 사용
+    - 내장된 auth 앱 → django.contrib.auth
+- User 클래스를 대체하는 이유
+    - 지금까지는 User 클래스 정의 없이 내장된 User 클래스를 사용
+    - 별도의 설정 없이 사용할 수 있어 간편하지만, 개발자가 직접 수정할 수 없는 문제가 존재
+- **프로젝트를 시작하며 반드시 User 모델을 대체해야 함**
+    - Django는 새 프로젝트를 시작하는 경우 비록 기본 User 모델이 충분하더라도 커스텀 User 모델을 설정하는 것을 강력하게 권장
+    - 커스텀 User 모델은 기본 User 모델과 동일하게 작동하면서도 **필요한 경우 나중에 맞춤 설정**할 수 있기 때문
+    - 단, User 모델 대체 작업은 프로젝트의 모든 migrations 혹은 첫 migrate를 실행하기 전에 이 작업을 마쳐야 함
+
+#### AbstractUser를 상속받는 커스텀 User 클래스 작성
+
+- 기존 User 클래스도 AbstractUser를 상속받기 때문에 커스텀 User 클래스도 기존 User 클래스와 완전히 같은 모습을 가지게 됨
+
+```python
+# accounts/models.py
+
+from django.contrib.auth.models import AbstractUser
+
+class User(AbstractUser):
+    pass
+```
+
+#### django 프로젝트가 사용하는 기본 User 모델을 우리가 작성한 User 모델로 지정
+
+- **프로젝트 중간에 AUTH_USER_MODEL을 변경할 수 없음**
+    - 이미 프로젝트가 진행되고 있을 경우, 데이터 베이스 초기화 후 진행
+
+```python
+# settings.py
+
+AUTH_USER_MODEL = 'accounts.User'
+```
+
+#### admin site에 custom User 모델 등록
+
+```python
+# accounts/admin.py
+
+from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
+from .models import User
+
+admin.site.register(User, UserAdmin)
+```
+
+### Login
+
+- Session을 Create하는 과정
+
+#### AuthenticationForm()
+
+- 로그인 인증에 사용할 데이터를 입력 받는 built-in form
+
+#### 로그인 페이지 작성
+
+```python
+# accounts/urls.py
+
+from django.urls import path
+from . import views
+
+app_name = 'accounts'
+
+urlpatterns = [
+    path('login/', views.login, name='login'),
+]
+```
+
+```python
+# accounts/views.py
+
+from django.shortcuts import render
+from django.contrib.auth.forms import AuthenticationForm
+
+def login(request):
+    if request.method == 'POST':
+        pass
+    else:
+        form = AuthenticationForm()
+    context = {
+        'form': form,
+    }
+    return render(request, 'accounts/login.html', context)
+```
+
+```html
+<!-- accounts/login.html -->
+
+<h1>로그인</h1>
+<form action="{% url "accounts:login" %}" method="POST">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <input type="submit" value="로그인">
+</form>
+```
+
+#### 로그인 로직 작성
+
+```python
+# accounts/views.py
+
+from django.shortcuts import render, redirect
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import login as auth_login
+
+def login(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(request, request.POST)
+        if form.is_valid():
+            auth_login(request, form.get_user())
+            return redirect('articles:index')
+    else:
+        form = AuthenticationForm()
+    context = {
+        'form': form,
+    }
+    return render(request, 'accounts/login.html', context)
+```
+
+`login(request, user)` : AuthenticationForm을 통해 인증된 사용자를 로그인 하는 함수
+
+`get_user()` : AuthenticationForm의 인스턴스 메서드(유효성 검사를 통과했을 경우 로그인 한 사용자 객체를 반환)
+
+#### 세션 데이터 확인하기
+
+- 로그인 후 발급받은 세션 확인
+    - django_session 테이블에서 확인
+    
+    ![Untitled 21](https://github.com/yuj1818/TIL/assets/95585314/f0e48215-da38-4eb3-b6c7-2c7559a3650d)
+    
+- 브라우저에서 확인
+    - 개발자 도구(F12) - Application - Cookies
+    
+    ![Untitled 22](https://github.com/yuj1818/TIL/assets/95585314/0c735c0a-dcd5-4d56-9a4d-b767d24a6edb)
+    
+
+#### 로그인 링크 작성
+
+```html
+<!-- articles/index.html -->
+
+<h1>Articles</h1>
+<a href="{% url "accounts:login" %}">Loginn</a>
+<a href="{% url 'articles:create' %}">NEW</a>
+<hr>
+{% for article in articles %}
+  <p>글 번호 : {{ article.pk }}</p>
+  <a href="{% url "articles:detail" article.pk %}">
+    <p>글 제목 : {{ article.title }}</p>
+  </a>
+  <p>글 내용 : {{ article.content }}</p>
+  <hr>
+{% endfor %}
+```
+
+### Logout
+
+- Session을 Delete하는 과정
+
+#### logout(request)
+
+- 현재 요청에 대한 Session Data를 DB에서 삭제
+- 클라이언트의 쿠키에서도 Session Id를 삭제
+
+#### 로그아웃 로직 작성
+
+```python
+# accounts/urls.py
+
+from django.urls import path
+from . import views
+
+app_name = 'accounts'
+
+urlpatterns = [
+    path('login/', views.login, name='login'),
+    path('logout/', views.logout, name='logout'),
+]
+```
+
+```python
+# accounts/views.py
+
+from django.shortcuts import render, redirect
+from django.contrib.auth import logout as auth_logout
+
+def logout(request):
+    auth_logout(request)
+    return redirect('articles:index')
+```
+
+```html
+<!-- articles/index.html -->
+
+<h1>Articles</h1>
+<a href="{% url "accounts:login" %}">Login</a>
+<form action="{% url "accounts:logout" %}" method="POST">
+  {% csrf_token %}
+  <input type="submit" value="Logout">
+</form>
+<a href="{% url 'articles:create' %}">NEW</a>
+<hr>
+```
+
+#### 로그아웃 로직 작성
+
+- 로그아웃 진행 및 세션 데이터 삭제 확인
+
+### Template with Authentication data
+
+- 템플릿에서 인증 관련 데이터를 출력하는 방법
+
+#### 현재 로그인 되어있는 유저 정보 출력하기
+
+```html
+<!-- articles/index.html -->
+
+<h3>Hello, {{ user.username }}</h3>
+```
+
+#### context processors
+
+- 템플릿이 렌더링 될 때 호출 가능한 컨텍스트 데이터 목록
+- 작성된 컨텍스트 데이터는 기본적으로 템플릿에서 사용 가능한 변수로 포함됨
+- 즉, django에서 자주 사용하는 데이터 목록을 미리 템플릿에 로드 해 둔 것
+
+![Untitled 23](https://github.com/yuj1818/TIL/assets/95585314/4868fa5c-eb3e-4320-b21c-0cd67fa0c4e1)
+
+### 회원가입
+
+- User 객체를 Create 하는 과정
+
+#### UserCreationForm()
+
+- 회원 가입 시 사용자 입력 데이터를 받을 built-in ModelForm
+
+#### 회원 가입 페이지 작성
+
+```python
+# accounts/urls.py
+
+from django.urls import path
+from . import views
+
+app_name = 'accounts'
+urlpatterns = [
+    path('login/', views.login, name='login'),
+    path('logout/', views.logout, name='logout'),
+    path('signup/', views.signup, name='signup'),
+]
+```
+
+```python
+# accounts/views.py
+
+from django.shortcuts import render, redirect
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth import login as auth_login
+from django.contrib.auth import logout as auth_logout
+
+def signup(request):
+    if request.method == 'POST':
+        pass
+    else:
+        form = UserCreationForm()
+    context = {
+        'form': form,
+    }
+    return render(request, 'accounts/signup.html', context)
+```
+
+```html
+<!-- accounts/signup.html -->
+
+<h1>회원가입</h1>
+<form action="{% url "accounts:signup" %}" method="POST">
+  {{ form.as_p }}
+  <input type="submit">
+</form>
+```
+
+#### 회원 가입 로직 작성
+
+```python
+# accounts/views.py
+
+def signup(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('articles:index')
+    else:
+        form = UserCreationForm()
+    context = {
+        'form': form,
+    }
+    return render(request, 'accounts/signup.html', context)
+```
+
+- 회원가입에 사용하는  UserCreationForm이 우리가 대체한 커스텀 유저 모델이 아닌 기존 유저 모델로 인해 작성된 클래스이므로 위 코드에서 에러 발생
+- 커스텀 유저 모델을 사용하기 위해서는 UserCreationForm과 UserChangeForm을 다시 작성해야 함
+
+```python
+# accounts/forms.py
+
+from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+
+class CustomUserCreationForm(UserCreationForm):
+    class Meta(UserCreationForm.Meta):
+        model = get_user_model()
+
+class CustomUserChangeForm(UserChangeForm):
+    class Meta(UserChangeForm.Meta):
+        model = get_user_model()
+```
+
+```python
+# accounts/views.py
+# CustomUserCreationForm으로 대체
+
+from .forms import CustomUserCreationForm
+
+def signup(request):
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('articles:index')
+    else:
+        form = CustomUserCreationForm()
+    context = {
+        'form': form,
+    }
+    return render(request, 'accounts/signup.html', context)
+```
+
+`get_user_model()` : 현재 프로젝트에서 활성화된 사용자 모델(active user model)을 반환하는 함수
+
+### 회원 탈퇴
+
+- User 객체를 Delete 하는 과정
+
+#### 회원 탈퇴 로직 작성
+
+```python
+# accounts/urls.py
+from django.urls import path
+from . import views
+
+app_name = 'accounts'
+urlpatterns = [
+    path('login/', views.login, name='login'),
+    path('logout/', views.logout, name='logout'),
+    path('signup/', views.signup, name='signup'),
+    path('delete/', views.delete, name='delete'),
+]
+```
+
+```python
+# accounts/views.py
+
+def delete(request):
+    request.user.delete()
+    return redirect('articles:index')
+```
+
+```html
+<!-- articles/index.html -->
+
+<form action="{% url "accounts:delete" %}" method="POST">
+  {% csrf_token %}
+  <input type="submit" value="회원탈퇴">
+</form>
+```
+
+### 회원 정보 수정
+
+- User 객체를 Update 하는 과정
+
+#### UserChangeForm()
+
+- 회원 정보 수정 시 사용자 입력 데이터를 받을 built-in ModelForm
+
+#### 회원 정보 수정 페이지 작성
+
+```python
+# accounts/urls.py
+
+from django.urls import path
+from . import views
+
+app_name = 'accounts'
+urlpatterns = [
+    path('login/', views.login, name='login'),
+    path('logout/', views.logout, name='logout'),
+    path('signup/', views.signup, name='signup'),
+    path('delete/', views.delete, name='delete'),
+    path('update/', views.update, name='update'),
+]
+```
+
+```python
+# accounts/views.py
+
+from .forms import CustomUserChangeForm
+
+def update(request):
+    if request.method == 'POST':
+        pass
+    else:
+        form = CustomUserChangeForm(instance=request.user)
+    context = {
+        'form': form,
+    }
+    return render(request, 'accounts/update.html', context)
+```
+
+```html
+<!-- accounts/update.html -->
+
+<h1>회원정보 수정</h1>
+<form action="{% url "accounts:update" %}" method="POST">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <input type="submit">
+</form>
+```
+
+```html
+<!-- articles/index.html -->
+
+<a href="{% url "accounts:update" %}">회원정보 수정</a>
+```
+
+- UserChangeForm 사용 시 문제점
+    - User 모델의 모든 정보들(fields)까지 모두 출력되어 수정이 가능하기 때문에 일반 사용자들이 접근해서는 안되는 정보는 출력하지 않도록 해야 함
+    - CustomUserChangeForm()에서 접근 가능한 필드를 조정
+    
+    ```python
+    # accounts/forms.py
+    
+    class CustomUserChangeForm(UserChangeForm):
+        class Meta(UserChangeForm.Meta):
+            model = get_user_model()
+            fields = ('first_name', 'last_name', 'email')
+    ```
+    
+
+#### 회원정보 수정 로직 작성
+
+```python
+# accounts/views.py
+
+def update(request):
+    if request.method == 'POST':
+        form = CustomUserChangeForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('articles:index')
+    else:
+        form = CustomUserChangeForm(instance=request.user)
+    context = {
+        'form': form,
+    }
+    return render(request, 'accounts/update.html', context)
+```
+
+### 비밀번호 변경
+
+- 인증된 사용자의 Session 데이터를 Update 하는 과정
+
+#### PasswordChangeForm()
+
+- 비밀번호 변경 시 사용자 입력 데이터를 받을 built-in Form
+
+#### 비밀번호 변경 페이지 작성
+
+- django는 비밀번호 변경 페이지를 회원정보 수정 form에서 별도 주소로 안내
+    - /user_pk/password
+
+```python
+# crud/urls.py
+
+from django.contrib import admin
+from django.urls import path, include
+from accounts import views
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('articles/', include('articles.urls')),
+    path('accounts/', include('accounts.urls')),
+    path('<int:user_pk>/password/', views.change_password, name='change_password'),
+]
+```
+
+```python
+# accounts/views.py
+
+def change_password(request, user_pk):
+    if request.method == 'POST':
+        pass
+    else:
+        form = PasswordChangeForm(request.user)
+    context = {
+        'form': form,
+    }
+    return render(request, 'accounts/change_password.html', context)
+```
+
+```html
+<!-- accounts/change_password.html -->
+
+<h1>비밀번호 변경</h1>
+<form action="{% url "change_password" user.pk %}" method="POST">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <input type="submit">
+</form>
+```
+
+#### 비밀번호 변경 로직 작성
+
+```python
+# accounts/views.py
+
+def change_password(request, user_pk):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('articles:index')
+    else:
+        form = PasswordChangeForm(request.user)
+    context = {
+        'form': form,
+    }
+    return render(request, 'accounts/change_password.html', context)
+```
+
+- 세션 무효화 방지하기
+    - 비밀번호가 변경되면 기존 세션과의 회원 인증 정보가 일치하지 않게 되어 버려 로그인 상태가 유지되지 못하고 로그아웃 처리됨
+    - 비밀번호가 변경되면서 기존 세션과의 회원 인증 정보가 일치하지 않기 때문
+    - update_session_auth_hash(request, user)
+        - 암호 변경 시 세션 무효화를 막아주는 함수
+        - 암호가 변경되면 새로운 password의 Session data로 기존 session을 자동으로 갱신
+        
+        ```python
+        # accounts/views.py
+        
+        from django.contrib.auth import update_session_auth_hash
+        
+        def change_password(request, user_pk):
+            if request.method == 'POST':
+                form = PasswordChangeForm(request.user, request.POST)
+                if form.is_valid():
+                    user = form.save()
+                    update_session_auth_hash(request, user)
+                    return redirect('articles:index')
+            else:
+                form = PasswordChangeForm(request.user)
+            context = {
+                'form': form,
+            }
+            return render(request, 'accounts/change_password.html', context)
+        ```
+        
+
+### 인증된 사용자에 대한 접근 제한
+
+#### is_authenticated 속성
+
+- 사용자가 인증 되었는지 여부를 알 수 있는 User model의 속성
+- 모든 User 인스턴스에 대해 항상 True인 읽기 전용 속성이며, 비인증 사용자에 대해서는 항상 False
+
+```html
+<!-- articles/index.html -->
+<!-- 
+	로그인과 비로그인 상태에서 화면에 출력되는 링크를 다르게 설정
+-->
+
+{% if request.user.is_authenticated %}
+    <h3>{{ user.username }}님 안녕하세요!</h3>
+    <a href="{% url 'articles:create' %}">CREATE</a>
+    <form action="{% url "accounts:logout" %}" method="POST">
+      {% csrf_token %}
+      <input type="submit" value="LOGOUT">
+    </form>
+    <form action="{% url "accounts:delete" %}" method="POST">
+      {% csrf_token %}
+      <input type="submit" value="회원탈퇴">
+    </form>
+    <a href="{% url "accounts:update" %}">회원정보 수정</a>
+  {% else %}
+    <a href="{% url "accounts:login" %}">LOGIN</a>
+    <a href="{% url "accounts:signup" %}">SIGN UP</a>
+  {% endif %}
+```
+
+```python
+# accounts/views.py
+# 인증된 사용자라면 로그인/회원가입 로직을 수행할 수 없도록
+
+def login(request):
+    if request.user.is_authenticated:
+        return redirect('articles:index')
+    ...
+
+def signup(request):
+    if request.user.is_authenticated:
+        return redirect('articles:index')
+    ...
+
+```
+
+#### login_required 데코레이터
+
+- 인증된 사용자에 대해서만 view 함수를 실행시키는 데코레이터
+- 비인증 사용자의 경우 /accounts/login/ 주소로 redirect 시킴
+
+```python
+# articles/views.py
+# 인증된 사용자만 게시글을 작성/수정/삭제 할 수 있도록 수정
+
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def create(request):
+	...
+
+@login_required
+def delete(request):
+	...
+
+@login_required
+def update(request):
+	...
+```
+
+```python
+# accounts/views.py
+# 인증된 사용자만 로그아웃/탈퇴/수정/비밀번호 변경 할 수 있도록 수정
+
+@login_required
+def logout(request):
+	...
+
+@login_required
+def delete(request):
+	...
+
+@login_required
+def update(request):
+	...
+
+@login_required
+def change_password(request):
+	...
+```
+
 ## 참고
 
 ### Django 프로젝트 생성 루틴 정리 + git
@@ -2110,3 +2875,96 @@ class BaseModelForm(BaseForm):
                empty_permitted=False, instance=None, use_required_attribute=None,
                renderer=None):
 ```
+
+### 쿠키 종류 별 Lifetime
+
+| Session cookie | Persistent cookies |
+| --- | --- |
+| - 현재 세션이 종료되면 삭제됨
+- 브라우저 종료와 함께 세션이 삭제됨 | - Expires 속성에 지정된 날자 혹은 Max-Age 속성에 지정된 기간이 지나면 삭제됨 |
+
+### 세션 in Django
+
+- Django는 ‘database-backed sessions’ 저장 방식을 기본 값으로 사용
+- session 정보는 DB의 django_session 테이블에 저장
+- Django는 특정 session id를 포함하는 쿠키를 사용해서 각각의 브라우저와 사이트가 연결된 session을 알아냄
+- Django는 우리가 session 매커니즘(복잡한 동작 원리)에 대부분을 생각하지 않게끔 많은 도움을 줌
+
+### Authentication github 코드 참고
+
+- AuthenticationForm()
+    - [https://github.com/django/django/blob/main/django/contrib/auth/forms.py#L199](https://github.com/django/django/blob/main/django/contrib/auth/forms.py#L199)
+- AuthenticationForm의 get_user 인스턴스 메서드
+    - [https://github.com/django/django/blob/main/django/contrib/auth/forms.py#L269](https://github.com/django/django/blob/main/django/contrib/auth/forms.py#L269)
+
+### User 모델 상속 관계
+
+- ‘AbstractUser’ class
+    - 관리자 권한과 함께 완전한 기능을 가지고 있는 User model을 구현하는 추상 기본 클래스
+- Abstract base classes
+    - 몇 가지 공통 정보를 여러 다른 모델에 넣을 대 사용하는 클래스
+    - 데이터베이스 테이블을 만드는 데 사용되지 않으며, 대신 다른 모델의 기본 클래스로 사용되는 경우 해당 필드가 하위 클래스의 필드에 추가 됨
+    - https://docs.python.org/3/library/abc.html
+
+![Untitled 27](https://github.com/yuj1818/TIL/assets/95585314/a32e5b85-e651-461c-ae76-85e949cb2c3c)
+
+### 유저 모델 대체하기 Tip
+
+- 유저 모델을 대체하는 순서를 숙지하기 어려울 경우, 해당 공식 문서를 보며 순서대로 진행하는 것을 권장
+- [https://docs.djangoproject.com/en/4.2/topics/auth/customizing/#substituting-a-custom-user-model](https://docs.djangoproject.com/en/4.2/topics/auth/customizing/#substituting-a-custom-user-model)
+
+### is_authenticated 속성 코드
+
+- [https://github.com/django/django/blob/main/django/contrib/auth/base_user.py#L100](https://github.com/django/django/blob/main/django/contrib/auth/base_user.py#L100)
+
+### 회원가입 후 로그인까지 이어서 진행하려면?
+
+```python
+# accounts/views.py
+
+def signup(request):
+    if request.user.is_authenticated:
+        return redirect('articles:index')
+    
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            auth_login(request, user)
+            return redirect('articles:index')
+    else:
+        form = CustomUserCreationForm()
+    context = {
+        'form': form,
+    }
+    return render(request, 'accounts/signup.html', context)
+```
+
+### 탈퇴와 함께 기존 사용자의 Session Data 삭제 방법
+
+- 사용자 객체 삭제 이후 로그아웃 함수 호출
+- 단, **“탈퇴 후 로그아웃” 의 순서가 바뀌면 안됨**
+- 먼저 로그아웃이 진행되면 해당 요청 객체 정보가 없어지기 때문에 탈퇴에 필요한 유저 정보 또한 없어지기 때문
+
+```python
+# accounts/views.py
+
+@login_required
+def delete(request):
+    request.user.delete()
+    auth_logout(request)
+    return redirect('articles:index')
+```
+
+### PasswordChangeForm의 인자 순서
+
+- [https://github.com/django/django/blob/4.2/django/contrib/auth/forms.py#L378](https://github.com/django/django/blob/4.2/django/contrib/auth/forms.py#L378)
+
+### auth built-in form 코드 참고
+
+- UserCreationForm()
+    - [https://github.com/django/django/blob/4.2/django/contrib/auth/forms.py#L149](https://github.com/django/django/blob/4.2/django/contrib/auth/forms.py#L149)
+- UserChangeForm()
+    - [https://github.com/django/django/blob/4.2/django/contrib/auth/forms.py#L170](https://github.com/django/django/blob/4.2/django/contrib/auth/forms.py#L170)
+- PasswordChangeForm()
+    - [https://github.com/django/django/blob/4.2/django/contrib/auth/forms.py#L422](https://github.com/django/django/blob/4.2/django/contrib/auth/forms.py#L422)
