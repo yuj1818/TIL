@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>DETAIL PAGE</h1>
+  {% if movie.movie_image %}
+    <img src="{{ movie.movie_image.url }}" alt="movie_img">
+  {% endif %}
+  <h3>{{ movie.title }}</h3>
+  <p>{{ movie.description }}</p>
+  <br>
+  <p>작성자: {{ movie.author }}</p>
+  <hr>
+  {% if request.user.is_authenticated %}
+    {% if request.user == movie.author %}
+      <div class="d-flex gap-2">
+        <a href="{% url "movies:update" movie.pk %}" class="btn btn-secondary">UPDATE</a>
+        <form action="{% url "movies:delete" movie.pk %}" method="POST">
+          {% csrf_token %}
+          <input type="submit" value="DELETE" class="btn btn-danger">
+        </form>
+      </div>
+      <hr>
+    {% endif %}
+  {% endif %}
+  <a href="{% url "movies:index" %}" class="btn btn-primary">BACK</a>
+{% endblock content %}
