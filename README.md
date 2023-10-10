@@ -5,3 +5,4 @@
 - [python](python/README.md)
 - [algorithm](algorithm/README.md)
 - [web](web/README.md)
+- [sql](sql/README.md)
