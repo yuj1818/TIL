@@ -75,28 +75,28 @@
 
 ### 관계형 데이터베이스 관련 키워드
 
-Table(Relation)
+#### Table(Relation)
 
 - 행과 열을 사용하여 데이터를 기록하는 곳
 
-Field(Column, Attribute)
+#### Field(Column, Attribute)
 
 - 각 필드에는 고유한 데이터 형식(타입)이 지정됨
 
-Record(Row, Tuple)
+#### Record(Row, Tuple)
 
 - 각 레코드에는 구체적인 데이터 값이 저장됨
 
-Database(Schema)
+#### Database(Schema)
 
 - 테이블의 집합
 
-Primary Key(기본 키)
+#### Primary Key(기본 키)
 
 - 각 레코드의 고유한 값
 - 관계형 데이터베이스에서 레코드의 식별자로 활용
 
-Foreign Key(외래 키)
+#### Foreign Key(외래 키)
 
 - 테이블의 필드 중 다른 테이블의 레코드를 식별할 수 있는 키
 - 다른 테이블의 기본 키를 참조
@@ -481,7 +481,7 @@ WHERE
 
 ### Operators
 
-Comparison Operators(비교 연산자)
+#### Comparison Operators(비교 연산자)
 
 - =
 - ≥
@@ -497,7 +497,7 @@ Comparison Operators(비교 연산자)
     - 값이 특정 목록 안에 있는지 확인
 - BETWEEN…AND
 
-Logical Operators(논리 연산자)
+#### Logical Operators(논리 연산자)
 
 - AND(&&)
 - OR(||)
@@ -704,7 +704,7 @@ CREATE TABLE table_name (
 | ALTER TABLE DROP COLUMN | 필드 삭제 |
 | ALTER TABLE RENAME TO | 테이블 이름 변경 |
 
-ADD COLUMN
+#### ADD COLUMN
 
 ```sql
 ALTER TABLE
@@ -735,7 +735,7 @@ ADD COLUMN
     ```
     
 
-RENAME COLUMN
+#### RENAME COLUMN
 
 ```sql
 ALTER TABLE
@@ -756,7 +756,7 @@ RENAME COLUMN
     ```
     
 
-DROP COLUMN
+#### DROP COLUMN
 
 ```sql
 ALTER TABLE
@@ -778,7 +778,7 @@ DROP COLUMN
     ```
     
 
-RENAME TO
+#### RENAME TO
 
 ```sql
 ALTER TABLE
@@ -1066,6 +1066,318 @@ VALUES
         WHERE articles.userId IS NULL;
         ```
         
+## Many to one relationships - N : 1 or 1 : N
+
+- 한 테이블의 0개 이상의 레코드가 다른 테이블의 레코드 한 개와 관련된 관계
+- 예시
+    - comment(N) - article(1)
+        - 0개 이상의 댓글은 1개의 게시글에 작성 될 수 있다.
+        
+        ![Untitled 7](https://github.com/yuj1818/TIL/assets/95585314/575b891a-8d94-485a-8f52-8a947be10887)
+        
+
+### ForeignKey(to, on_delete)
+
+- N:1 관계 설정 모델 필드
+- to
+    - 참조하는 모델 class 이름
+- on_delete
+    - 외래 키가 참조하는 객체(1)가 사라졌을 때, 외래 키를 가진 객체(N)를 어떻게 처리할 지를 정의하는 설정(데이터 무결성)
+    - CASCADE
+        - 부모 객체(참조 된 객체)가 삭제 됐을 때 이를 참조하는 객체도 삭제
+        - 기타 설정 값 참고
+            - [https://docs.djangoproject.com/en/4.2/ref/models/fields/#arguments](https://docs.djangoproject.com/en/4.2/ref/models/fields/#arguments)
+
+### 댓글 모델 구현
+
+#### 댓글 모델 정의
+
+- ForeignKey() 클래스의 인스턴스 이름은 참조하는 모델 클래스 이름의 단수형으로 작성하는 것을 권장
+- ForeignKey 클래스를 작성하는 위치와 관계없이 외래 키는 테이블 필드 마지막에 생성됨
+
+```python
+# articles/models.py
+
+class Comment(models.Model):
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    content = models.CharField(max_length=200)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+```
+
+#### Migration
+
+- 댓글 테이블의 article_id 필드 확인
+- 참조하는 클래스 이름의 소문자(단수형)로 작성하는 것이 권장 되었던 이유
+    - ‘참조 대상 클래스 이름’ + ‘_’ + ‘클래스 이름’
+
+### 댓글 생성 연습
+
+```bash
+# 게시글 작성
+Articles.objects.create(title='title', content='content')
+
+# Comment 클래스의 인스턴스 comment 생성
+comment = Comment()
+
+# 인스턴스 변수 저장
+comment.content = 'first content'
+
+# DB에 댓글 저장
+comment.save()
+
+# 에러 발생
+# articles_comment 테이블의 ForeignField, article_id 값이 저장 시 누락되었기 때문
+
+# 게시글 조회
+article = Article.objects.get(pk=1)
+
+# 외래 키 데이터 입력
+comment.article = article
+
+# 댓글 저장 및 확인
+comment.save()
+
+# 두번째 댓글 작성
+comment = Comment(content='second comment', article=article)
+comment.save()
+
+```
+
+### 관계 모델 참조
+
+#### 역참조
+
+- N:1 관계에서 1에서 N을 참조하거나 조회하는 것(1 → N)
+- N은 외래 키를 가지고 있어 물리적으로 참조가 가능하지만 1은 N에 대한 참조 방법이 존재하지 않아 별도의 역참조 이름이 필요
+- article.comment_set.all()
+    - article - 모델 인스턴스
+    - comment_set - related manager(역참조 이름)
+    - all() - QuerySet API
+
+#### related manager
+
+- N:1 혹은 M:N 관계에서 역참조 시에 사용하는 매니저
+- ‘objects’ 매니저를 통해 queryset api를 사용했던 것처럼 related manager를 통해 queryset api를 사용할 수 있게 됨
+- 이름 규칙
+    - N:1 관계에서 생성되는 Related manager의 이름은 참조하는 “모델명_set” 이름 규칙으로 만들어짐
+    - 해당 댓글의 게시글(Comment → Article)
+        - comment.article
+    - 게시글의 댓글 목록(Article → Comment)
+        - article.comment_set.all()
+
+```bash
+# 1번 게시글 조회
+article = Article.objects.get(pk=1)
+
+# 1번 게시글에 작성된 모든 댓글 조회하기
+article.comment_set.all()
+
+# 1번 게시글에 작성된 모든 댓글 내용 출력
+comments = article.comment_set.all()
+
+for comment in comments:
+	print(comment.content)
+```
+
+### 댓글 구현
+
+#### 댓글 CREATE
+
+- 사용자로부터 댓글 데이터를 입력 받기 위한 CommentForm 정의
+    
+    ```python
+    # articles/forms.py
+    
+    from django import forms
+    from .models import Article, Comment
+    
+    class CommentForm(forms.ModelForm):
+        class Meta:
+            model = Comment
+            fields = '__all__'
+    ```
+    
+- detail view 함수에서 CommentForm을 사용하여 detail 페이지에 렌더링
+    
+    ```python
+    # articles/views.py
+    
+    form .forms import ArticleForm, CommentForm
+    
+    def detail(request, pk):
+        article = Article.objects.get(pk=pk)
+        comment_form = CommentForm()
+        context = {
+            'article': article,
+            'comment_form': comment_form,
+        }
+        return render(request, 'articles/detail.html', context)
+    ```
+    
+    ```html
+    <form action="#" method="POST">
+      {% csrf_token %}
+      {{ comment_form }}
+      <input type="submit">
+    </form>
+    ```
+    
+- Comment 클래스의 외래 키 필드 article 또한 데이터 입력이 필요한 필드이기 때문에 위와 같이 작성하면 article 입력 form까지 출력 됨
+- 하지만, 외래 키 필드는 사용자 입력 값으로 받는 것이 아닌 view 함수 내에서 다른 방법으로 전달 받아 저장되어야 함
+- CommentForm의 출력 필드 조정
+    
+    ```python
+    class CommentForm(forms.ModelForm):
+        class Meta:
+            model = Comment
+            fields = ('content',)
+    ```
+    
+    - 출력에서 제외된 외래 키 데이터는 어디서 받아와야 하는가?
+        - detail 페이지의 url path(’<int:pk>/’, views.detail, name=’detail’) 에서 해당 게시글의 pk 값이 사용되고 있음
+        - 댓글의 외래 키 데이터에 필요한 정보가 바로 게시글의 pk값
+- url 작성 및 action 값 작성
+    
+    ```python
+    # articles/urls.py
+    urlpatterns = [
+        ... ,
+        path('<int:pk>/comments/', views.comments_create, name='comments_create'),
+    ]
+    ```
+    
+    ```html
+    <!-- articles/detail.html -->
+    <form action="{% url "articles:comments_create" article.pk %}" method="POST">
+      {% csrf_token %}
+      {{ comment_form }}
+      <input type="submit">
+    </form>
+    ```
+    
+- comments_create view 함수 정의
+    
+    ```python
+    # articles/views.py
+    
+    def comments_create(request, pk):
+        article = Article.objects.get(pk=pk)
+        comment_form = CommentForm(request.POST)
+        if comment_form.is_valid():
+            comment_form.save()
+            return redirect('articles:detail', article.pk)
+        context = {
+            'article': article,
+            'comment_form': comment_form,
+        }
+        return render(request, 'articles/detail.html', context)
+    ```
+    
+- save의 commit 인자를 활용해 외래 키 데이터 추가 입력
+    - `save(commit=False)`
+        - DB에 저장하지 않고 인스턴스만 반환
+        - Create, but don’t save the new instance
+    
+    ```python
+    # articles/views.py
+    
+    def comments_create(request, pk):
+        article = Article.objects.get(pk=pk)
+        comment_form = CommentForm(request.POST)
+        if comment_form.is_valid():
+            comment = comment_form.save(commit=False)
+    				comment.article = article
+    				comment_form.save()
+            return redirect('articles:detail', article.pk)
+        context = {
+            'article': article,
+            'comment_form': comment_form,
+        }
+        return render(request, 'articles/detail.html', context)
+    ```
+    
+
+#### 댓글 READ
+
+- detail view 함수에서 전체 댓글 데이터를 조회
+    
+    ```python
+    # articles/views.py
+    
+    from .models import Article, Comment
+    
+    def detail(request, pk):
+        article = Article.objects.get(pk=pk)
+        comment_form = CommentForm()
+        comments = article.comment_set.all()
+        context = {
+            'article': article,
+            'comment_form': comment_form,
+            'comments': comments,
+        }
+        return render(request, 'articles/detail.html', context)
+    ```
+    
+- 전체 댓글 출력 및 확인
+    
+    ```html
+    <!-- articles/detail.html -->
+    
+    <h4>댓글 목록</h4>
+    <ul>
+      {% for comment in comments %}
+        <li>{{ comment.content }}</li>
+      {% endfor %}
+    </ul>
+    ```
+    
+
+#### 댓글 DELETE
+
+- 댓글 삭제 url 작성
+    
+    ```python
+    # article/urls.py
+    
+    urlpatterns = [
+        ... ,
+        path('<int:article_pk>/comments/<int:comment_pk>/delete/',
+             views.comments_delete,
+             name='comments_delete'
+        ),
+    ]
+    ```
+    
+- 댓글 삭제 view 함수 정의
+    
+    ```python
+    # articles/views.py
+    
+    def comments_delete(request, article_pk, comment_pk):
+        comment = Comment.objects.get(pk=comment_pk)
+        comment.delete()
+        return redirect('articles:detail', article_pk)
+    ```
+    
+- 댓글 삭제 버튼 작성
+    
+    ```html
+    <!-- articles/detail.html -->
+    
+    <h4>댓글 목록</h4>
+    <ul>
+      {% for comment in comments %}
+        <li>
+          {{ comment.content }}
+          <form action="{% url "articles:comments_delete" article.pk comment.pk %}" method="POST">
+            {% csrf_token %}
+            <input type="submit" value="DELETE">
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+    ```
 
 ## 참고
 
@@ -1093,3 +1405,55 @@ VALUES
 - SQLite에는 날짜 및/또는 시간을 저장하기 위한 별도 데이터 타입이 없음
 - 대신 날짜 및 시간에 대한 함수를 사용해 표기 형식에 따라 TEXT, REAL, INTEGER 값으로 저장
 - [https://www.sqlite.org/datatype3.html](https://www.sqlite.org/datatype3.html)
+
+### admin site 등록
+
+- Comment 모델을 admin site에 등록해 CRUD 동작 확인하기
+
+```python
+# articles/admin.py
+
+from .models import Article, Comment
+
+admin.site.register(Article)
+admin.site.register(Comment)
+```
+
+### 댓글이 없는 경우 대체 콘텐츠 출력
+
+- DTL ‘for empty’ 태그 사용
+
+```html
+<!-- articles/detail.html -->
+
+<h4>댓글 목록</h4>
+<ul>
+  {% for comment in comments %}
+    <li>
+      {{ comment.content }}
+      <form action="{% url "articles:comments_delete" article.pk comment.pk %}" method="POST">
+        {% csrf_token %}
+        <input type="submit" value="DELETE">
+      </form>
+    </li>
+  {% empty %}
+    <p>댓글이 없어요</p>
+  {% endfor %}
+</ul>
+```
+
+### 댓글 개수 출력하기
+
+- DTL filter - ‘length’ 사용
+
+```html
+{{ comments|length }}
+
+{{ article.comment_set.all|length }}
+```
+
+- QuerysetAPI - ‘count()’ 사용
+
+```html
+{{ article.comment_set.count }}
+```
