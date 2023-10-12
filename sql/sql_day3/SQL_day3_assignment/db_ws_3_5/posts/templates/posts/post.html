@@ -1,0 +1,35 @@
+<div class="card" style="width: 32%;">
+  {% if post.image %}
+    <img src="{{post.image.url}}" alt="image" class="card-img-top">
+  {% endif %}
+  <div class="card-body d-flex flex-column justify-content-between">
+    <p>{{post.content}}</p>
+    {% if request.user == post.author %}
+      <div class="align-self-end">
+        <a href="{% url "posts:update" post.pk %}" class="btn btn-sm btn-info">수정</a>
+        <a href="{% url "posts:delete" post.pk %}" class="btn btn-sm btn-danger">삭제</a>
+      </div>
+    {% endif %}
+  </div>
+  <div class="card-footer">
+    {% for comment in post.comment_set.all %}
+      <p>
+        <b>{{ comment.author }}</b> : {{ comment.content }}
+        {% if request.user == comment.author %}
+          <a href="{% url "posts:comment_delete" post.pk comment.pk %}">
+            <i class="bi bi-x"></i>
+          </a>
+        {% endif %}
+      </p>
+    {% empty %}
+      <p>댓글 없음</p>
+    {% endfor %}
+    {% if request.user.is_authenticated %}
+      <form class="d-flex" action="{% url "posts:comment_create" post.pk %}" method="POST">
+        {% csrf_token %}
+        {{ comment_form }}
+        <input type="submit" value="입력" class="btn btn-sm btn-primary">
+      </form>
+    {% endif %}
+  </div>
+</div>

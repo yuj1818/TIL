@@ -1,13 +1,16 @@
 from django.shortcuts import render, redirect
-from .forms import Form
-from .models import Post
+from .forms import Form, CommentForm
+from .models import Post, Comment
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST, require_GET
 
 # Create your views here.
 def index(request):
     posts = Post.objects.all()
+    comment_form = CommentForm()
     context = {
         'posts': posts,
+        'comment_form': comment_form,
     }
     return render(request, 'posts/index.html', context)
 
@@ -50,3 +53,25 @@ def update(request, post_pk):
         'form': form,
     }
     return render(request, 'posts/form.html', context)
+
+@require_POST
+def comment_create(request, post_pk):
+    if not request.user.is_authenticated:
+        return redirect('posts:index')
+    post = Post.objects.get(pk=post_pk)
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.author = request.user
+            comment.post = post
+            form.save()
+            return redirect('posts:index')
+
+@require_GET
+@login_required
+def comment_delete(request, post_pk, comment_pk):
+    comment = Comment.objects.get(pk=comment_pk)
+    if request.user == comment.author:
+        comment.delete()
+    return redirect('posts:index')
