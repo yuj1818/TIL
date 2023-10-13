@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>INDEX PAGE</h1>
+  <div class="container p-0">
+    <div class="d-flex flex-wrap justify-content-between">
+      {% for movie in movies %}
+        <div class="card mb-2" style="width:49%;">
+          <div class="card-header">{{ movie.title }}</div>
+          <div class="card-body">
+            <p class="card-text">{{ movie.description }}</p>
+            <a href="{% url "movies:detail" movie.pk %}" class="btn btn-primary">Detail</a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock content %}
