@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>내가 좋아하는 포스트</h1>
+    <div class="d-flex flex-wrap gap-2">
+    {% for post in likes %}
+        {% include "posts/post.html" %}
+    {% endfor %}
+    </div>
+{% endblock content %}

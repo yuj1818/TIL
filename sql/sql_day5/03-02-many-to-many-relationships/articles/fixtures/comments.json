@@ -1,0 +1,68 @@
+[
+{
+    "model": "articles.comment",
+    "pk": 1,
+    "fields": {
+        "article": 1,
+        "user": 1,
+        "content": "aaa",
+        "created_at": "2023-10-17T00:16:04.099Z",
+        "updated_at": "2023-10-17T00:16:04.099Z"
+    }
+},
+{
+    "model": "articles.comment",
+    "pk": 2,
+    "fields": {
+        "article": 1,
+        "user": 1,
+        "content": "bbb",
+        "created_at": "2023-10-17T00:16:05.261Z",
+        "updated_at": "2023-10-17T00:16:05.261Z"
+    }
+},
+{
+    "model": "articles.comment",
+    "pk": 3,
+    "fields": {
+        "article": 1,
+        "user": 1,
+        "content": "ccc",
+        "created_at": "2023-10-17T00:16:06.931Z",
+        "updated_at": "2023-10-17T00:16:06.931Z"
+    }
+},
+{
+    "model": "articles.comment",
+    "pk": 4,
+    "fields": {
+        "article": 2,
+        "user": 2,
+        "content": "test2",
+        "created_at": "2023-10-17T00:45:34.384Z",
+        "updated_at": "2023-10-17T00:45:34.384Z"
+    }
+},
+{
+    "model": "articles.comment",
+    "pk": 5,
+    "fields": {
+        "article": 2,
+        "user": 2,
+        "content": "댓글댓글",
+        "created_at": "2023-10-17T00:45:38.894Z",
+        "updated_at": "2023-10-17T00:45:38.903Z"
+    }
+},
+{
+    "model": "articles.comment",
+    "pk": 6,
+    "fields": {
+        "article": 1,
+        "user": 2,
+        "content": "ㅁㅇㄴㅁㄴㅇㄹ",
+        "created_at": "2023-10-17T00:45:43.949Z",
+        "updated_at": "2023-10-17T00:45:43.949Z"
+    }
+}
+]
