@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+  {% if request.user == profile.user %}
+    <h1>환영합니다! {{ user.username }}</h1>
+  {% else %}
+    <div class="d-flex align-items-center gap-1">
+      <h1>{{ profile.user.username }}님의 프로필</h1>
+      <form action="{% url "accounts:follow" profile.user.pk %}" method="POST">
+        {% csrf_token %}
+        {% if request.user in profile.user.followers.all %}
+          <input type="submit" value="팔로우 취소" class="btn btn-outline-primary">
+        {% else %}
+          <input type="submit" value="팔로우" class="btn btn-primary">
+        {% endif %}
+      </form>
+    </div>
+  {% endif %}
+  {% if profile.image_file %}
+    <img src="{{ profile.image_file.url }}" alt="profile">
+  {% endif %}
+  {% if profile.nickname %}
+    <p>닉네임 : {{ profile.nickname }}</p>
+  {% endif %}
+  {% if profile.introduction %}
+    <p>자기소개 : {{ profile.introduction }}</p>
+  {% endif %}
+  {% if request.user == profile.user %}
+    <div class="d-flex">
+      <form action="{% url "accounts:logout" %}">
+        <input type="submit" value="로그아웃" class="btn btn-secondary">
+      </form>
+      <a href="{% url "accounts:update" %}" class="btn btn-warning">회원정보 수정</a>
+      <a href="{% url "change_password" user.pk %}" class="btn btn-primary">비밀번호 변경</a>
+      <a href="{% url "accounts:delete" %}" class="btn btn-danger">회원 탈퇴</a>
+      <a href="{% url "accounts:profile_update" %}" class="btn btn-info">프로필 수정</a>
+    </div>
+  {% endif %}
+  <hr>
+  <div class="d-flex flex-wrap row-gap-2">
+    {% for post in posts %}
+      {% include "posts/post.html" %}
+    {% endfor %}
+  </div>
+{% endblock content %}

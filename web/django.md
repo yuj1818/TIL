@@ -2626,6 +2626,276 @@ def change_password(request):
 	...
 ```
 
+## REST API
+
+- REST라는 설계 디자인 약속을 지켜 구현한 API
+
+### API(Application Programming Interface)
+
+- 애플리케이션과 프로그래밍으로 소통하는 방법
+- 클라이언트-서버처럼 서로 다른 프로그램에서 요청과 응답을 받을 수 있도록 만든 체계
+- 복잡한 코드를 추상화하여 대신 사용할 수 있는 몇 가지 더 쉬운 구문을 제공
+
+### Web API
+
+- 웹 서버 또는 웹 브라우저를 위한 API
+- 현대 웹 개발은 하나부터 열까지 직접 개발하기보다 여러 Open API 들을 활용하는 추세
+- 대표적인 Third Party Open API 서비스 목록
+    - Youtube API
+    - Google Map API
+    - Naver Papago API
+    - Kakao Map API
+
+### REST(Representational State Transfer)
+
+- API Server를 개발하기 위한 일종의 소프트웨어 설계 방법론
+- 약속(규칙X)
+
+### RESTful API
+
+- REST의 원리를 따르는 시스템을 RESTful하다고 부름
+- **자원을 정의**하고 **자원에 대한 주소를 지정**하는 전반적인 방법을 서술
+
+### REST에서 자원을 정의하고 주소를 지정하는 방법
+
+1. 자원의 식별
+    - URI(Uniform Resource Identifier)
+        - 통합 자원 식별자
+        - 인터넷에서 리소스(자원)을 식별하는 문자열
+        - 가장 일반적인 URI는 웹 주소로 알려진 URL
+    - URL(Uniform Resource Locator)
+        - 통합 자원 위치
+        - 웹에서 주어진 리소스의 주소
+        - 네트워크 상에 리소스가 어디 있는지를 알려주기 위한 약속
+        
+        ![Untitled 24](https://github.com/yuj1818/TIL/assets/95585314/0b3220f8-674c-468c-98de-cb90af1e0e05)
+        
+        - Schema(or Protocol)
+            - 브라우저가 리소스를 요청하는 데 사용해야 하는 규약
+            - URL의 첫 부분은 브라우저가 어떤 규약을 사용하는지를 나타냄
+            - 기본적으로 웹은 HTTP(S)를 요구하며 메일을 열기위한 malito:, 파일을 전송하기 위한 ftp: 등 다른 프로토콜도 존재
+        - Domain Name
+            - 요청 중인 웹 서버를 나타냄
+            - 어떤 웹 서버가 요구되는 지를 기리키며 직접 IP 주소를 사용하는 것도 가능하지만, 사람이 외우기 어렵기 때문에 주로 Domain Name으로 사용
+            - 예를 들어 도메인 google.com의 IP주소는 142.251.42.142
+        - Port
+            - 웹 서버의 리소스에 접근하는데 사용되는 기술적인 문(Gate)
+            - HTTP 프로토콜의 표준 포트
+                - HTTP - 80
+                - HTTPS - 443
+            - 표준 포트만 생략 가능
+        - Path
+            - 웹 서버의 리소스 경로
+            - 초기에는 실제 파일이 위치한 물리적 위치를 나타냈지만, 오늘날은 실제 위치가 아닌 추상화된 형태의 구조를 표현
+            - 예를 들어 /articles/create/가 실제 articles 폴더 안에 create 폴더 안을 나타내는 것도 아님
+        - Parameters
+            - 웹 서버에 제공하는 추가적인 데이터
+            - ‘&’ 기호로 구분되는 key-value 쌍 목록
+            - 서버는 리소스를 응답하기 전에 이러한 파라미터를 사용하여 추가 작업을 수행할 수 있음
+        - Anchor
+            - 일종의 북마크를 나타내며 브라우저에 해당 지점이 있는 콘텐츠를 표시
+            - fragment identifier(부분 식별자)라고 부르는 ‘#’ 이후 부분은 서버에 전송되지 않음
+            - [https://docs.djangoproejct.com/en/4.2/intro/install/#quick-install-guide](https://docs.djangoproejct.com/en/4.2/intro/install/#quick-install-guide) 요청에서 #quick-install-guide는 서버에 전달되지 않고 브라우저에게 해당 지점으로 이동할 수 있도록 함
+2. 자원의 행위
+    - HTTP Request Methods
+        - 리소스에 대한 행위(수행하고자 하는 동작)를 정의
+        - HTTP verbs라고도 함
+        - GET
+            - 서버에 리소스의 표현을 요청
+            - GET을 사용하는 요청은 데이터만 검색해야 함
+        - POST
+            - 데이터를 지정된 리소스에 제출
+            - 서버의 상태를 변경
+        - PUT
+            - 요청한 주소의 리소스를 수정
+        - DELETE
+            - 지정된 리소스를 삭제
+    - HTTP response status code
+        - 특정 HTTP 요청이 성공적으로 완료 되었는지 여부를 나타냄
+        - 5개의 응답 그룹
+            - Informational responses (100-199)
+            - Successful responses (200-299)
+            - Redirection messages (300-399)
+            - Client error responses (400-499)
+            - Server error responses (500-599)
+3. 자원의 표현
+    - JSON 데이터
+    - 궁극적으로 표현되는 데이터 결과물
+    - 응답 데이터 타입의 변화
+        - 페이지(html)만을 응답하는 서버
+            - Client ⇄ HTML ⇄ Server
+        - JSON 데이터를 응답하는 REST API 서버로의 변환
+            - Client ⇄ JSON ⇄ Server
+        - Django는 더이상 Template 부분을 담당하지 않고 Front, Back이 분리되어 구성
+            - Client ⇄ Front-end Framework(React, Angular, Vue) ⇄ JSON ⇄ Server(Django)
+
+## DRF(Django REST framework)
+
+- Django에서 Restful API 서버를 쉽게 구축할 수 있도록 도와주는 오픈소스 라이브러리
+
+### Serialization(직렬화)
+
+- 여러 시스템에서 활용하기 위해 데이터 구조나 객체 상태를 나중에 재구성할 수 있는 포맷으로 변환하는 과정
+- 어떠한 언어나 환경에서도 나중에 다시 쉽게 사용할 수 있는 포맷으로 변환하는 과정
+
+![Untitled 25](https://github.com/yuj1818/TIL/assets/95585314/4f74829d-1ab0-40b9-8014-0835861dea92)
+
+### DRF with Single Model
+
+#### Postman
+
+- API를 구축하고 사용하기 위한 플랫폼
+- API를 빠르게 만들 수 있는 여러 도구 및 기능을 제공
+
+#### URL과 HTTP requests methods 설계
+
+|  | GET | POST | PUT | DELETE |
+| --- | --- | --- | --- | --- |
+| articles/ | 전체 글 조회 | 글 작성 |  |  |
+| articles/1 | 1번 글 조회 |  | 1번 글 수정 | 1번 글 삭제 |
+
+#### GET - List
+
+- 게시글 데이터 목록 조회하기
+- 게시글 데이터 목록을 제공하는 ArticleListSerializer 정의
+
+`ModelSerializer` : Django 모델과 연결된 Serializer 클래스
+
+```python
+# articles/serializers.py
+
+from rest_framework import serializers
+from .models import Article
+
+class ArticleListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Article
+        fields = ('id', 'title', 'content',)
+```
+
+```python
+# articles/urls.py
+
+urlpatterns = [
+    path('articles/', views.articles_list),
+]
+```
+
+```python
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+
+from .models import Article
+from .serializers import ArticleListSerializer
+
+@api_view(['GET'])
+def article_list(request):
+    articles = Article.objects.all()
+    serializer = ArticleListSerializer(articles, many=True)
+    return Response(serializer.data)
+```
+
+- 데이터를 HTML에 출력되도록 페이지와 함께 응답했던 이전의 view함수와 달리, JSON 데이터로 serialization 하여 페이지 없이 응답하도록 함
+- api_view decorator
+    - DRF view 함수에서는 필수로 작성되며 view 함수를 실행하기 전 HTTP 메서드를 확인
+    - 기본적으로 GET 메서드만 허용되며 다른 메서드 요청에 대해서는 405 Method Not Allowed로 응답
+    - DRF view 함수가 응답해야 하는 HTTP 메서드 목록을 작성
+
+#### GET - Detail
+
+- 단일 게시글 데이터 조회하기
+- 각 게시글의 상세 정보를 제공하는 ArticleSerializer 정의
+
+```python
+# articles/serializers.py
+
+class ArticleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Article
+        fields = '__all__'
+```
+
+```python
+# articles/urls.py
+
+urlpatterns = [
+    ...
+    path('articles/<int:article_pk>/', views.article_detail),
+]
+```
+
+```python
+# articles/views.py
+
+@api_view(['GET'])
+def article_detail(request, article_pk):
+    article = Article.objects.get(pk=article_pk)
+    serializer = ArticleSerializer(article)
+    return Response(serializer.data)
+```
+
+#### POST
+
+- 게시글 데이터 생성하기
+- 데이터 생성이 성공했을 경우 201 Created를 응답
+- 데이터 생성이 실패했을 경우 400 Bad request를 응답
+
+```python
+# articles/views.py
+
+@api_view(['GET', 'POST'])
+def article_list(request):
+    if request.method == 'GET':
+        articles = Article.objects.all()
+        serializer = ArticleListSerializer(articles, many=True)
+        return Response(serializer.data)
+    elif request.method == 'POST':
+        serializer = ArticleSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+```
+
+#### DELETE
+
+- 게시글 데이터 삭제하기
+- 요청에 대한 데이터 삭제가 성공했을 경우는 204 No Content 응답
+
+```python
+# articles/views.py
+
+@api_view(['GET', 'DELETE'])
+def article_detail(request, article_pk):
+    article = Article.objects.get(pk=article_pk)
+    if request.method == 'GET':
+        serializer = ArticleSerializer(article)
+        return Response(serializer.data)
+    elif request.method == 'DELETE':
+        article.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+```
+
+#### PUT
+
+- 게시글 데이터 수정하기
+- 요청에 대한 데이터 수정이 성공했을 경우는 200 OK 응답
+
+```python
+# articles/views.py
+
+@api_view(['GET', 'DELETE', 'PUT'])
+def article_detail(request, article_pk):
+    article = Article.objects.get(pk=article_pk)
+    ...
+    elif request.method == 'PUT':
+        serializer = ArticleSerializer(article, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+```
+
 ## 참고
 
 ### Django 프로젝트 생성 루틴 정리 + git
@@ -2968,3 +3238,23 @@ def delete(request):
     - [https://github.com/django/django/blob/4.2/django/contrib/auth/forms.py#L170](https://github.com/django/django/blob/4.2/django/contrib/auth/forms.py#L170)
 - PasswordChangeForm()
     - [https://github.com/django/django/blob/4.2/django/contrib/auth/forms.py#L422](https://github.com/django/django/blob/4.2/django/contrib/auth/forms.py#L422)
+
+### raise_exception
+
+- is_valid()는 유효성 검사 오류가 있는 경우 ValidationError 예외를 발생시키는 선택적 raise_exception 인자를 사용할 수 있음
+- DRF에서 제공하는 기본 예외 처리기에 의해 자동으로 처리되며 기본적으로 HTTP 400 응답을 반환
+
+```python
+# articles/views.py
+
+@api_view(['GET', 'DELETE', 'PUT'])
+def article_detail(request, article_pk):
+    article = Article.objects.get(pk=article_pk)
+    ...
+    elif request.method == 'PUT':
+        serializer = ArticleSerializer(article, data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data)
+        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+```
