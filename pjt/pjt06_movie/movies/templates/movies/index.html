@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+  <img src="{% static "poster.png" %}" alt="" class="w-100 mb-2">
+  <h1>INDEX PAGE</h1>
+  <div class="container p-0">
+    <div class="d-flex flex-wrap justify-content-between">
+      {% for movie in movies %}
+        <div class="card mb-2" style="width:49%;">
+          <div class="card-body">
+            <p class="card-text"><a href="{% url "movies:detail" movie.pk %}">{{ movie.title }}</a></p>
+            <p class="text-end">{{ movie.created_at }}</p>
+            <div class="d-flex justify-content-between">
+              <p>좋아요 {{ movie.like_users.count }}</p>
+              <form action="{% url "movies:likes" movie.pk %}" method="POST">
+                {% csrf_token %}
+                {% if request.user in movie.like_users.all %}
+                  <input type="submit" value="좋아요 취소" class="btn btn-outline-primary">
+                {% else %}
+                  <input type="submit" value="좋아요" class="btn btn-primary">
+                {% endif %}
+              </form>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock content %}

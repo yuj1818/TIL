@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Follower List</h1>
+    <a href="{% url "accounts:profile" user.username %}">Back</a>
+    <hr>
+    <ul>
+        {% for follower in user.followers.all %}
+            <li><h3><a href="{% url "accounts:profile" follower.username %}">{{ follower.username }}</a></h3></li>
+        {% empty %}
+            <p>인원이 없습니다.</p>
+        {% endfor %}
+    </ul>
+{% endblock content %}

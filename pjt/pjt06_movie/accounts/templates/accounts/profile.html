@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>{{ user.username }}님의 프로필</h1>
+    <br>
+    <h3>영화 목록</h3>
+    {% for movie in user.movie_set.all %}
+        <div class="card mb-3 movie-list">
+            <div class="card-body">
+                <a href="{% url "movies:detail" movie.pk %}">{{ movie.title }}</a>
+            </div>
+        </div>
+    {% endfor %}
+    <hr>
+    <h3>좋아요 누른 개수 : {{ user.like_movies.count }}</h3>
+    <a href="{% url "movies:like_movie_list" user.pk %}">좋아요 영화 확인</a>
+    <hr>
+    <div class="d-flex justify-content-between">
+        <div>
+            <p><a href="{% url "accounts:follower_list" user.pk %}">팔로워</a> : {{ user.followers.count }}</p>
+            <p><a href="{% url "accounts:following_list" user.pk %}">팔로잉</a> : {{ user.followings.count }}</p>
+        </div>
+        {% if request.user != user %}
+            <form action="{% url "accounts:follow" user.pk %}" method="POST">
+                {% csrf_token %}
+                {% if request.user in user.followers.all %}
+                    <input type="submit" value="팔로우 취소" class="btn btn-primary">
+                {% else %}
+                    <input type="submit" value="팔로우" class="btn btn-primary">
+                {% endif %}
+            </form>
+        {% endif %}
+    </div>
+    <hr>
+    {% if request.user == user %}
+        <form action="{% url "accounts:delete" %}" method="POST">
+            {% csrf_token %}
+            <input type="submit" value="탈퇴하기" class="btn btn-danger">
+        </form>
+    {% endif %}
+{% endblock content %}

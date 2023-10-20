@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>DETAIL PAGE</h1>
+    <br>
+    <h2>{{ movie.title }}</h2>
+    <br>
+    <p>{{ movie.description }}</p>
+    <br>
+    <small>작성자 : <a href="{% url "accounts:profile" movie.user %}">{{ movie.user }}</a></small>
+    <hr>
+    {% if request.user == movie.user %}
+        <div class="d-flex gap-1">
+            <a href="{% url "movies:update" movie.pk %}" class="btn btn-secondary">UPDATE</a>
+            <form action="{% url "movies:delete" movie.pk %}" method="POST">
+                {% csrf_token %}
+                <input type="submit" value="DELETE" class="btn btn-danger">
+            </form>
+        </div>
+        <hr>
+    {% endif %}
+    <h5>댓글 목록</h5>
+    <ul class="list-group mb-2">
+        {% for comment in comments %}
+            <li class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    {{ comment.content }}
+                    <div class="d-flex align-items-center justify-content-center gap-2">
+                        <a href="{% url "accounts:profile" comment.user %}">{{ comment.user }}</a>
+                        {% if request.user == comment.user %}
+                            <form action="{% url "movies:comments_delete" movie.pk comment.pk %}" method="POST">
+                                {% csrf_token %}
+                                <input type="submit" value="DELETE" class="btn btn-sm btn-danger">
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <ul>
+                            {% for re_comment in comment.re_comments.all %}
+                                <div class="d-flex align-items-center justify-content-between mb-1">
+                                    <li>{{ re_comment.content }}</li>
+                                    {% if request.user == re_comment.user %}
+                                        <form action="{% url "movies:re_comment_delete" movie.pk re_comment.pk %}" method="POST">
+                                            {% csrf_token %}
+                                            <input type="submit" value="X" class="btn btn-secondary">
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </ul>
+                        {% if request.user.is_authenticated %}
+                            <form action="{% url "movies:re_comment" movie.pk comment.pk %}" method="POST">
+                                {% csrf_token %}
+                                {{ comment_form }}
+                                <input type="submit" value="대댓글 달기" class="btn btn-warning">
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </li>
+        {% empty %}
+            <p>작성된 댓글이 없음 :(</p>
+        {% endfor %}
+    </ul>
+    {% if request.user.is_authenticated %}
+        <form action="{% url "movies:comments_create" movie.pk %}" method="POST">
+            {% csrf_token %}
+            {{ comment_form }}
+            <input type="submit" value="제출" class="btn btn-primary">
+        </form>
+    {% endif %}
+    <hr>
+    <a href="{% url "movies:index" %}" class="btn btn-primary">BACK</a>
+{% endblock content %}
