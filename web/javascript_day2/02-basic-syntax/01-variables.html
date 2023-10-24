@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    // 원시 자료형
+    const bar = 'bar'
+    console.log(bar) // bar
+
+    bar.toUpperCase()
+    console.log(bar) // bar
+
+    let a = 10
+    let b = a
+    b = 20
+    console.log(a) // 10
+    console.log(b) // 20
+
+    // 참조 자료형
+    const obj1 = { name: 'Alice', age: 30}
+    const obj2 = obj1
+    obj2.age = 40
+
+    console.log(obj1.age) // 40
+    console.log(obj2.age) // 40
+
+    // 문자열
+    const firstName = 'Tony'
+    const lastName = 'Stark'
+    const fullName = firstName + lastName
+
+    console.log(fullName) // TonyStark
+  </script>
+</body>
+
+</html>

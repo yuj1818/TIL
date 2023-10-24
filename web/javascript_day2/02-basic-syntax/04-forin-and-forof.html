@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    // for ... in과 for ... of 의 차이
+    const arr = ['a', 'b', 'c']
+
+    for (const i in arr) {
+      console.log(i) // 0, 1, 2
+    }
+
+    for (const i of arr) {
+      console.log(i) // a, b, c
+    }
+
+    // for ... in
+    const capitals = {
+      korea: '서울',
+      japan: '도쿄',
+      china: '베이징',
+    }
+    for (const capital in capitals) {
+      console.log(capital) // korea, japan, china
+    }
+
+    // for ... of
+    for (const capital of capitals) {
+      console.log(capital) // TypeError: capitals is not iterable
+    }
+  </script>
+</body>
+
+</html>
