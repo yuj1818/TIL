@@ -31,9 +31,9 @@
     for (const cityInfo of citiesInfo) {
       for (const key in cityInfo) {
         if (key == 'city') {
-          console.log(`수도 : ${Array.isArray(cityInfo[key]) ? cityInfo[key].pop() : cityInfo[key]}`)
+          console.log(`수도 : ${cityInfo[key]}`)
         } else {
-          console.log(`${key} : ${Array.isArray(cityInfo[key]) ? cityInfo[key].pop() : cityInfo[key]}`)
+          console.log(`${key} : ${Array.isArray(cityInfo[key]) ? cityInfo[key].at(-1) : cityInfo[key]}`)
         }
       }
       console.log('')
