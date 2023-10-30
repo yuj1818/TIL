@@ -1406,6 +1406,617 @@ console.log(names.length) // 3
 | for … of  | - 배열 요소에 바로 접근 가능<br>- break, continue 사용 가능 |  |
 | forEach | - 간결하고 가독성이 높음<br>- callback 함수를 이용하여 각 요소를 조작하기 용이<br>- break, continue 사용 불가능 | 사용 권장 |
 
+# Event
+
+- 무언가 일어났다는 신호, 사건
+- 모든 DOM 요소는 이러한 event를 만들어 냄
+- 웹 에서의 이벤트
+    - 버튼을 클릭했을 때 팝업 창이 출력되는 것
+    - 마우스 커서의 위치에 따라 드래그 앤 드롭하는 것
+    - 사용자의 키보드 입력 값에 따라 새로운 요소를 생성하는 것
+    - **이벤트를 통해 특정 동작을 수행**
+
+## event object
+
+- DOM에서 이벤트가 발생했을 때 생성되는 객체
+- 이벤트 종류
+    - mouse, input, keyboard, touch 등
+    - [https://developer.mozilla.org/en-US/docs/Web/API/Event](https://developer.mozilla.org/en-US/docs/Web/API/Event)
+
+## Event handler(이벤트 처리기)
+
+- 이벤트가 발생했을 때 실행되는 함수
+- 사용자의 행동에 어떻게 반응할지를 JavaScript 코드로 표현한 것
+- DOM 요소는 event를 받고 받은 event를 ‘처리’ 할 수 있음
+
+### .addEventListener()
+
+- 대표적인 이벤트 핸들러 중 하나
+- 특정 이벤트를 DOM  요소가 수신할 때마다 콜백 함수를 호출
+
+![Untitled 9](https://github.com/yuj1818/TIL/assets/95585314/39023393-66c0-473c-a096-791e9514b68b)
+
+- “대상에 특정 Event가 발생하면, 지정한 이벤트를 받아 할 일을 등록한다”
+- type
+    - 수신할 이벤트 이름
+    - 문자열로 작성
+- handler
+    - 발생한 이벤트 객체를 수신하는 콜백 함수
+    - 콜백 함수는 발생한 Event Object를 유일한 매개변수로 받음
+- addEventListener의 콜백 함수 특징
+    - 발생한 이벤트를 나타내는 Event 객체를 유일한 매개변수로 받음
+    - 아무것도 반환하지 않음
+    
+    ```jsx
+    const btn = document.querySelector('#btn')
+    
+    const detectClick = function (event) {
+    	console.log(event)
+    	console.log(event.currentTarget)
+    	console.log(this)
+    }
+    
+    btn.addEventListener('click', detectClick)
+    ```
+    
+
+## 버블링(Bubbling)
+
+- 한 요소에 이벤트가 발생하면, 이 요소에 할당된 핸들러가 동작하고, 이어서 부모 요소의 핸들러가 동작하는 현상
+- 가장 최상단의 조상 요소(document)를 만날 때까지 이 과정이 반복되면서 요소 각각에 할당된 핸들러가 동작
+- 이벤트가 제일 깊은 곳에 있는 요소에서 시작해 부모 요소를 거슬러 올라가며 발생하는 것이 마치 물속 거품과 닮았기 때문
+- 예시
+    - 가장 안쪽의 <p>요소를 클릭하면 p ⇒ div ⇒ form 순서로 3개의 이벤트 핸들러가 동작
+    
+    ![Untitled 10](https://github.com/yuj1818/TIL/assets/95585314/1ff2b996-e6b6-43a0-8bb1-c082755ceadc)
+    
+    ```html
+    <body>
+      <form id="form">
+        form
+        <div id="div">
+          div
+          <p id="p">p</p>
+        </div>
+      </form>
+    
+      <script>
+        const formElement = document.querySelector('#form')
+        const divElement = document.querySelector('#div')
+        const pElement = document.querySelector('#p')
+    
+        const clickHandler1 = function (event) {
+          console.log('form이 클릭되었습니다.')
+        }
+        const clickHandler2 = function (event) {
+          console.log('div가 클릭되었습니다.')
+        }
+        const clickHandler3 = function (event) {
+          console.log('p가 클릭되었습니다.')
+        }
+    
+        formElement.addEventListener('click', clickHandler1)
+        divElement.addEventListener('click', clickHandler2)
+        pElement.addEventListener('click', clickHandler3)
+      </script>
+    </body>
+    ```
+    
+
+### ‘target’ & ‘currentTarget’ 속성
+
+- target
+    - 이벤트가 발생한 가장 안쪽의 요소(target)를 참조하는 속성
+    - **실제 이벤트가 시작된 target 요소**
+    - 버블링이 진행 되어도 변하지 않음
+- currentTarget
+    - 현재 요소
+    - 항상 **이벤트 핸들러가 연결된 요소만을 참조**하는 속성
+    - this와 같음
+    - 주의사항
+        - console.log()로 event 객체를 출력할 경우 currentTarget 키의 값을 null을 가짐
+        - currentTarget은 이벤트가 처리되는 동안에만 사용할 수 있기 때문
+        - 대신 console.log(event.currentTarget)을 사용하여 콘솔에서 확인 가능
+        - currentTarget 이후의 속성 값들은 **‘target’을 참고해서 사용하기**
+- 예시
+    - 세 요소 중 가장 최상위 요소인 outerouter 요소에만 이벤트 핸들러가 부착
+    - 각 요소를 클릭했을 때, event의 target과 currentTarget의 차이 비교
+    
+    ```html
+    <body>
+      <div id="outerouter">
+        outerouter
+        <div id="outer">
+          outer
+          <div id="inner">inner</div>
+        </div>
+      </div>
+    
+      <script>
+        const outerOuterElement = document.querySelector('#outerouter')
+    
+        const clickHandler = function (event) {
+          console.log('currentTarget:', event.currentTarget.id)
+          console.log('target:', event.target.id)
+        }
+    
+        outerOuterElement.addEventListener('click', clickHandler)
+      </script>
+    </body>
+    ```
+    
+    ![Untitled 11](https://github.com/yuj1818/TIL/assets/95585314/c1117f17-a28b-4608-b77b-1b1a37386962)
+
+    
+
+### 캡쳐링
+
+```jsx
+const btn = document.querySelector('#btn')
+btn.addEventListener('click', () => {}, {capture: true})
+```
+
+## event handler 활용
+
+### 버튼을 클릭하면 숫자를 1씩 증가해서 출력하기
+
+```html
+<body>
+    <button class="btn">버튼</button>
+    <p>클릭 횟수 : <span class="counter">0</span></p>
+    <script>
+        const btn = document.querySelector('.btn')
+        const counter = document.querySelector('.counter')
+        let count = 0
+        const onClick = () => {
+            count += 1
+            counter.textContent = count
+        }
+        btn.addEventListener('click', onClick)
+    </script>
+</body>
+```
+
+### 사용자의 입력 값을 실시간으로 출력하기
+
+```html
+<body>
+    <input type="text" class="input">
+    <p class="result"></p>
+    <script>
+        const input = document.querySelector('.input')
+        const result = document.querySelector('.result')
+
+        const printResult = (event) => {
+            console.log(event.target.value)
+            result.textContent = event.target.value
+        }
+
+        input.addEventListener('input', printResult)
+    </script>
+</body>
+```
+
+### 사용자의 입력 값을 실시간으로 출력 + 버튼 클릭 시, 출력값 CSS 변경
+
+```html
+<body>
+    <h1 class="result"></h1>
+    <button class="btn">클릭</button>
+    <input type="text" class="input-text">
+    <script>
+        const result = document.querySelector('.result')
+        const btn = document.querySelector('.btn')
+        const inputText = document.querySelector('.input-text')
+
+        const changeColor = () => {
+            result.classList.toggle('blue')
+        }
+
+        const printResult = event => {
+            result.textContent = event.target.value
+        }
+
+        btn.addEventListener('click', changeColor)
+        inputText.addEventListener('input', printResult)
+    </script>
+</body>
+```
+
+### todo 실습
+
+```html
+<body>
+    <input type="text" class="text-input">
+    <button class="btn">+</button>
+    <ul class="todo-list">
+    </ul>
+    <script>
+        const textInput = document.querySelector('.text-input')
+        const btn = document.querySelector('.btn')
+        const todoList = document.querySelector('.todo-list')
+
+        const onSubmit = () => {
+            const todo = document.createElement('li')
+            const inputText = textInput.value
+            if (inputText.trim()) {
+                todo.textContent = textInput.value
+                todoList.appendChild(todo)
+                textInput.value = ''
+            } else {
+                alert('할 일을 입력하세요.')
+            }
+        }
+
+        btn.addEventListener('click', onSubmit)
+    </script>
+</body>
+```
+
+### 로또 번호 생성기
+
+```html
+<body>
+    <h1>로또 추천 번호</h1>
+    <button class="btn">행운 번호 받기</button>
+    <div class="content"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js" integrity="sha512-WFN04846sdKMIP5LKNphMaWzU7YpMyCU245etK3g/2ARYbPK9Ub18eG+ljU96qKRCWh+quCY7yefSmlkQw1ANQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        const btn = document.querySelector('.btn')
+        const content = document.querySelector('.content')
+
+        const onClick = () => {
+            const numbers = _.range(1, 46)
+            const chosenNumbers = _.sampleSize(numbers, 6)
+
+            const ulTag = document.createElement('ul')
+            for (number of chosenNumbers) {
+                const liTag = document.createElement('li')
+                liTag.textContent = number
+                ulTag.appendChild(liTag)
+            }
+
+            content.appendChild(ulTag)
+        }
+
+        btn.addEventListener('click', onClick)
+    </script>
+</body>
+```
+
+## 이벤트 기본 동작 취소
+
+### .preventDefault()
+
+- 해당 이벤트에 대한 기본 동작을 실행하지 않도록 지정
+- 예시
+    - copy 이벤트 동작 취소
+    
+    ```html
+    <body>
+        <h1 class="content">중요한 내용</h1>
+        <script>
+            const content = document.querySelector('.content')
+            content.addEventListener('copy', (event) => {
+                event.preventDefault()
+                alert('복사 안됨')
+            })
+        </script>
+    </body>
+    ```
+    
+    - form 제출 시 새로 고침 동작 취소
+    
+    ```html
+    <body>
+        <form id="my-form">
+            <input type="text" name="username">
+            <button type="submit">Submit</button>
+        </form>
+        <script>
+            const formTag = document.querySelector('form')
+    
+            const handleSubmit = (event) => {
+                event.preventDefault()
+            }
+    
+            formTag.addEventListener('submit', handleSubmit)
+        </script>
+    </body>
+    ```
+    
+
+# Asynchronous JavaScript
+
+## 비동기
+
+### Synchronous(동기)
+
+- 순서가 보장되는 방식
+- 프로그램의 실행 흐름이 순차적으로 실행
+- 하나의 작업이 완료된 후에 다음 작업이 실행되는 방식
+- 예시
+    - 메인 작업이 모두 수행되어야 마지막 작업이 수행됨
+    
+    ```python
+    print('첫번째 작업')
+    for i in range(10):
+    	print('메인 작업')
+    print('마지막 작업')
+    ```
+    
+    - 함수의 작업이 완료될 때까지 기다렸다가 값을 반환해야 계속 진행할 수 있음(동기 함수)
+    
+    ```jsx
+    const makeGreeting = function(name) {
+    	return `Hello, my name is ${name}!`
+    }
+    
+    const name = 'Alice'
+    const greeting = makeGreeting(name)
+    console.log(greeting)
+    ```
+    
+
+### Asynchronous(비동기)
+
+- 프로그램의 실행 흐름이 순차적이지 않으며, 작업이 완료되기를 기다리지 않고 다음 작업이 실행되는 방식
+- 순서가 보장되지 않음
+- 동시에 여러 일을 수행하는 것은 아님. JavaScript는 싱글 스레드 언어라 동시에 일을 처리할 수 없음
+- 병렬적 수행
+- 당장 처리를 완료할 수 없고 시간이 필요한 작업들은 별도로 요청을 보낸 뒤 응답이 빨리 오는 작업부터 처리
+- 예시
+    - Gmail에서 메일 전송을 누르면 목록 화면으로 전환되지만 실제로 메일을 보내는 작업은 병렬적으로 별도로 처리됨
+    - 브라우저는 웹페이지를 먼저 처리되는 요소부터 그려 나가며 처리가 오래 걸리는 것들은 별도로 처리가 완료 되는 대로 병렬적으로 처리
+    
+    ```jsx
+    const slowRequest = function (callBack) {
+    	console.log('1. 오래 걸리는 작업 시작 ...')
+    	setTimeout(function () {
+    		callBack()
+    	}, 3000)
+    }
+    
+    const myCallBack = function () {
+    	console.log('2. 콜백 함수 실행됨')
+    }
+    
+    slowRequest(myCallBack)
+    
+    console.log('3. 다른 작업 실행')
+    
+    // 출력 결과
+    // 1. 오래 걸리는 작업 시작 ...
+    // 3. 다른 작업 실행
+    // 2. 콜백 함수 실행됨
+    ```
+    
+
+## JavaScript와 비동기
+
+- JavaScript는 Single Thread 언어
+    - `Thread` : 작업을 처리할 때 실제로 작업을 수행하는 주체
+- JavaScript는 한번에 여러 일을 수행할 수 없고 하나의 작업을 요청한 순서대로 처리할 수 밖에 없음
+
+### JavaScript Runtime
+
+- JavaScript가 동작할 수 있는 환경(Runtime)
+- JavaScript 자체는 Single Thread이므로 비동기 처리를 할 수 있도록 도와주는 환경이 필요
+- JavaScript에서 비동기와 관련한 작업은 “브라우저” 또는 “Node”와 같은 환경에서 처리
+
+### 브라우저 환경에서의 JavaScript 비동기 처리 관련 요소
+
+- JavaScript Engine의 **Call Stack**
+    - 요청이 들어올 때 마다 순차적으로 처리하는 Stack(LIFO)
+    - 기본적인 JavaScript의 Single Thread 작업 처리
+- **Web API**
+    - JavaScript 엔진이 아닌 브라우저에서 제공하는 runtime 환경
+    - 시간이 소요되는 작업을 처리 (setTimeout, DOM Event, AJAX 요청 등)
+- **Task Queue**
+    - 비동기 처리된 Callback 함수가 대기하는 Queue(FIFO)
+- **Event Loop**
+    - 태스크(작업)가 들어오길 기다렸다가 태스크가 들어오면 이를 처리하고, 처리할 태스크가 없는 경우엔 잠드는, 끊임없이 돌아가는 JavaScript 내 루프
+    - Call Stack과 Task Queue를 지속적으로 모니터링
+    - Call Stack이 비어 있는지 확인 후 비어 있다면 Task Queue에서 대기 중인 오래된 작업을 Call Stack으로 Push
+    
+    ![Untitled 12](https://github.com/yuj1818/TIL/assets/95585314/3af24d55-31be-465d-a30f-56b5e7ad4d9c)
+    
+
+### 브라우저 환경에서의 JavaScript 비동기 처리 동작 방식
+
+1. 모든 작업은 Call Stack(LIFO)으로 들어간 후 처리됨
+2. 오래 걸리는 작업이 Call Stack으로 들어오면 Web API로 보내 별도로 처리하도록 함
+3. Web API에서 처리가 끝난 작업들은 곧바로 Call Stack으로 들어가지 못하고 Task Queue(FIFO)에 순서대로 들어감
+4. Event Loop가 Call Stack이 비어 있는 것을 계속 체크하고 Call Stack이 빈다면 Task Queue에서 가장 오래된 (가장 먼저 처리되어 들어온) 작업을 Call Stack으로 보냄
+
+![javascript_runtime](https://github.com/yuj1818/TIL/assets/95585314/2e32741c-9c38-4a4b-a679-a3ea35d42135)
+
+## AJAX(Asynchronous JavaScript + XML)
+
+- JavaScript의 비동기 구조와 XML 객체를 활용해 비동기적으로 서버와 통신하여 웹 페이지의 일부분만을 업데이트하는 웹 개발 기술
+    - ‘X’가 XML을 의미하긴 하지만, 요즘은 더 가벼운 용량과 JavaScript의 일부라는 장점 때문에 ‘JSON’을 더 많이 사용
+
+### XMLHttpRequest 객체
+
+- 서버와 상호작용할 때 사용하며 페이지의 새로고침 없이도 URL에서 데이터를 가져올 수 있음
+- 사용자의 작업을 방해하지 않고 페이지의 일부를 업데이트
+- 주로 AJAX 프로그래밍에 많이 사용됨
+
+### 이벤트 핸들러는 비동기 프로그래밍의 한 형태
+
+- 이벤트가 발생할 때마다 호출되는 함수(콜백 함수)를 제공하는 것
+- XMLHttpRequest(XHR)는 JavaScript를 사용하여 서버에 HTTP 요청을 할 수 있는 객체
+- HTTP 요청은 응답이 올 때 까지의 시간이 걸릴 수 있는 작업이라 비동기 API이며, 이벤트 핸들러를 XHR 객체에 연결해 요청의 진행 상태 및 최종 완료에 대한 응답을 받음
+
+### Axios
+
+- JavaScript에서 사용되는 Promise 기반 HTTP 클라이언트 라이브러리
+- 서버와의 HTTP 요청과 응답을 간편하게 처리할 수 있도록 도와주는 도구
+- 브라우저에서 비동기로 데이터 통신을 가능하게 하는 라이브러리
+    - 브라우저를 위해 XMLHttpRequest 생성
+- 같은 방식으로 DRF로 만든 API 서버로 요청을 보내서 데이터를 받아온 후 처리할 수 있도록 함
+
+```html
+<!-- axios CDN -->
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+```
+
+- Axios 구조
+    - get, post 등 여러 request method 사용 가능
+    - then 메서드를 사용해서 “성공하면 수행할 로직”을 작성
+    - catch 메서드를 사용해서 “실패하면 수행할 로직”을 작성
+    
+    ```jsx
+    axios({
+    	method: 'post',
+    	url: '/user/12345',
+    	data: {
+    		firstName: 'Fred',
+    		lastName: 'Flintstone'
+    	}
+    })
+    	.then(/*요청에 성공하면 수행할 콜백 함수*/)
+    	.catch(/*요청에 실패하면 수행할 콜백 함수*/)
+    ```
+    
+- 예시(고양이 사진 가져오기)
+
+```jsx
+<body>
+  <button>냥냥펀치</button>
+  <script script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script>
+    const URL = 'https://api.thecatapi.com/v1/images/search/'
+    const btn = document.querySelector('button')
+
+    function getCatImg() {
+      axios({
+        method: 'get',
+        url: URL,
+      })
+        .then(response => {
+          const imgTag = document.createElement('img')
+          imgTag.src = response.data[0].url
+          const bodyTag = document.querySelector('body')
+          bodyTag.appendChild(imgTag)
+        })
+        .catch(error => {
+          console.log(error)
+          console.log('실패')
+        })
+    }
+
+    btn.addEventListener('click', getCatImg)
+
+  </script>
+</body>
+```
+
+## Callback과 Promise
+
+### 비동기 처리의 단점
+
+- 비동기 처리의 핵심은 Web API로 들어오는 순서가 아니라 **작업이 완료되는 순서에 따라 처리**한다는 것
+- 그런데 이는 개발자 입장에서 **코드의 실행 순서가 불명확**하다는 단점 존재
+- 이와 같은 단점은 실행 결과를 예상하면서 코드를 작성할 수 없게 함
+    
+    ⇒ 콜백 함수를 사용해야 함
+    
+
+### 비동기 콜백
+
+- 비동기적으로 처리되는 작업이 완료되었을 때 실행되는 함수
+- 연쇄적으로 발생하는 비동기 작업을 순차적으로 동작할 수 있게 함
+- 작업의 순서와 동작을 제어하거나 결과를 처리하는 데 사용
+
+```jsx
+const asyncTask = function (callBack) {
+	setTimeout(function () {
+		console.log('비동기 작업 완료')
+		callBack() // 작업 완료 후 콜백 호출
+	}, 3000) // 3초 후에 작업 완료
+}
+
+// 비동기 작업 수행 후 콜백 실행
+asyncTask(function () {
+	console.log('작업 완료 후 콜백 실행')
+})
+
+// 출력 결과
+// 비동기 작업 완료
+// 작업 완료 후 콜백 실행
+
+```
+
+### 비동기 콜백의 한계
+
+- 비동기 콜백 함수는 보통 어떤 기능의 실행 결과를 받아서 다른 기능을 수행하기 위해 많이 사용됨
+- 이 과정을 작성하다 보면 비슷한 패턴이 계속 발생
+    - **콜백 지옥** 발생
+    - 가독성을 해치고 유지보수가 어려워짐
+- `콜백 지옥(Callback Hell)`
+    - 비동기 처리를 위한 콜백을 작성할 때 마주하는 문제
+    - 코드 작성 형태가 마치 “피라미드와 같다”고 해서 “Pyramid of doom”라고도 부름
+
+### 프로미스(Promise)
+
+- JavaScript에서 비동기 작업의 결과를 나타내는 객체
+- 비동기 작업이 완료되었을 때 결과 값을 반환하거나, 실패 시 에러를 처리할 수 있는 기능을 제공
+- 콜백 지옥 문제를 해결하기 위해 등장한 비동기 처리를 위한 객체
+- “작업이 끝나면 실행하겠다”라는 약속(promise)
+- 비동기 작업의 완료 또는 실패를 나타내는 객체
+- Promise 기반의 클라이언트가 바로 이전에 사용한 Axios 라이브러리
+    - 성공에 대한 약속 then()
+        - 요청한 작업이 성공하면 callback 실행
+        - callback은 이전 작업의 성공 결과를 인자로 전달 받음
+    - 실패에 대한 약속 catch()
+        - then()이 하나라도 실패하면 callback 실행
+        - callback은 이전 작업의 실패 객체를 인자로 전달 받음
+    - then과 catch는 모두 항상 promise 객체를 반환
+        
+        ⇒ 계속해서 **chaining**을 할 수 있음
+        
+    - axios로 처리한 비동기 로직이 항상 promise 객체를 반환
+    - then을 계속 이어 나가면서 작성할 수 있게 됨
+- Promise가 보장하는 것
+    - 콜백 함수는 JavaScript의 Event Loop가 현재 실행 중인 Call Stack을 완료하기 이전에는 절대 호출되지 않음
+        - 반면, Promise Callback 함수는 Event Queue에 배치되는 엄격한 순서로 호출됨
+    - 비동기 작업이 성공하거나 실패한 뒤에 .then() 메서드를 이용하여 추가한 경우에도 호출 순서를 보장하며 동작
+    - .then()을 여러 번 사용하여 여러 개의 callback 함수를 추가할 수 있음
+        - 각각의 callback은 주어진 순서대로 하나하나 실행하게 됨
+        - Chaining은 Promise의 가장 뛰어난 장점
+
+### 비동기 콜백 vs Promise
+
+```jsx
+// 비동기 콜백 방식
+work1(function() {
+	// 첫번째 작업 ...
+	work2(result1, function(result2) {
+		// 두번째 작업 ...
+		work3(result2, function(result3) {
+			console.log('최종 결과 :' + result3)
+		})
+	})
+})
+```
+
+```jsx
+// promise 방식
+work1()
+	.then(result1 => {
+		// work2
+		return result2
+	})
+	.then(result2 => {
+		// work3
+		return result3
+	})
+	.catch(error => {
+		// error handling
+	})
+```
+
 # 참고
 
 ## DOM 관련
@@ -1638,3 +2249,98 @@ console.log(member3.name) // Bella
 - 배열의 요소를 대괄호 접근법을 사용해 접근하는 건 객체 문법과 같음
 - 다만 배열의 키는 숫자라는 점
 - 숫자형 키를 사용함으로써 배열은 객체 기본 기능 이외에도 순서가 있는 컬렉션을 제어하게 해주는 특별한 메서드를 제공
+
+## 이벤트 관련
+
+### lodash
+
+- 모듈성, 성능 및 추가 기능을 제공하는 JavaScript 유틸리티 라이브러리
+- array, object 등 자료구조를 다룰 때 사용하는 유용하고 간편한 함수들을 제공
+- [https://lodash](https://lodash).com
+
+```html
+<!-- lodash cdn -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js" integrity="sha512-WFN04846sdKMIP5LKNphMaWzU7YpMyCU245etK3g/2ARYbPK9Ub18eG+ljU96qKRCWh+quCY7yefSmlkQw1ANQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+```
+
+### addEventListener에서의 화살표 함수 주의사항
+
+- 화살표 함수는 자신만의 this를 가지지 않기 때문에 자신을 포함하고 있는 함수의 this를 상속받음
+
+```html
+<body>
+  <button id="function">function</button>
+  <button id="arrow">arrow function</button>
+
+  <script>
+    const functionButton = document.querySelector('#function')
+    const arrowButton = document.querySelector('#arrow')
+
+    functionButton.addEventListener('click', function () {
+      console.log(this) // <button id="function">function</button>
+    })
+
+    arrowButton.addEventListener('click', () => {
+      console.log(this) // window
+    })
+  </script>
+</body>
+```
+
+## 비동기 관련
+
+### then 메서드 chaining
+
+- 비동기 작업의 “**순차적인**” 처리 가능
+- 코드를 보다 직관적이고 가독성 좋게 작성할 수 있도록 도움
+- 장점
+    - 가독성
+        - 비동기 작업의 순서와 의존 관계를 명확히 표현할 수 있어 코드의 가독성이 향상
+    - 에러 처리
+        - 각각의 비동기 작업 단계에서 발생하는 에러를 분할에서 처리 가능
+    - 유연성
+        - 각 단계마다 필요한 데이터를 가공하거나 다른 비동기 작업을 수행할 수 있어서 더 복잡한 비동기 흐름을 구성할 수 있음
+    - 코드 관리
+        - 비동기 작업을 분리하여 구성하면 코드를 관리하기 용이
+- 예시
+    
+    ```jsx
+    const URL = 'https://api.thecatapi.com/v1/images/search/'
+    const btn = document.querySelector('button')
+    
+    function getCatImg() {
+      axios({
+        method: 'get',
+        url: URL,
+      })
+        // .then(response => {
+        //   const imgTag = document.createElement('img')
+        //   imgTag.src = response.data[0].url
+        //   const bodyTag = document.querySelector('body')
+        //   bodyTag.appendChild(imgTag)
+        // })
+        .then(response => {
+          imgUrl = response.data[0].url
+          return imgUrl
+        })
+        .then(imgData => {
+          imgTag = document.createElement('img')
+          imgTag.setAttribute('src', imgData)
+          document.body.appendChild(imgTag)
+        })
+        .catch(error => {
+          console.log(error)
+          console.log('실패')
+        })
+    }
+    
+    btn.addEventListener('click', getCatImg)
+    ```
+    
+
+### 비동기를 사용하는 이유 - “사용자 경험”
+
+- 예를 들어 아주 큰 데이터를 불러온 뒤 실행되는 앱이 있을 때, 동기식으로 처리된다면 데이터를 모두 불러온 뒤에서야 앱의 실행 로직이 수행되므로 사용자들은 마치 앱이 멈춘 것과 같은 경험을 겪게 됨
+- 즉, 동기식 처리는 특정 로직이 실행되는 동안 다른 로직 실행을 차단하기 때문에 마치 프로그램이 응답하지 않는 듯한 사용자 경험을 만듦
+- 비동기로 처리한다면 먼저 처리되는 부분부터 보여줄 수 있으므로, 사용자 경험에 긍정적인 효과를 볼 수 있음
+- 이와 같은 이유로 많은 웹 기능은 비동기 로직을 사용해서 구현됨
