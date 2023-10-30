@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <button>냥냥펀치</button>
+  <script script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script>
+    const URL = 'https://api.thecatapi.com/v1/images/search/'
+    const btn = document.querySelector('button')
+
+    function getCatImg() {
+      axios({
+        method: 'get',
+        url: URL,
+      })
+        // .then(response => {
+        //   const imgTag = document.createElement('img')
+        //   imgTag.src = response.data[0].url
+        //   const bodyTag = document.querySelector('body')
+        //   bodyTag.appendChild(imgTag)
+        // })
+        .then(response => {
+          imgUrl = response.data[0].url
+          return imgUrl
+        })
+        .then(imgData => {
+          imgTag = document.createElement('img')
+          imgTag.setAttribute('src', imgData)
+          document.body.appendChild(imgTag)
+        })
+        .catch(error => {
+          console.log(error)
+          console.log('실패')
+        })
+    }
+
+    btn.addEventListener('click', getCatImg)
+
+  </script>
+</body>
+
+</html>
