@@ -2017,6 +2017,311 @@ work1()
 	})
 ```
 
+# Ajax with Django
+
+## Ajax와 서버
+
+### Ajax를 활용한 클라이언트 서버 간 동작
+
+![Untitled 13](https://github.com/yuj1818/TIL/assets/95585314/404f5a73-42af-41b4-9c96-7211dc760777)
+
+- 클라이언트 / 서버
+- 이벤트 발생 ⇒ XML 객체 생성 및 요청 ⇒ Ajax 요청 처리  ⇒ 응답 데이터 생성 ⇒ JSON 데이터 응답 ⇒ 응답 데이터를 활용해 DOM 조작(웹 페이지 일부분 만을 다시 로딩)
+
+## Ajax with follow(follow 기능 구현)
+
+### Ajax 적용
+
+- 프로필 페이지에 axios CDN 작성
+
+```html
+<body>
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script></script>
+</body>
+```
+
+- form 요소 선택을 위해 id 속성 지정 및 선택
+
+```html
+<form id="follow-form">
+  ...
+</form>
+<script>
+	const formTag = document.querySelector('#follow-form')
+</script>
+```
+
+- form 요소에 이벤트 핸들러 작성 및 submit 이벤트의 기본 동작 취소
+
+```html
+<script>
+	...
+	formTag.addEventListener('submit', function(e) {
+		e.preventDefault()
+	})
+</script>
+```
+
+- axios 요청 작성
+
+```html
+<form id="follow-form" data-user-id="{{ person.pk }}">
+  ...
+</form>
+<script>
+	...
+	formTag.addEventListener('submit', function(e) {
+		e.preventDefault()
+
+		const userId = formTag.dataset.userId		
+
+		axios({
+			method: 'post',
+			url: `/accounts/${userId}/follow/`,
+		})
+	})
+</script>
+```
+
+- **‘data-*’ 속성**
+    - 사용자 지정 데이터 특성을 만들어 임의의 데이터를 HTML과 DOM 사이에서 교환할 수 있는 방법
+    - 모든 사용자 지정 데이터는 JavaScript에서 **dataset** 속성을 통해 사용
+    - 주의사항
+        - 대소문자 여부에 상관없이 ‘xml’ 문자로 시작 불가
+        - 세미콜론 포함 불가
+        - 대문자 포함 불가
+- 문서상 hidden 타입으로 존재하는 csrf 데이터를 이제는 axios로 전송해야 함
+    - csrf 값을 가진 input 요소를 직접 선택 후 axios에 작성하기
+
+```html
+<script>
+	...
+	const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value
+	
+	formTag.addEventListener('submit', function(e) {
+		e.preventDefault()
+		
+		const userId = formTag.dataset.userId
+
+		axios({
+			method: 'post',
+			url: `/accounts/${userId}/follow/`,
+			headers: {'X-CSRFToken': csrftoken,},
+		})
+	})
+</script>
+```
+
+- 팔로우 버튼을 토글하기 위해서는 현재 팔로우 상태인지 언팔로우 상태인지에 대한 상태 확인이 필요
+    - django의 view 함수에서 팔로우 여부를 파악할 수 있는 변수를 추가로 생성해 JSON 타입으로 응답하기
+    - 응답은 더 이상 HTML 문서가 아닌 JSON 데이터로 응답
+
+```python
+# accounts/views.py
+
+from django.http import JsonResponse
+
+@login_required
+def follow(request, user_pk):
+	User = get_user_model()
+	person = User.objects.get(pk=user_pk)
+	if person != request.user:
+		if person.followers.filter(pk=request.user.pk).exists():
+			person.followers.remove(request.user)
+			is_followed = False
+		else:
+			person.followers.add(request.user)
+			if_followed = True
+		context = {
+			'is_followed': is_followed,
+		}
+		return JsonResponse(context)
+	return redirect('accounts:profile', person.username)
+```
+
+- 팔로우 요청 후 Django 서버로 부터 받은 데이터 확인하기
+
+```html
+<script>
+	...
+	formTag.addEventListener('submit', function(e) {
+	  e.preventDefault()
+	
+	  const userId = formTag.dataset.userId
+	
+	  axios({
+	    method: 'post',
+	    url: `/accounts/${userId}/follow/`,
+	    headers: {'X-CSRFToken': csrftoken}
+	  })
+	    .then(response => {
+	      console.log(response)
+	      console.log(response.data)
+	    })
+	})
+</script>
+```
+
+- 응답 데이터 is_followed에 따라 팔로우 버튼 토글
+
+```html
+<script>
+	...
+	axios({
+    method: 'post',
+    url: `/accounts/${userId}/follow/`,
+    headers: {'X-CSRFToken': csrftoken}
+  })
+    .then(response => {
+      //console.log(response.data)
+      const isFollowed = response.data.is_Followed
+      const followBtn = document.querySelector('input[type=submit]')
+      if (isFollowed === true){
+        followBtn.value = 'Unfollow'
+      } else{
+        followBtn.value = 'Follow'
+      }
+    })
+</script>
+```
+
+- 팔로잉 수와 팔로워 수 비동기 적용
+    - 해당 요소를 선택할 수 있도록 span 태그와 id 속성 작성
+    
+    ```html
+    <body>
+    	...
+    	<div>
+    		팔로잉 : <span id="following-count">{{ person.followings.all|length }}</span> /
+        팔로워 : <span id="followers-count">{{ person.followers.all|length }}</span>
+    	</div>
+    	...
+    </body>
+    ```
+    
+    - 각 span 태그를 선택
+    
+    ```html
+    <script>
+    	.then(response => {
+    		...
+    		const followingsCountTag = document.querySelector('#followings-count')
+        const followersCountTag = document.querySelector('#followers-count')
+    	})
+    </script>
+    ```
+    
+    - Django view 함수에서 팔로워, 팔로잉 인원 수 연산을 진행하여 결과를 응답으로 전달
+    
+    ```python
+    # accounts/views.py
+    
+    def follow(request, user_pk):
+    	...
+    		context = {
+    	      'is_Followed': is_Followed,
+    	      'followings_count': you.followings.count(),
+    	      'followers_count': you.followers.count(),
+    	  }
+    		return JsonResponse(context)
+    
+    ```
+    
+    - 응답 데이터의 연산 결과를 각 태그의 인원수 값 변경에 적용
+    
+    ```html
+    <script>
+    		.then(response => {
+          ...
+          const followingsCountTag = document.querySelector('#followings-count')
+          const followersCountTag = document.querySelector('#followers-count')
+    
+          followingsCountTag.textContent = response.data.followings_count
+          followersCountTag.textContent = response.data.followers_count
+        })
+    </script>
+    ```
+    
+
+## Ajax with likes(좋아요 기능 구현)
+
+### Ajax 좋아요 적용 시 유의사항
+
+- Ajax 적용은 팔로우와 모두 동일
+- 단, 팔로우와 달리 좋아요 버튼은 한 페이지에 여러 개가 존재
+    - forEach
+    - querySelectorAll
+
+### Ajax 적용
+
+- HTML 완성 부분
+
+```html
+...
+<form class="like-forms" data-article-id="{{ article.pk }}">
+  {% csrf_token %}
+  {% if request.user in article.like_users.all %}
+    <input type="submit" value="좋아요 취소" id="like-{{ article.pk }}">
+  {% else %}
+    <input type="submit" value="좋아요" id="like-{{ article.pk }}">
+  {% endif %}
+</form>
+...
+```
+
+- view 함수 완성 부분
+
+```python
+from django.http import JsonResponse
+
+def likes(request, article_pk):
+    article = Article.objects.get(pk=article_pk)
+    if request.user in article.like_users.all():
+        article.like_users.remove(request.user)
+        is_liked = False
+    else:
+        article.like_users.add(request.user)
+        is_liked = True
+    context = {
+        'is_liked': is_liked,
+    }
+    return JsonResponse(context)
+```
+
+- JavaScript 완성 부분
+
+```html
+<script>
+	const formTags = document.querySelectorAll('.like-forms')
+  const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value
+
+  formTags.forEach((formTag) => {
+    formTag.addEventListener('submit', function(e) {
+      e.preventDefault()
+
+      const articleId = formTag.dataset.articleId
+
+      axios({
+        method: 'post',
+        url: `/articles/${articleId}/likes/`,
+        headers: {'X-CSRFToken': csrftoken,},
+        mode: 'same-origin',
+      })
+        .then(response => {
+          const isLiked = response.data.is_liked
+          const likeBtn = document.querySelector(`#like-${articleId}`)
+          if (isLiked === true) {
+            likeBtn.value = '좋아요 취소'
+          } else {
+            likeBtn.value = '좋아요'
+          }
+        })
+    })
+  })
+</script>
+```
+
 # 참고
 
 ## DOM 관련
@@ -2344,3 +2649,7 @@ console.log(member3.name) // Bella
 - 즉, 동기식 처리는 특정 로직이 실행되는 동안 다른 로직 실행을 차단하기 때문에 마치 프로그램이 응답하지 않는 듯한 사용자 경험을 만듦
 - 비동기로 처리한다면 먼저 처리되는 부분부터 보여줄 수 있으므로, 사용자 경험에 긍정적인 효과를 볼 수 있음
 - 이와 같은 이유로 많은 웹 기능은 비동기 로직을 사용해서 구현됨
+
+### Ajax의 필요성
+
+- human-centered design with UX(인간 중심으로 설계된 사용자 경험)
