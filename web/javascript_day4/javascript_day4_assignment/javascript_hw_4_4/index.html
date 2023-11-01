@@ -45,7 +45,7 @@
     // lodash 를 활용하여 1.jpg ~ 6.jpg 중 하나의 경로로 body의 backgroundImage url을 설정
     // hint
     const bodyTag = document.querySelector('body')
-    bodyTag.style.backgroundImage = `url('./images/${_.sample(_.range(1, 6)) + 1}.jpg')`
+    bodyTag.style.backgroundImage = `url('./images/${_.sample(_.range(1, 7))}.jpg')`
     const timeDiv = document.querySelector('#time')
     const formatTime = function () {
       // 아래 now를 활용하여 timeDiv의 innerText를 적절하게 re-format
