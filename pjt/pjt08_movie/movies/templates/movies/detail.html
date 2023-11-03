@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>DETAIL</h2>
+    <hr>
+    <div class="d-flex gap-2 mb-2">
+        <img src="{{ movie.poster_path }}" alt="" width="30%">
+        <div class="d-flex flex-column justify-content-center gap-2">
+            <h3><b>{{ movie.title }}</b></h3>
+            <p>{{ movie.overview }}</p>
+        </div>
+    </div>
+    <p>상영일: {{ movie.release_date }}</p>
+    <p>선호도: {{ movie.popularity }}</p>
+    <p>평균 평점: {{ movie.vote_average }}</p>
+    <p>장르: 
+        {% for genre in movie.genres.all %}
+            <span class="badge bg-primary">
+                <a class="text-white" href="/movies/recommended?selectedGenre={{genre.name}}" style="text-decoration:none;">{{ genre.name }}</a>
+            </span>
+        {% endfor %}</p>
+{% endblock %}

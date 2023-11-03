@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>{{ person.username }}의 프로필 페이지</h1>
+  {% with followings=person.followings.all followers=person.followers.all %}
+    <div>
+      <div>
+        팔로워 : <span class="count-followings-{{person.pk}}">{{ followings|length }}</span> / 팔로워 : <span class="count-followers-{{person.pk}}">{{ followers|length }}</span>
+      </div>
+      {% if user != person %}
+        <div>
+          <form class="follow-form" data-person-id="{{ person.pk }}">
+            {% csrf_token %}
+            {% if user in followers %}
+              <button id="followBtn-{{ person.pk }}">언팔로우</button>
+            {% else %}
+              <button id="followBtn-{{ person.pk }}">팔로우</button>
+            {% endif %}
+          </form>
+        </div>
+      {% endif %}
+    </div>
+  {% endwith %}
+{% endblock %}
+
+{% block script %}
+  <script>
+    const forms = document.querySelectorAll('.follow-form')
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value
+
+    forms.forEach(form => {
+      form.addEventListener('submit', function(e) {
+        e.preventDefault()
+        const personId = e.target.dataset.personId
+
+        axios({
+          method: 'post',
+          url: `/accounts/${personId}/follow/`,
+          headers: {'X-CSRFToken': csrftoken}
+        })
+          .then(response => {
+            const isFollowing = response.data.isFollowing
+            const followers = response.data.followers
+            const followings = response.data.followings
+
+            const followBtn = document.querySelector(`#followBtn-${personId}`)
+            const countFollowings = document.querySelector(`.count-followings-${personId}`)
+            const countFollowers = document.querySelector(`.count-followers-${personId}`)
+
+            followBtn.textContent = isFollowing ? '언팔로우' : '팔로우'
+            countFollowings.textContent = followings
+            countFollowers.textContent = followers
+          })
+      })
+    })
+  </script>
+{% endblock script %}

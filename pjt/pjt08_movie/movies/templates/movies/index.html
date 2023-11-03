@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Movies</h1>
+  <hr>
+  <div class="container p-0">
+    <div class="d-flex flex-wrap justify-content-between">
+      {% for movie in movies %}
+        <div class="card mb-2" style="width:32%;" data-movie-id="{{movie.pk}}">
+          <img class="card-img-top" src="{{ movie.poster_path }}" alt="" style="width:100%; height:25vw; object-fit:over;">
+          <div class="card-body">
+            <h5 class="card-title">{{ movie.title }}</h5>
+            <p class="card-text">{{ movie.overview|truncatechars:30 }}...</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% for movie in movies %}
+    <p>영화 제목 : {{ movie.title }}</p>
+    <p>장르:
+      {% for genre in movie.genres.all %}
+        <span>{{ genre.name }}</span>
+      {% endfor %}
+    </p>
+    <img src="{{ movie.poster_path}}" alt="" width="10%">
+    <a href="{% url "movies:detail" movie.pk %}">[detail]</a>
+    <hr>
+  {% endfor %}
+{% endblock %}
+
+{% block script %}
+  <script>
+    const cards = document.querySelectorAll('.card')
+
+    cards.forEach(card => {
+      const movieId = card.dataset.movieId
+
+      card.addEventListener('click', function() {
+        window.location.href = `/movies/${movieId}/`
+      })
+
+      card.addEventListener('mouseover', function() {
+        card.style.boxShadow = '0 10px 20px rgba(0,0,0,.12), 0 4px 8px rgba(0,0,0,.06)'
+      })
+
+      card.addEventListener('mouseout', function() {
+        card.style.boxShadow = ''
+      })
+    })
+  </script>
+{% endblock script %}

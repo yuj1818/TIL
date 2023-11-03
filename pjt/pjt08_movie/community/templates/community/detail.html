@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2 class="text-center">DETAIL</h2>
+  <h3>{{ review.pk }} 번째 글</h3>
+  <hr>
+  <p>제목: {{ review.title }}</p>
+  <p>영화 제목: {{ review.movie_title }}</p>
+  <p>내용: {{ review.content }}</p>
+  <p>평점: {{ review.rank }}</p>
+  <p>작성 시각: {{ review.created_at }}</p>
+  <p>수정 시각: {{ review.updated_at }}</p>
+  <hr>
+  <h4>댓글 목록</h4>
+  {% if comments|length %}
+    <p><b>{{ comments|length }}개의 댓글이 있습니다.</b></p>
+  {% endif %}
+  <ul>
+    {% for comment in comments %}
+      <li>
+        {{ comment.user }} - {{ comment.content }}
+        {% if request.user in comment.like_users.all %}
+          <i class="bi bi-heart-fill like-comment" data-comment-id="{{comment.pk}}" data-review-id="{{review.pk}}"></i>
+        {% else %}
+          <i class="bi bi-heart like-comment" data-comment-id="{{comment.pk}}" data-review-id="{{review.pk}}"></i>
+        {% endif %}
+        <span class="comment-{{comment.pk}}-like-counter">{{ comment.like_users.count }}</span>
+        <ul>
+          {% for re_comment in comment.re_comments.all %}
+            <li>
+              {{ re_comment.user}} - {{ re_comment.content }}
+              {% if request.user in re_comment.like_users.all %}
+                <i class="bi bi-heart-fill like-comment" data-comment-id="{{re_comment.pk}}" data-review-id="{{review.pk}}"></i>
+              {% else %}
+                <i class="bi bi-heart like-comment" data-comment-id="{{re_comment.pk}}" data-review-id="{{review.pk}}"></i>
+              {% endif %}
+              <span class="comment-{{re_comment.pk}}-like-counter">{{ re_comment.like_users.count }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+        {% if request.user.is_authenticated %}
+          <form action="{% url "community:re_comment" review.pk comment.pk %}" method="POST">
+            {% csrf_token %}
+            {{ comment_form }}
+            <input type="submit">
+          </form>
+        {% endif %}
+      </li>
+    {% empty %}
+      <p><b>댓글이 없어요..</b></p>
+    {% endfor %}
+  </ul>
+  <hr>
+  {% if user.is_authenticated %}
+    <form action="{% url 'community:create_comment' review.pk %}" method="POST">
+      {% csrf_token %}
+      {{ comment_form }}
+      <input type="submit">
+    </form>
+  {% else %}
+    <a href="{% url 'accounts:login' %}">[댓글을 작성하려면 로그인하세요.]</a>
+  {% endif %}
+  <a href="{% url 'community:index' %}">[back]</a>
+{% endblock  %}
+
+{% block script %}
+  <script>
+    const likeBtns = document.querySelectorAll('.like-comment')
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value
+
+    likeBtns.forEach(likeBtn => {
+      const commentId = likeBtn.dataset.commentId
+      const reviewId = likeBtn.dataset.reviewId
+      likeBtn.addEventListener('click', function() {
+        axios({
+          method: 'post',
+          url: `/community/${reviewId}/like/${commentId}/`,
+          headers: {'X-CSRFToken':csrftoken}
+        })
+          .then(response => {
+            const isLiked = response.data.isLiked
+            const countLike = response.data.countLike
+            const likeCounter = document.querySelector(`.comment-${commentId}-like-counter`)
+            if (isLiked) {
+              likeBtn.classList.remove('bi-heart')
+              likeBtn.classList.add('bi-heart-fill')
+            } else {
+              likeBtn.classList.remove('bi-heart-fill')
+              likeBtn.classList.add('bi-heart')
+            }
+            likeCounter.textContent = countLike
+          })
+          .catch(error => {
+            if (error.response.status === 403) {
+              alert('자신의 댓글에는 좋아요 할 수 없습니다.')
+            }
+          })
+      })
+    })
+  </script>
+{% endblock script %}
