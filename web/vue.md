@@ -238,6 +238,1025 @@
 </script>
 ```
 
+# Basic Syntax
+
+## Template Syntax
+
+- DOM을 기본 구성 요소 인스턴스의 데이터에 선언적으로 바인딩(Vue Instance와 DOM을 연결)할 수 있는 HTML 기반 템플릿 구문(확장된 문법 제공)을 사용
+
+### Text Interpolation
+
+```html
+<p>Message: {{ msg }}</p>
+```
+
+- 데이터 바인딩의 가장 기본적인 형태
+- 이중 중괄호 구문(콧수염 구문)을 사용
+- 콧수염 구문은 해당 구성 요소 인스턴스의 msg 속성 값으로 대체
+- msg 속성이 변경될 때마다 업데이트 됨
+
+### Raw HTML
+
+```html
+<div v-html="rawHtml"></div>
+<script>
+	...
+	const rawHtml = ref('<span style="color:red">This should be red.</span>')
+	...
+</script>
+```
+
+- 콧수염 구문은 데이터를 일반 텍스트로 해석하기 때문에 실제 HTML을 출력하려면 v-html을 사용해야 함
+
+### Attribute Bindings
+
+```html
+<div v-bind:id="dynamicId"></div>
+<script>
+	...
+	const dynamicId = ref('my-id')
+	...
+</script>
+```
+
+- 콧수염 구문은 HTML 속성 내에서 사용할 수 없기 때문에 v-bind를 사용
+- HTML의 id 속성 값을 vue의 dynamicId 속성과 동기화 되도록 함
+- 바인딩 값이 null이나 undefined인 경우 렌더링 요소에서 제거됨
+
+### JavaScript Expressions
+
+```html
+{{ number + 1 }}
+
+{{ ok ? 'YES' : 'NO' }}
+
+{{ msg.split('').reverse().join('') }}
+
+<div :id="`list-${id}`"></div>
+
+<script>
+	...
+	const msg = ref('Hello')
+  const number = ref(1)
+  const ok = ref(false)
+  const id = ref(100)
+	...
+</script>
+```
+
+- Vue는 모든 데이터 바인딩 내에서 JavaScript 표현식의 모든 기능을 지원
+- Vue 템플릿에서 JavaScript 표현식을 사용할 수 있는 위치
+    - 콧수염 구문 내부
+    - 모든 directive의 속성 값(v-로 시작하는 특수 속성)
+- Expressions 주의사항
+    - 각 바인딩에는 하나의 단일 표현식만 포함될 수 있음
+        - 표현식은 값으로 평가할 수 있는 코드 조각(return 뒤에 사용할 수 있는 코드여야 함)
+    - 작동하지 않는 경우
+    
+    ```html
+    <!-- 표현식이 아닌 선언식 -->
+    {{ const number = 1 }}
+    
+    <!-- 흐름제어도 작동하지 않음. 삼항 표현식을 사용 -->
+    {{ if (ok) { return message } }}
+    ```
+    
+
+### Directive
+
+- ‘v-' 접두사가 있는 특수 속성
+- Directive의 속성 값은 단일 JavaScript 표현식이어야 함(v-for, v-on 제외)
+- 표현식 값이 변경될 때 DOM에 반응적으로 업데이트를 적용
+- 예시
+    - v-if는 seen 표현식 값의 T/F를 기반으로 <p> 요소를 제거/삽입
+    
+    ```html
+    <p v-if="seen">Hi There</p>
+    ```
+    
+
+#### Directive 전체 구문
+
+![Untitled 1](https://github.com/yuj1818/TIL/assets/95585314/7bca624d-952d-4071-94b2-08086ec93f3b)
+
+
+- Arguments
+    - 일부 directive는 directive 뒤에 콜론(:)으로 표시되는 인자를 사용할 수 있음
+    - 아래 예시는 href는 HTML a 요소의 href 속성 값을 myUrl 값에 바인딩하도록 하는 v-bind의 인자
+    
+    ```html
+    <a :href="myUrl">Link</a>
+    ```
+    
+    - 아래 예시의 click은 이벤트 수신할 이벤트 이름을 작성하는 v-on의 인자
+    
+    ```html
+    <button v-on:click="doSomething">Button</button>
+    ```
+    
+- Modifiers
+    - .(dot)로 표시되는 특수 접미사로, directive가 특별한 방식으로 바인딩되어야 함을 나타냄
+    - 예를 들어 .prevent는 발생한 이벤트에서 event.preventDefault()를 호출하도록 v-on에 지시하는 modifier
+    
+    ```html
+    <form @submit.prevent="onSubmit">...</form>
+    ```
+    
+
+#### Built-in Directives
+
+- v-text
+- v-show
+- v-if
+- v-for
+- …
+- [https://vuejs.org/api/built-in-directives.html](https://vuejs.org/api/built-in-directives.html)
+
+## Dynamically data binding
+
+### v-bind
+
+- 하나 이상의 속성 또는 컴포넌트 데이터를 표현식에 동적으로 바인딩
+
+### Attribute Bindings
+
+- HTML의 속성 값을 Vue의 상태 속성 값과 동기화 되도록 함
+
+```html
+<img v-bind:src="imageSrc">
+<a v-bind:href="myUrl">Move to Url</a>
+```
+
+- v-bind shorthand(약어)
+    - ‘:’ (colon)
+    
+    ```html
+    <img :src="imageSrc">
+    <a :href="myUrl">Move to Url</a>
+    ```
+    
+- Dynamic attribute name(동적 인자 이름)
+    - 대괄호로 감싸서 directive argument에 JavaScript 표현식을 사용할 수도 있음
+    - JavaScript 표현식에 따라 동적으로 평가된 값이 최종 argument 값으로 사용됨
+    
+    ```html
+    <button :[key]="myValue"></button>
+    <!-- 대괄호 안에 작성하는 이름은 반드시 소문자로만 구성 가능 -->
+    ```
+    
+    ```html
+    <!-- 예시 -->
+    <p :[dynamicattr]="dynamicValue">...</p>
+    
+    <script>
+      ...
+      const dynamicattr = ref('title')
+      const dynamicValue = ref('Hello Vue.js')
+      ...
+    </script>
+    ```
+    
+
+### Class and Style Bindings
+
+- 클래스와 스타일은 모두 속성이므로 v-bind를 사용하여 다른 속성과 마찬가지로 동적으로 문자열 값을 할당할 수 잇음
+- 그러나 단순히 문자열 연결을 사용하여 이러한 값을 생성하는 것을 번거롭고 오류가 발생하기가 쉬움
+- Vue는 클래스 및 스타일과 함께 v-bind를 사용할 때 객체 또는 배열을 활용한 개선 사항을 제공
+
+#### Binding HTML Classes - Binding to Objects
+
+- 객체를 :class에 전달하여 클래스를 동적으로 전환할 수 있음
+
+```html
+<div :class="{active: isActive}">Text</div>
+<script>
+	...
+	const isActive = ref(false)
+	...
+</script>
+```
+
+- 객체에 더 많은 필드를 포함하여 여러 클래스를 전환할 수 있음
+
+```html
+<div class="static" :class="{active: isActive, 'text-primary': hasInfo}">Text</div>
+<script>
+	...
+	const isActive = ref(false)
+	const hasInfo = ref(true)
+	...
+</script>
+```
+
+- 반드시 inline 방식으로 작성하지 않아도 됨
+
+```html
+<div class="static" :class="classObj">Text</div>
+<script>
+	...
+	const isActive = ref(false)
+	const hasInfo = ref(true)
+	const classObj = ref({
+    active: isActive,
+    'text-primary': hasInfo
+  })
+	...
+</script>
+```
+
+#### Binding HTML classes - Binding to Arrays
+
+- :class를 배열에 바인딩하여 클래스 목록을 적용할 수 있음
+
+```html
+<div :class="[activeClass, infoClass]">Text</div>
+<script>
+	...
+	const activeClass = ref('active')
+  const infoClass = ref('text-primary')
+	...
+</script>
+```
+
+- 배열 구문 내에서 객체 구문 사용
+
+```html
+<div :class="[{active: isActive}, infoClass]">Text</div>
+<script>
+	...
+	const isActive = ref(false)
+	const infoClass = ref('text-primary')
+	...
+</script>
+```
+
+#### Binding Inline Styles - Binding to Objects
+
+- :style은 JavaScript 객체 값에 대한 바인딩을 지원(HTML style 속성에 해당)
+
+```html
+<div :style="{color: activeColor, fontSize: fontSize + 'px'}">Text</div>
+<script>
+	...
+	const activeColor = ref('crimson')
+	const fontSize = ref(50)
+	...
+</script>
+```
+
+- 실제 CSS에서 사용하는 것처럼 :style은 kebab-cased 키 문자열도 지원
+    - 단, camelCase 작성을 권장
+
+```html
+<div :style="{'font-size': fontSize + 'px'}">Text</div>
+```
+
+- 템플릿을 더 깔끔하게 작성하려면 스타일 객체에 직접 바인딩하는 것을 권장
+
+```html
+<div :style="styleObj">Text</div>
+<script>
+	...
+	const activeColor = ref('crimson')
+  const fontSize = ref(50)
+  const styleObj = ref({
+    color: activeColor,
+    fontSize: fontSize.value + 'px'
+  })
+	...
+</script>
+```
+
+#### Binding Inline Styles - Binding to Arrays
+
+- 여러 스타일 객체의 배열에 :style을 바인딩할 수 있음
+- 작성한 객체는 병합되어 동일한 요소에 적용
+
+```html
+<div :style="[styleObj, styleObj2]">Text</div>
+<script>
+	...
+	const activeColor = ref('crimson')
+  const fontSize = ref(50)
+  const styleObj = ref({
+    color: activeColor,
+    fontSize: fontSize.value + 'px'
+  })
+  const styleObj2 = ref({
+    color: 'blue',
+    border: '1px solid black'
+  })
+	...
+</script>
+```
+
+## Event Handling
+
+### v-on
+
+- DOM 요소에 이벤트 리스너를 연결 및 수신
+
+```html
+v-on:event="handler"
+```
+
+- handler 종류
+    - Inline handlers
+        - 이벤트가 트리거 될 때 실행 될 JavaScript 코드
+    - Method handlers
+        - 컴포넌트에 정의된 메서드 이름
+- v-on shorthand(약어)
+    - ‘@’
+    
+    ```html
+    @event="handler"
+    ```
+    
+
+### Inline Handlers
+
+- Inline handlers는 주로 간단한 상황에 사용
+
+```html
+<button @click="count++">Add 1</button>
+<p>Count: {{ count }}</p>
+<script>
+	...
+	const count = ref(0)
+	...
+</script>
+```
+
+### Method Handlers
+
+- Inline handlers로는 불가능한 대부분의 상황에서 사용
+- Method Handlers는 이를 트리거하는 기본 DOM Event 객체를 자동으로 수신
+
+```html
+<button @click="myFunc">Hello</button>
+<script>
+	...
+	const name = ref('Alice')
+  const myFunc = function(event) {
+    console.log(event) // PointerEvent {...}
+    console.log(event.currentTarget) // <button>Hello</button>
+    console.log(`Hello ${name.value}!`) // Hello Alice!
+  }
+	...
+</script>
+```
+
+### Inline Handlers에서의 메서드 호출
+
+- 메서드 이름에 직접 바인딩하는 대신 Inline Handlers에서 메서드를 호출할 수도 있음
+- 이렇게 하면 기본 이벤트 대신 사용자 지정 인자를 전달할 수 있음
+
+```html
+<button @click="greeting('hello')">Say hello</button>
+<button @click="greeting('bye')">Say bye</button>
+<script>
+	...
+	const greeting = function (message) {
+    console.log(message)
+  }
+	...
+</script>
+```
+
+### Inline Handlers에서의 event 인자에 접근하기
+
+- Inline Handlers에서 원래 DOM 이벤트에 접근하기
+- $event 변수를 사용하여 메서드에 전달
+
+```html
+<button @click="warning('경고입니다.', $event)">Submit</button>
+<script>
+	...
+	const warning = function(message, event) {
+    console.log(message)
+    console.log(event)
+  }
+	...
+</script>
+```
+
+### Event Modifiers
+
+- Vue는 v-on에 대한 Event Modifiers를 제공해 event.preventDefault()와 같은 구문을 메서드에서 작성하지 않도록 함
+- stop, prevent, self 등 다양한 modifires를 제공
+- 메서드는 DOM 이벤트에 대한 처리보다는 데이터에 관한 논리를 작성하는 것에 집중할 것
+
+```html
+<form @submit.prevent="onSubmit">
+  <input type="submit">
+</form>
+<a @click.stop.prevent="onLink">Link</a>
+<!-- Modifiers는 chained 되게끔 작성할 수 있으며 이때는 작성된 순서로 실행되기 때문에 작성 순서에 유의 -->
+```
+
+### Key Modifiers
+
+- Vue는 키보드 이벤트를 수신할 때 특정 키에 관한 별도 modifiers를 사용할 수 있음
+
+```html
+<!-- key가 Enter일 때만 onSubmit 이벤트 호출하기 -->
+<input @keyup.enter="onSumbit">
+```
+
+## Form Input Bindings
+
+- form을 처리할 때 사용자가 input에 입력하는 값을 실시간으로 JavaScript 상태에 동기화해야 하는 경우(양방향 바인딩)
+- 양방향 바인딩 방법
+    - v-bind와 v-on을 함께 사용
+    - v-model 사용
+
+### v-bind와 v-on 함께 사용하여 양방향 바인딩
+
+- v-bind를 사용하여 input 요소의 value 속성 값을 입력 값으로 사용
+- v-on을 사용하여 input 이벤트가 발생할 때마다 input 요소의 value 값을 별도 반응형 변수에 저장하는 핸들러를 호출
+
+```html
+<p>{{ inputText1 }}</p>
+<input :value="inputText1" @input="onInput">
+<script>
+	...
+	const inputText1 = ref('')
+  const onInput = function(event) {
+    inputText1.value = event.currentTarget.value
+  }
+	...
+</script>
+```
+
+### v-model 사용하여 양방향 바인딩
+
+- `v-model` : form input 요소 또는 컴포넌트에서 양방향 바인딩을 만듦
+- v-model을 사용하여 사용자 입력 데이터와 반응형 변수를 실시간 동기화
+
+```html
+<p>{{ inputText2 }}</p>
+<input v-model="inputText2">
+<script>
+	...
+	const inputText2 = ref('')
+	...
+</script>
+```
+
+- [IME](#imeinput-method-editor)가 필요한 언어(한국어, 중국어, 일본어 등)의 경우 v-model이 제대로 업데이트되지 않음
+- 해당 언어에 대해 올바르게 응답하려면 v-bind와 v-on 방법을 사용해야 함
+
+### v-model 활용
+
+- v-model은 단순 text input 뿐만 아니라 Checkbox, Radio, Select 등 다양한 타입의 사용자 입력 방식과 함께 사용 가능
+
+#### Checkbox 활용
+
+- 단일 체크박스와 boolean 값 활용
+
+```html
+<input type="checkbox" id="checkbox" v-model="checked">
+<label for="checkbox">{{ checked }}</label>
+<script>
+	...
+	const checked = ref(false)
+	...
+</script>
+```
+
+- 여러 체크박스와 배열 활용
+
+```html
+<div>Checked names: {{ checkedNames }}</div>
+
+<input type="checkbox" id="alice" value="Alice" v-model="checkedNames">
+<label for="alice">Alice</label>
+
+<input type="checkbox" id="bella" value="Bella" v-model="checkedNames">
+<label for="bella">Bella</label>
+
+<script>
+	...
+	const checkedNames = ref([])
+	...
+</script>
+```
+
+#### Select 활용
+
+- select에서 v-model 표현식의 초기 값이 어떤 option과도 일치하지 않는 경우 select 요소는 “선택되지 않은(unselected)” 상태로 렌더링 됨
+
+```html
+<div>Selected: {{ selected }}</div>
+
+<select v-model="selected">
+  <option disabled value="">Please select one</option>
+  <option>Alice</option>
+  <option>Bella</option>
+  <option>Cathy</option>
+</select>
+
+<script>
+	...
+	const selected = ref('')
+	...
+</script>
+```
+
+## Computed Property
+
+### computed()
+
+- 계산된 속성의 정의하는 함수
+- 미리 계산된 속성을 사용하여 템플릿에서 표현식을 단순하게 하고 불필요한 반복 연산을 줄임
+
+```html
+<h2>남은 할 일</h2>
+<p>{{ restOfTodos }}</p>
+<script>
+  const { createApp, ref, computed } = Vue
+
+  const app = createApp({
+	  setup() {
+	    const todos = ref([
+	      { text: 'Vue 실습' },
+	      { text: '자격증 공부' },
+	      { text: 'TIL 작성' }
+	    ])
+
+      const restOfTodos = computed(() => {
+        return todos.value.length > 0 ? '아직 남았다' : '퇴근!'
+      })
+
+      return {
+        todos,
+        restOfTodos
+      }
+    }
+  })
+
+  app.mount('#app')
+</script>
+```
+
+- computed 특징
+    - 반환되는 값을 computed ref이며 일반 refs와 유사하게 계산된 결과를 .value로 참조할 수 있음
+    - computed 속성은 의존된 반응형 데이터를 자동으로 추적
+    - 의존하는 데이터가 변경될 때만 재평가
+        - restOfTodos의 계산은 todos에 의존하고 있음
+        - 따라서 todos가 변경될 때만 restOfTods가 업데이트 됨
+
+### Method
+
+- computed 속성 대신 method로도 동일한 기능을 정의할 수 있음
+- 두 가지 접근 방식은 실제로 완전히 동일
+
+```html
+<p>{{ getRestOfTodos() }}</p>
+<script>
+	...
+	const getRestOfTodos = function() {
+    return todos.value.length > 0 ? '아직 남았다' : '퇴근!'
+  }
+	...
+</script>
+```
+
+### computed와 method 차이
+
+- computed 속성은 의존된 반응형 데이터를 기반으로 캐시(cached)됨
+- 의존하는 데이터가 변경된 경우에만 재평가됨
+- 즉, 의존된 반응형 데이터가 변경되지 않는 한 이미 계산된 결과에 대한 여러 참조는 다시 평가할 필요 없이 이전에 계산된 결과를 즉시 반환
+- 반면, method 호출은 다시 렌더링이 발생할 때마다 항상 함수를 실행
+    - 호출해야만 실행됨
+
+`Cache(캐시)`
+
+- 데이터나 결과를 일시적으로 저장해두는 임시 저장소
+- 이후에 같은 데이터나 결과를 다시 계산하지 않고 빠르게 접근할 수 있도록 함
+
+### computed와 method의 적절한 사용처
+
+- computed
+    - 의존하는 데이터에 따라 결과가 바뀌는 계산된 속성을 만들 때 유용
+    - 동일한 의존성을 가진 여러 곳에서 사용할 때 계산 결과를 캐싱하여 중복 계산 방지
+- method
+    - 단순히 특정 동작을 수행하는 함수를 정의할 때 사용
+    - 데이터에 의존하는지 여부와 관계없이 항상 동일한 결과를 반환하는 함수
+    - 무조건 computed만 사용하는 것이 아니라 사용 목적과 상황에 맞게 computed와 method를 적절히 조합하여 사용
+
+## Conditional Rendering
+
+### v-if
+
+- 표현식 값의 T/F를 기반으로 요소를 조건부로 렌더링
+- ‘v-else’ directive를 사용하여 v-if에 대한 else 블록을 나타낼 수 있음
+
+```html
+<p v-if="isSeen">true일때 보여요</p>
+<p v-else>false일때 보여요</p>
+<button @click="isSeen = !isSeen">토글</button>
+<script>
+	...
+	const isSeen = ref(true)
+	...
+</script>
+```
+
+- ‘v-else-if’ directive를 사용하여 v-if에 대한 else if 블록을 나타낼 수 있음
+
+```html
+<div v-if="name === 'Alice'">Alice입니다</div>
+<div v-else-if="name === 'Bella'">Bella입니다</div>
+<div v-else-if="name === 'Cathy'">Cathy입니다</div>
+<div v-else>아무도 아닙니다.</div>
+<script>
+	...
+	const name = ref('Cathy')
+	...
+</script>
+```
+
+- v-if는 directive이기 때문에 단일 요소에만 연결 가능
+- 이 경우 template 요소에 v-if를 사용하여 하나 이상의 요소에 대해 적용할 수 있음
+    - v-else, v-else-if 모두 적용 가능
+    
+    ```html
+    <template v-if="name === 'Cathy'">
+    	<div>Cathy 입니다.</div>
+    	<div>나이는 30살입니다.</div>
+    </template>
+    ```
+    
+
+`HTML <template> element`
+
+- 페이지가 로드 될 때 렌더링 되지 않지만 JavaScript를 사용하여 나중에 문서에서 사용할 수 있도록 하는 HTML을 보유하기 위한 메커니즘
+- 보이지 않는 wrapper 역할
+
+### v-show
+
+- 표현식의 값의 T/F를 기반으로 요소의 가시성을 전환
+- v-show 요소는 항상 렌더링 되어 DOM에 남아있음
+- CSS display 속성만 전환하기 때문
+
+```html
+<div v-show="isShow">v-show</div>
+<script>
+	...
+	const isShow = ref(false)
+	...
+</script>
+```
+
+### v-if vs v-show
+
+| v-if(Cheap initial load, expensive toggle) | v-show(Expensive initial load, cheap toggle) |
+| --- | --- |
+| 초기 조건이 false인 경우 아무 작업도 수행하지 않음 | 초기 조건에 관계 없이 항상 렌더링 |
+| 토글 비용이 높음 | 초기 렌더링 비용이 더 높음 |
+- 무언가를 매우 자주 전환해야 하는 경우에는 v-show를, 실행 중에 조건이 변경되지 않는 경우에는 v-if를 권장
+
+## List Rendering
+
+### v-for
+
+- 소스 데이터(Array, Object, number, string, Iterable)를 기반으로 요소 또는 템플릿 블록을 여러 번 렌더링
+- v-for는 alias in expresssion 형식의 특수 구문을 사용하여 반복되는 현재 요소에 대한 별칭(alias)을 제공
+
+```html
+<div v-for="item in items">
+    {{ item.text }}
+</div>
+```
+
+- 인덱스(객체에서는 키)에 대한 별칭을 지정할 수 있음
+
+```html
+<div v-for="(item, index) in items"></div>
+
+<div v-for="value in object"></div>
+<div v-for="(value, key) in object"></div>
+<div v-for="(value, key, index) in object"></div>
+```
+
+- 배열 반복
+
+```html
+<div v-for="(item, index) in myArr">
+    {{ index }} / {{ item }}
+</div>
+<script>
+	...
+	const myArr = ref([
+    { name: 'Alice', age: 20 },
+    { name: 'Bella', age: 21 }
+  ])
+	...
+</script>
+```
+
+- 객체 반복
+
+```html
+<div v-for="(value, key, index) in myObj">
+  {{ index }} / {{ key }} / {{ value }}
+</div>
+<script>
+	...
+	const myObj = ref({
+    name: 'Cathy',
+    age: 30
+  })
+	...
+</script>
+```
+
+- 여러 요소에 대한 v-for 적용
+    - template 요소에 v-for를 사용하여 하나 이상의 요소에 대해 반복 렌더링 할 수 있음
+    
+    ```html
+    <ul>
+      <template v-for="item in myArr">
+        <li>{{ item.name }}</li>
+        <li>{{ item.age }}</li>
+        <hr>
+      </template>
+    </ul>
+    <script>
+    	...
+    	const myArr = ref([
+        { name: 'Alice', age: 20 },
+        { name: 'Bella', age: 21 }
+      ])
+    	...
+    </script>
+    ```
+    
+- 중첩된 v-for
+    - 각 v-for 범위는 상위 범위에 접근할 수 있음
+    
+    ```html
+    <ul v-for="item in myInfo">
+      <li v-for="friend in item.friends">
+        {{ item.name }} - {{ friend}}
+      </li>
+    </ul>
+    <script>
+    	...
+    	const myInfo = ref([
+        { name: 'Alice', age: 20, friends: ['Bella', 'Cathy', 'Dan'] },
+        { name: 'Bella', age: 21, friends: ['Alice', 'Cathy'] }
+      ])
+    	...
+    </script>
+    ```
+    
+
+### v-for with key
+
+- 반드시 v-for와 key를 함께 사용한다
+- 내부 컴포넌트의 상태를 일관되게 유지
+- 데이터의 예측 가능한 해동을 유지(Vue 내부 동작 관련)
+- key는 반드시 각 요소에 대한 고유한 값을 나타낼 수 있는 식별자여야 함
+
+```html
+<div v-for="item in items" :key="item.id">
+  <!-- content -->
+</div>
+<script>
+	...
+	let id = 0
+
+  const items = ref([
+    { id: id++, name: 'Alice' },
+    { id: id++, name: 'Bella' },
+  ])
+	...
+</script>
+```
+
+### v-for with v-if
+
+- 동일 요소에 v-for와 v-if를 함께 사용하지 않는다
+- 동일한 요소에서 v-if가 v-for보다 우선순위가 더 높기 때문
+- v-if 조건은 v-for 범위의 변수에 접근할 수 없음
+- 예시
+    - todo 데이터 중 이미 처리 한(isComplete === true) todo만 출력하기
+        - v-if가 더 높은 우선순위를 가지므로 v-for의 todo 요소를 v-if에서 사용할 수 없음
+    
+    ```html
+    <ul>
+      <li v-for="todo in todos" v-if="!todo.isComplete" :key="todo.id">
+        {{ todo.name }}
+      </li>
+    </ul>
+    <script>
+    	...
+    	let id = 0
+    
+      const todos = ref([
+        { id: id++, name: '복습', isComplete: true },
+        { id: id++, name: '예습', isComplete: false },
+        { id: id++, name: '저녁식사', isComplete: true },
+        { id: id++, name: '노래방', isComplete: false }
+      ])
+    	...
+    </script>
+    ```
+    
+    - 해결 1 - computed를 활용해 필터링 된 목록을 반환하여 반복하도록 설정
+    
+    ```html
+    <ul>
+      <li v-for="todo in complteTodos" :key="todo.id">
+        {{ todo.name }}
+      </li>
+    </ul>
+    <script>
+    	...
+    	const completeTodos = computed(() => {
+        return todos.value.filter((todo) => todo.isComplete)
+      })
+    	...
+    </script>
+    ```
+    
+    - 해결 2 - v-for와 template 요소를 사용하여 v-if를 이동
+    
+    ```html
+    <ul>
+      <template v-for="todo in todos" :key="todo.id">
+        <li v-if="!todo.isComplete">
+          {{ todo.name }}
+        </li>
+      </template>
+    </ul>
+    <script>
+    	...
+    	//위와 동일
+    	...
+    </script>
+    ```
+    
+
+## Watchers
+
+### watch()
+
+- 반응형 데이터를 감시하고 감시하는 데이터가 변경되면 콜백 함수를 호출
+
+```jsx
+watch(variable, (newValue, oldValue) => {
+	//do something
+})
+```
+
+- variable
+    - 감시하는 변수
+- newValue
+    - 감시하는 변수가 변화된 값
+    - 콜백 함수의 첫번째 인자
+- oldValue
+    - 콜백 함수의 두번째 인자
+- 예시
+    - 감시하는 변수에 변화가 생겼을 때 기본 동작 확인하기
+    
+    ```html
+    <button @click="count++">Add 1</button>
+    <p>Count: {{ count }}</p>
+    <script>
+      const { createApp, ref, watch } = Vue
+    
+      const app = createApp({
+        setup() {
+          const count = ref(0)
+    
+          const countWatch = watch(count, (newValue, oldValue) => {
+            console.log(`newValue: ${newValue}, oldValue: ${oldValue}`)
+          })
+    
+          return {
+            count,
+            countWatch
+          }
+        }
+      })
+    
+      app.mount('#app')
+    </script>
+    ```
+    
+    ![Untitled 2](https://github.com/yuj1818/TIL/assets/95585314/06140bc3-b8e2-422a-a1b1-794b48a1ec8d)
+    
+    - 감시하는 변수에 변화가 생겼을 때 연관 데이터 업데이트하기
+    
+    ```html
+    <input v-model="message">
+    <p>Message length: {{ messageLength }}</p>
+    <script>
+    	const message = ref('')
+      const messageLength = ref(0)
+    
+      const messageWatch = watch(message, (newValue, oldValue) => {
+        messageLength.value = newValue.length
+      })
+    </script>
+    ```
+    
+
+### Computed와 Watchers
+
+|  | Computed | Watchers |
+| --- | --- | --- |
+| 공통점 | 데이터의 변화를 감지하고 처리 | “” |
+| 동작 | 의존하는 데이터 속성의 계산된 값을 반환 | 특정 데이터 속성의 변화를 감시하고 작업을 수행 |
+| 사용 목적 | 템플릿 내에서 사용되는 데이터 연산용 | 데이터 변경에 따른 특정 작업 처리용 |
+| 사용 예시 | 연산 된 길이, 필터링 된 목록 계산 등 | 비동기 API 요청, 연관 데이터 업데이트 등 |
+- computed와 watch 모두 의존(감시)하는 원본 데이터를 직접 변경하지 않음
+
+## Lifecycle Hooks
+
+- Vue 인스턴스의 생애주기 동안 특정 시점에 실행되는 함수
+- 개발자가 특정 단계에서 의도하는 로직이 실행될 수 있도록 함
+- 예시
+    - Vue 컴포넌트 인스턴스가 초기 렌더링 및 DOM 요소 생성이 완료된 후 특정 로직을 수행하기
+    
+    ```html
+    <script>
+    	const { createApp, ref, onMounted } = Vue
+    
+      const app = createApp({
+        setup() {
+          onMounted(() => {
+            console.log('mounted')
+          })
+    
+    	app.mount('#app')
+    </script>
+    ```
+    
+    - 반응형  데이터의 변경으로 인해 컴포넌트의 DOM이 업데이트 된 후 특정 로직을 수행하기
+    
+    ```html
+    <button @click="count++">Add 1</button>
+    <p>Count: {{ count }}</p>
+    <p>{{ message }}</p>
+    <script>
+    	const { createApp, ref, onMounted, onUpdated } = Vue
+    
+      const app = createApp({
+        setup() {
+          const count = ref(0)
+          const message = ref(null)
+    
+          onUpdated(() => {
+            message.value = 'updated!'
+          })
+    
+          return {
+            count,
+            message
+          }
+        },
+      })
+    
+      app.mount('#app')
+    </script>
+    ```
+    
+
+### Lifecycle Hooks 특징
+
+- Vue는 Lifecycle Hooks에 등록된 콜백 함수들을 인스턴스와 자동으로 연결함
+- 이렇게 동작하려면 hooks 함수들은 반드시 동기적으로 작성되어야 함
+- 인스턴스 생애 주기의 여러 단계에서 호출되는 다른 hooks도 있으며, 가장 일반적으로 사용되는 것은 onMounted, onUpdated, onUnmounted
+- [https://vuejs.org/api/composition-api-lifecycle.html](https://vuejs.org/api/composition-api-lifecycle.html)
+
+### Lifecycle Hooks Diagram
+
+- [https://vuejs.org/guide/essentials/lifecycle.html#lifecycle-diagram](https://vuejs.org/guide/essentials/lifecycle.html#lifecycle-diagram)
+
+<img src="https://github.com/yuj1818/TIL/assets/95585314/f27f6df2-59a2-4238-a250-1fcf661bf13a" width="40%">
+
+## Vue Style Guide
+
+- Vue의 스타일 가이드 규칙은 우선순위에 따라 4가지 범주로 나눔
+- [https://vuejs.org/style-guide/](https://vuejs.org/style-guide/)
+- 규칙 범주
+    - 우선순위 A : 필수 (Essential)
+        - 오류를 방지하는 데 도움이 되므로 어떤 경우에도 규칙을 학습하고 준수
+    - 우선순위 B : 적극 권장 (Strongly Recommended)
+        - 가독성 및 개발자 경험을 향상시킴
+        - 규칙을 어겨도 코드는 여전히 실행되겠지만, 정당한 사유가 있어야 규칙을 위반할 수 있음
+    - 우선순위 C : 권장 (Recommended)
+        - 일관성을 보장하도록 임의의 선택을 할 수 있음
+    - 우선순위 D : 주의 필요 (Use with Caution)
+        - 잠재적 위험 특성을 고려함
+- 우선 순위 A
+    - v-for에 key 작성하기
+    - 동일 요소에 v-if와 v-for 함께 사용하지 않기
+
 # 참고
 
 ### Ref Unwrap 주의 사항
@@ -301,3 +1320,95 @@
     - Vue의 Nuxt.js
     - React의 Next.js
     - Angular Universal
+
+## 문법 관련
+
+### v-bind 참고 문서
+
+- [https://vuejs.org/api/built-in-directives.html#v-bind](https://vuejs.org/api/built-in-directives.html#v-bind)
+
+### v-on 참고 문서
+
+- [https://vuejs.org/api/built-in-directives.html#v-on](https://vuejs.org/api/built-in-directives.html#v-on)
+
+### v-model 참고 문서
+
+- [https://vuejs.org/api/built-in-directives.html#v-model](https://vuejs.org/api/built-in-directives.html#v-model)
+
+### IME(Input Method Editor)
+
+- 사용자가 입력 장치에서 기본적으로 사용할 수 없는 문자(비영어권 언어)를 입력할 수 있도록 하는 운영 체제 구성 프로그램
+- 일반적으로 키보드 키보다 자모가 더 많은 언어에서 사용해야 함
+- IME가 동작하는 방식과 Vue의 양방향 바인딩(v-model) 동작 방식이 상충하기 때문에 한국어 입력 시 예상대로 동작하지 않았던 것
+
+### [주의] computed의 반환 값은 변경하지 말 것
+
+- computed의 반환 값은 의존하는 데이터의 파생된 값
+- 일종의 snapshot이며 의존하는 데이터가 변경될 때 마다 새 snapshot이 생성됨
+- snapshot을 변경하는 것은 의미가 없으므로 계산된 반환 값은 읽기 전용으로 취급되어야 하며 변경되어서는 안됨
+- 대신 새 값을 얻기 위해서는 의존하는 데이터를 업데이트 해야 함
+
+### [주의] computed 사용 시, 원본 배열 변경하지 말 것
+
+- computed에서 reverse() 및 sort() 사용 시 원본 배열을 변경하기 때문에 복사본을 만들어서 진행 해야 함
+
+```html
+// 원본 변경
+return numbers.reverse()
+// 원본 변경하지 않도록 복사본 생성하여 진행
+return [...numbers].reverse() 
+```
+
+### [주의] 배열의 인덱스를 v-for의 key로 사용하지 말 것
+
+- 인덱스는 식별자가 아닌 배열의 항목 위치만 나타내기 때문에 Vue가 DOM을 변경할 때 (끝이 아닌 위치에 새 항목이 배열에 삽입되면) 여러 컴포넌트 간 데이터 공유 시 문제가 발생
+- 직접 고유한 값을 만들어내는 메서드를 만들거나 외부 라이브러리 등을 활용하는 등 식별자 역할을 할 수 있는 값을 만들어 사용
+
+### v-for와 배열 - “배열 변경 감지”
+
+- 수정 메서드(원본 배열 수정)
+    - Vue는 반응형 배열의 변경 메소드가 호출되는 것을 감지하여, 필요한 업데이트를 발생시킴
+    - push(), pop(), shift(), unshift(), splice(), sort(), reverse()
+- 배열 교체
+    - 원본 배열을 수정하지 않고 항상 새 배열의 반환
+    - filter(), concat(), slice()
+
+### v-for와 배열 - “필터링/정렬 결과 표시”
+
+- 원본 데이터를 수정하거나 교체하지 않고 필터링 되거나 정렬된 결과를 표시
+    - computed 활용
+    
+    ```html
+    <li v-for="num in evenNumbers">{{ num }}</li>
+    <script>
+    	...
+    	const numbers = ref([1, 2, 3, 4, 5])
+    
+    	const evenNumbers = computed(() => {
+    		return numbers.value.filter((number) => number % 2 === 0)
+    	})
+    	...
+    </script>
+    ```
+    
+    - method 활용 (computed가 불가능한 중첩된 v-for의 경우)
+    
+    ```html
+    <ul v-for="numbers in numberSets">
+      <li v-for="num in evenNumbers(numbers)">
+        {{num}}
+      </li>
+    </ul>
+    <script>
+    	...
+      const numberSets = ref([
+        [1, 2, 3, 4, 5],
+        [6, 7, 8, 9, 10],
+      ])
+    
+    	const evenNumbers = function(numbers) {
+        return numbers.filter((number) => number % 2 === 0)
+      }
+    	...
+    </script>
+    ```
