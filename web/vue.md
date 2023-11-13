@@ -2078,6 +2078,1033 @@ npm run dev
 </script>
 ```
 
+# Router
+
+## Routing
+
+- 네트워크에서 경로를 선택하는 프로세스
+- 웹 애플리케이션에서 다른 페이지 간의 전환과 경로를 관리하는 기술
+
+### SSR에서의 Routing
+
+- 서버가 사용자가 방문한 URL 경로를 기반으로 응답을 전송
+- 링크를 클릭하면 브라우저는 서버로부터 HTML 응답을 수신하고 새 HTML로 전체 페이지를 다시 로드
+
+### CSR/SPA에서의 Routing
+
+- SPA에서 routing은 브라우저의 클라이언트 측에서 수행
+- 클라이언트 측 JavaScript가 새 데이터를 동적으로 가져와 전체 페이지를 다시 로드 하지 않음
+- 페이지는 1개이지만, 링크에 따라 여러 컴포넌트를 렌더링하여 마치 여러 페이지를 사용하는 것처럼 보이도록 해야 함
+
+### 만약 routing이 없다면
+
+- 유저가 URL을 통한 페이지의 변화를 감지할 수 없음
+- 페이지가 무엇을 렌더링 중인지에 대한 상태를 알 수 없음
+    - URL이 1개이기 때문에 새로 고침 시 처음 페이지로 되돌아감
+    - 링크를 공유할 시 첫 페이지만 공유 가능
+- 브라우저의 뒤로 가기 기능을 사용할 수 없음
+
+## Vue Router
+
+- Vue 공식 라우터
+
+### Vue Router 추가
+
+- Vite로 프로젝트 생성 시 Router 추가
+    
+    ![Untitled 6](https://github.com/yuj1818/TIL/assets/95585314/7011aec9-e2ad-4a5d-945d-11945ba919ec)
+    
+- 서버 실행 후 Router로 인한 프로젝트 변화 확인
+    - Home, About 링크에 따라 변경되는 URL과 새로 렌더링 되는 화면
+
+### Vue 프로젝트 구조 변화
+
+- App.vue 코드 변화
+    
+    ```jsx
+    <template>
+      <header>
+        <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+    
+        <div class="wrapper">
+          <HelloWorld msg="You did it!" />
+    
+          <nav>
+            <RouterLink to="/">Home</RouterLink>
+            <RouterLink to="/about">About</RouterLink>
+          </nav>
+        </div>
+      </header>
+    
+      <RouterView />
+    </template>
+    ```
+    
+    - RouterLink
+        - 페이지를 다시 로드하지 않고 URL을 변경하고 URL 생성 및 관련 로직을 처리
+        - HTML의 a태그를 렌더링
+    - RouterView
+        - URL에 해당하는 컴포넌트를 표시
+        - 어디에나 배치하여 레이아웃에 맞출 수 있음
+- router 폴더 생성
+    - router/index.js
+        - 라우팅에 관련된 정보 및 설정이 작성 되는 곳
+        - router에 URL과 컴포넌트를 매핑
+- views 폴더 생성
+    - Router 위치에 렌더링 할 컴포넌트를 배치
+    - 기존 components 폴더와 기능적으로 다른 것은 없으며 단순 분류의 의미로 구성됨
+    - **일반 컴포넌트와 구분하기 위해 컴포넌트 이름을 View로 끝나도록 작성하는 것을 권장**
+
+### Basic Routing
+
+1. index.js에 라우터 관련 설정 작성(주소, 이름 컴포넌트)
+2. RouterLink의 ‘to’ 속성으로 index.js에서 정의한 주소 속성 값(path)을 사용
+
+```jsx
+// index.js
+const router = createRouter({
+  routes: [
+    {
+      path: '/',
+      name: 'home',
+      component: HomeView
+    },
+    ...
+  ]
+})
+```
+
+### Named Routes
+
+- 경로에 이름을 지정하는 라우팅
+- name 속성 값에 경로에 대한 이름을 지정
+- 경로에 연결하려면 RouterLink에 v-bind를 사용해 ‘to’ prop 객체로 전달
+- 장점
+    - 하드 코딩 된 URL을 사용하지 않아도 됨
+    - URL 입력 시 오타 방지
+
+```jsx
+//index.js
+
+const router = createRouter({
+  routes: [
+    {
+      path: '/',
+      **name: 'home',**
+      component: HomeView
+    },
+    ...
+  ]
+})
+```
+
+```html
+<RouterLink :to="{name: 'home'}">Home</RouterLink>
+<RouterLink :to="{name: 'about'}">About</RouterLink>
+```
+
+### Dynamic Route Matching with Params
+
+- 매개 변수를 사용한 동적 경로 매칭
+    - 주어진 패턴 경로를 동일한 컴포넌트에 매핑해야 하는 경우 활용
+    - 예를 들어 모든 사용자의 ID를 활용하여 프로필 페이지 url을 설계 한다면?
+        - user/1
+        - user/2
+        - …
+        - 일정한 패턴의 URL 작성을 반복해야 함
+- 동적 경로 매칭 활용 예시
+    - UserView 컴포넌트 작성
+    
+    ```html
+    <!-- UserView.vue -->
+    <template>
+      <div>
+        <h1>UserView</h1>
+      </div>
+    </template>
+    ```
+    
+    - UserView 컴포넌트 라우트 등록
+        - 매개변수는 콜론(:)으로 표기
+    
+    ```jsx
+    // index.js
+    import UserView from '../views/UserView.vue'
+    
+    const router = createRouter({
+      routes: [
+        ...
+        {
+          path: '/user/:id',
+          name: 'user',
+          component: UserView
+        },
+      ]
+    })
+    ```
+    
+    - 라우트의 매개변수는 컴포넌트에서 $route.params로 참조 가능
+    
+    ```html
+    <!-- UserView.vue -->
+    <template>
+      <div>
+        <h1>UserView</h1>
+        <h2>{{  $route.params.id }}번 User 페이지</h2>
+      </div>
+    </template>
+    ```
+    
+    - 다만 다음과 같이 Composition API 방식으로 작성하는 것을 권장
+    
+    ```html
+    <template>
+      <div>
+        <h1>UserView</h1>
+        <h2>{{ userId }}번 User 페이지</h2>
+      </div>
+    </template>
+    
+    <script setup>
+      import { ref } from 'vue'
+      import { useRoute } from 'vue-router'
+    
+      const route = useRoute()
+      const userId = ref(route.params.id)
+    </script>
+    ```
+    
+
+### Programmatic Navigation
+
+- router의 인스턴스 메서드를 사용해 RouterLink로 a 태그를 만드는 것처럼 프로그래밍으로 네비게이션 관련 작업을 수행할 수 있음
+- `router.push()`
+    - 다른 위치로 이동하기
+    - 다른 URL로 이동하는 메서드
+    - 새 항목을 history stack에 push하므로 사용자가 브라우저 뒤로 가기 버튼을 클릭하면 이전 URL로 이동할 수 있음
+    - RouterLink를 클릭했을 때 내부적으로 호출되는 메서드 이므로 RouterLink를 클릭하는 것을 router.push()를 호출하는 것과 같음
+        
+        
+        | 선언적 | 프로그래밍적 |
+        | --- | --- |
+        | <RouterLink :to=”…”> | router.push(…) |
+    - 예시
+        - UserView 컴포넌트에서 HomeView 컴포넌트로 이동하는 버튼 만들기
+        
+        ```html
+        <template>
+          <div>
+            <h1>UserView</h1>
+            <h2>{{ userId }}번 User 페이지</h2>
+            <button @click="goHome">홈으로!</button>
+          </div>
+        </template>
+        
+        <script setup>
+          import { ref } from 'vue'
+          import { useRoute, useRouter } from 'vue-router'
+        
+          const route = useRoute()
+          const userId = ref(route.params.id)
+          const router = useRouter()
+          const goHome = function() {
+            router.push({name: 'home'})
+          }
+        </script>
+        ```
+        
+    - router.push 인자 활용 참고
+        - [https://router.vuejs.org/guide/essentials/navigation.html](https://router.vuejs.org/guide/essentials/navigation.html)
+        
+        ```jsx
+        // literal string path
+        router.push('/users/eduardo')
+        
+        // object with path
+        router.push({ path: '/users/eduardo' })
+        
+        // named route with params to let the router build the url
+        router.push({ name: 'user', params: { username: 'eduardo' } })
+        
+        // with query, resulting in /register?plan=private
+        router.push({ path: '/register', query: { plan: 'private' } })
+        
+        // with hash, resulting in /about#team
+        router.push({ path: '/about', hash: '#team' })
+        ```
+        
+- `router.replace()`
+    - 현재 위치 바꾸기
+    - push 메서드와 달리 history stack에 새로운 항목을 push하지 않고 다른 URL로 이동
+        - 이동 전 URL로 뒤로 가기 불가
+        
+        | 선언적 | 프로그래밍적 |
+        | --- | --- |
+        | <RouterLink :to=”…” replace> | router.replace(…) |
+
+## Navigation Guard
+
+- Vue router를 통해 특정 URL에 접근할 때 다른 URL로 redirect를 하거나 취소하여 네비게이션을 보호
+    - ex) 인증 정보가 없으면 특정 페이지에 접근하지 못하게 함
+
+### Navigation Guard 종류
+
+- Globally(전역 가드)
+    - 애플리케이션 전역에서 동작
+    - index.js에서 정의
+- Per-route(라우터 가드)
+    - 특정 route에서만 동작
+    - index.js의 각 routes에 정의
+- In-component(컴포넌트 가드)
+    - 특정 컴포넌트 내에서만 동작
+    - 컴포넌트 script에 정의
+
+### Globally Guard
+
+- `router.beforeEach()`
+    - 다른 URL로 이동하기 직전에 실행되는 함수
+    
+    ```jsx
+    router.beforeEach((to, form) => {
+    	...
+    	return false
+    })
+    ```
+    
+    - to
+        - 이동 할 URL 정보가 담긴 Route 객체
+    - from
+        - 현재 URL 정보가 담긴 Route 객체
+    - 선택적 반환(return) 값
+        - false
+            - 현재 네비게이션을 취소
+            - 브라우저 URL이 변경된 경우(사용자가 수동을 또는 뒤로 버튼을 통해) from 경로의 URL로 재설정
+        - Route Location
+            - router.push()를 호출하는 것처럼 경로 위치를 전달하여 다른 위치로 redirect
+        - `return이 없다면 ‘to’ URL Route 객체로 이동`
+    - 예시
+        - 전역 가드 beforeEach 작성
+        - HomeView에서 UserView로 이동 후 각 인자 값 출력 확인하기
+            - to에는 이동할 URL인 user 라우트에 대한 정보가, from에는 현재 URL인 home 라우트에 대한 정보가 들어있음
+        - LoginView 컴포넌트 작성 및 라우트 등록
+            
+            ```html
+            <!-- LoginView.vue -->
+            <template>
+              <div>
+                <h1>Login View</h1>
+              </div>
+            </template>
+            ```
+            
+            ```jsx
+            // index.js
+            {
+              path: '/login',
+              name: 'login',
+              component: LoginView
+            }
+            ```
+            
+            ```html
+            <!-- App.vue -->
+            <RouterLink :to="{name: 'login'}">Login</RouterLink>
+            ```
+            
+        - 로그인이 되어있지 않으면 페이지 진입을 막고 로그인 페이지로 이동시키기
+            - 만약 로그인이 되어있지 않고(1), 이동하는 주소 이름이 login이 아니라면(2) login 페이지로 redirect
+            
+            ```jsx
+            // index.js
+            router.beforeEach((to, from) => {
+              const isAuthenticated = false
+            
+              if (!isAuthenticated && to.name !== 'login') {
+                console.log('로그인이 필요합니다.')
+                return { name: 'login' }
+              }
+            })
+            ```
+            
+
+### Per-route Guard
+
+- `router.beforeEnter()`
+    - route에 진입했을 때만 실행되는 함수
+    - 매개변수, 쿼리 값이 변경될 때는 실행되지 않고 다른 경로에서 탐색할 때만 실행됨
+    
+    ```jsx
+    {
+    	path: '/user/:id',
+    	name: 'user',
+    	component: UserView,
+    	beforeEnter: (to, from) => {
+    		...,
+    		return false
+    	}
+    },
+    ```
+    
+    - routes 객체에서 정의
+    - 함수의 to, from, 선택 반환 인자는 beforeEach와 동일
+    - 예시
+        - 라우터 가드 beforeEnter 작성
+        - HomeView에서 UserView로 이동 후 각 인자 값 출력 확인하기
+            - to에는 이동할 URL인 user라우트에 대한 정보가, from에는 현재 URL인 home 라우트에 대한 정보가 들어있음
+            - 다른 경로에서 user 라우트를 탐색했을 때 실행된 것
+        - 이미 로그인 한 상태라면 LoginView 진입을 막고 HomeView로 이동시키기
+            - 로그인된 상태 ⇒ HomeView
+            - 로그인 되지 않은 상태 ⇒ LoginView
+            
+            ```jsx
+            const isAuthenticated = true
+            
+            const router = createRouter({
+            	  ...
+                {
+                  path: '/login',
+                  name: 'login',
+                  component: LoginView,
+                  beforeEnter: (to, from) => {
+                    if (isAuthenticated === true) {
+                      console.log('이미 로그인 상태입니다.')
+                      return {name: 'home'}
+                    }
+                  }
+                },
+            		...
+            ```
+            
+
+### In-component Guard
+
+- `onBeforeRouteLeave`
+    - 현재 라우트에서 다른 라우트로 이동하기 전에 실행
+    - 사용자가 현재 페이지를 떠나는 동작에 대한 로직을 처리
+    - 예시
+        - 사용자가 UserView를 떠날 시 팝업 창 출력하기
+            
+            ```jsx
+            // UserView.vue - script
+            import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
+            ...
+            onBeforeRouteLeave((to, from) => {
+              const answer = window.confirm('정말 떠나실 건가요?')
+              if (answer === false) {
+                return false
+              }
+            })
+            ```
+            
+- `onBeforeRouteUpdate`
+    - 이미 렌더링 된 컴포넌트가 같은 라우트 내에서 업데이트 되기 전에 실행
+    - 라우트 업데이트 시 추가적인 로직을 처리
+    - 예시
+        - UserView 페이지에서 다른 id를 가진 User의 UserView 페이지로 이동하기
+            - onBeforeUpdate에서 userId를 변경하지 않으면 userId는 갱신되지 않음
+            - 컴포넌트가 재사용되었기 때문
+            
+            ```html
+            <template>
+              <div>
+                ...
+                <button @click="routeUpdate">100번 유저 페이지</button>
+              </div>
+            </template>
+            
+            <script setup>
+              import { useRoute, useRouter, onBeforeRouteLeave, onBeforeRouteUpdate } from 'vue-router'
+            	...
+              const userId = ref(route.params.id)
+              const routeUpdate = function() {
+                router.push({name: 'user', params: {id: 100}})
+              }
+            
+              onBeforeRouteUpdate((to, from) => {
+                userId.value = to.params.id
+              })
+            </script>
+            ```
+            
+
+# State Management
+
+- 상태 관리
+- Vue 컴포넌트는 이미 반응형 상태를 관리하고 있음
+- 상태 === 데이터
+
+## 컴포넌트 구조의 단순화
+
+- 상태(State)
+    - 앱 구동에 필요한 기본 데이터
+- 뷰(View)
+    - 상태를 선언적으로 매핑하여 시각화
+- 기능(Actions)
+    - 뷰에서 사용자 입력에 대해 반응적으로 상태를 변경할 수 있게 정의된 동작
+- “단방향 데이터 흐름”의 간단한 표현
+
+```html
+<template>
+	<!-- 뷰(view) -->
+	<div>{{ count }}</div>
+</template>
+
+<script setup>
+	import { ref } from 'vue'
+
+	// 상태(State)
+	const count =  ref(0)
+
+	// 기능(Actions)
+	const increment = function () {
+		count.value++
+	}
+</script>
+```
+
+## 상태 관리의 단순성이 무너지는 시점
+
+- 여러 컴포넌트가 상태를 공유할 때
+    - 여러 뷰가 동일한 상태에 종속되는 경우
+        - 공유 상태를 공통 조상 컴포넌트로 끌어올린 다음 props로 전달하는 것
+        - 하지만 계층 구조가 깊어질 경우 비효율적, 관리가 어려워 짐
+    - 서로 다른 뷰의 기능이 동일한 상태를 변경시켜야 하는 경우
+        - 발신(emit)된 이벤트를 통해 상태의 여러 복사본을 변경 및 동기화 하는 것
+        - 마찬가지로 관리의 패턴이 깨지기 쉽고 유지 관리할 수 없는 코드가 됨
+
+### 해결책
+
+- 각 컴포넌트의 공유 상태를 추출하여, 전역에서 참조할 수 있는 저장소에서 관리
+- 컴포넌트 트리는 하나의 큰 “뷰”가 되고 모든 컴포넌트는 트리 계층 구조에 관계 없이 상태에 접근하거나 기능을 사용할 수 있음
+- Vue의 공식 상태 관리 라이브러리 === “Pinia”
+
+![Untitled 7](https://github.com/yuj1818/TIL/assets/95585314/182a353e-9061-4489-91a5-7f21080c16a7)
+
+## State Management Library(Pinia)
+
+- Vue 공식 상태 관리 라이브러리
+
+### Pinia 설치
+
+- Vite 프로젝트 빌드 시 Pinia 라이브러리 추가
+
+![Untitled 8](https://github.com/yuj1818/TIL/assets/95585314/119e1a29-5e1d-4dae-8fc2-d3e92be210c5)
+
+### Pinia 구성 요소
+
+- store
+    - 중앙 저장소
+    - 모든 컴포넌트가 공유하는 상태, 기능 등이 작성됨
+    
+    ```jsx
+    import { ref, computed } from 'vue'
+    import { defineStore } from 'pinia'
+    
+    export const useCounterStore = defineStore('counter', () => {
+      const count = ref(0)
+      const doubleCount = computed(() => count.value * 2)
+      function increment() {
+        count.value++
+      }
+    
+      return { count, doubleCount, increment }
+    })
+    ```
+    
+- state
+    - 반응형 상태(데이터)
+    - ref() === state
+- getters
+    - 계산된 값
+    - computed() === getters
+- actions
+    - 메서드
+    - function() === actions
+- plugin
+    - 애플리케이션의 상태 관리에 필요한 추가 기능을 제공하거나 확장하는 도구나 모듈
+    - 애플리케이션의 상태 관리를 더욱 간편하고 유연하게 만들어주며 패키지 매니저로 설치 이후 별도 설정을 통해 추가 됨
+
+### Pinia 구성 요소 활용
+
+- State
+    - store 인스턴스로 state에 접근하여 직접 읽고 쓸 수 있음
+    - 만약 store에 state를 정의하지 않았다면 컴포넌트에서 새로 추가할 수 없음
+    
+    ```html
+    <script setup>
+      import { useCounterStore } from '@/stores/counter'
+    
+      const store = useCounterStore()
+    
+      console.log(store.count)
+      const newNumber = store.count + 1
+    </script>
+    
+    <template>
+      <div>
+        <p>state : {{ store.count }}</p>
+      </div>
+    </template>
+    ```
+    
+- Getters
+    - store의 모든 getters를 state처럼 직접 접근할 수 있음
+    
+    ```html
+    <script setup>
+      import { useCounterStore } from '@/stores/counter'
+    
+      const store = useCounterStore()
+      // getters 참조
+      console.log(store.doubleCount)
+    </script>
+    
+    <template>
+      <div>
+        <p>getters : {{ store.doubleCount }}</p>
+      </div>
+    </template>
+    ```
+    
+- Actions
+    - store의 모든 actions를 직접 접근 및 호출할 수 있음
+    - getters와 달리 state 조작, 비동기, API 호출이나 다른 로직을 진행할 수 있음
+    
+    ```html
+    <script setup>
+      import { useCounterStore } from '@/stores/counter'
+    
+      const store = useCounterStore()
+    
+      // actions 호출
+      store.increment()
+    </script>
+    
+    <template>
+      <div>
+        <button @click="store.increment()">+++</button>
+      </div>
+    </template>
+    ```
+    
+
+### Pinia 실습 -사전 준비
+
+- Pinia를 활용한 Todo 프로젝트 구현
+
+![Untitled 9](https://github.com/yuj1818/TIL/assets/95585314/b3e9660c-1241-4a8a-b47e-8dc5c7f07b2c)
+
+- TodoListItem 컴포넌트 작성
+    
+    ```html
+    <!-- TodoListItem.vue -->
+    
+    <template>
+      <div>
+        TodoListItem
+      </div>
+    </template>
+    ```
+    
+- TodoList 컴포넌트 작성
+    - TodoListItem 컴포넌트 등록
+    
+    ```html
+    <!-- TodoList.vue -->
+    <template>
+      <div>
+        <TodoListItem />
+      </div>
+    </template>
+    
+    <script setup>
+      import TodoListItem from '@/components/TodoListItem.vue';
+    </script>
+    ```
+    
+- TodoForm 컴포넌트 작성
+    
+    ```html
+    <!-- TodoForm.vue -->
+    
+    <template>
+      <div>
+        TodoForm
+      </div>
+    </template>
+    ```
+    
+- App 컴포넌트에 TodoList, TodoForm 컴포넌트 등록
+    
+    ```html
+    <!-- App.vue -->
+    <script setup>
+      import TodoForm from '@/components/TodoForm.vue'
+      import TodoList from '@/components/TodoList.vue'
+    </script>
+    
+    <template>
+      <div>
+        <h1>Todo Project</h1>
+        <TodoList />
+        <TodoForm />
+      </div>
+    </template>
+    
+    <style scoped>
+    
+    </style>
+    ```
+    
+
+### Pinia 실습 - Read Todo
+
+- stores에 임시 todos 목록 상태를 정의
+    
+    ```jsx
+    // stores/counter.js
+    
+    import { ref, computed } from 'vue'
+    import { defineStore } from 'pinia'
+    
+    export const useCounterStore = defineStore('counter', () => {
+      let id = 0
+      const todos = ref([
+        { id: id++, text: '할 일 1', isDone: false },
+        { id: id++, text: '할 일 2', isDone: false}
+      ])
+    
+      return { todos }
+    })
+    ```
+    
+- store의 todos 상태를 참조
+- 하위 컴포넌트인 TodoListItem을 반복 하면서 개별 todo를 props로 전달
+    
+    ```html
+    <!-- TodoList.vue -->
+    
+    <template>
+      <div>
+        <TodoListItem 
+          v-for="todo in store.todos"
+          :key="todo.id"
+          :todo="todo"
+        />
+      </div>
+    </template>
+    
+    <script setup>
+      import TodoListItem from '@/components/TodoListItem.vue';
+      import { useCounterStore } from '../stores/counter';
+    
+      const store = useCounterStore()
+    </script>
+    ```
+    
+- props 정의 후 데이터 출력 확인
+    
+    ```html
+    <!-- TodoListItem.vue -->
+    
+    <template>
+      <div>{{ todo.text }}</div>
+    </template>
+    
+    <script setup>
+      defineProps({
+        todo: Object
+      })
+    </script>
+    ```
+    
+
+### Pinia 실습 - Create Todo
+
+- todos 목록에 todo를 생성 및 추가하는 addTodo 액션 정의
+    
+    ```jsx
+    // stores/counter.js
+    ...
+    const addTodo = function (todoText) {
+      todos.value.push({
+        id: id++,
+        text: todoText,
+        isDone: false
+      })
+    }
+    
+    return { todos, addTodo }
+    ...
+    ```
+    
+- TodoForm에서 실시간으로 입력되는 사용자 데이터를 양방향 바인딩하여 반응형 변수로 할당
+    
+    ```html
+    <!-- TodoForm.vue -->
+    <template>
+      <div>
+        <form>
+          <input type="text" v-model="todoText">
+          <input type="submit">
+        </form>
+      </div>
+    </template>
+    
+    <script setup>
+      import { ref } from 'vue'
+    
+      const todoText = ref('')
+    </script>
+    ```
+    
+- submit 이벤트가 발생 했을 때 사용자 입력 텍스트를 인자로 전달하여 store에 정의한 addTodo 액션 메서드를 호출
+    
+    ```html
+    <!-- TodoForm.vue -->
+    <template>
+      <div>
+        <form @submit.prevent="createTodo(todoText)">
+          <input type="text" v-model="todoText">
+          <input type="submit">
+        </form>
+      </div>
+    </template>
+    
+    <script setup>
+      import { ref } from 'vue'
+      import { useCounterStore } from '../stores/counter';
+    
+      const todoText = ref('')
+    
+      const store = useCounterStore()
+    
+      const createTodo = function (todoText) {
+        store.addTodo(todoText)
+      }
+    </script>
+    ```
+    
+- form 요소를 선택하여 todo 입력 후 input 데이터를 초기화 할 수 있도록 처리
+    
+    ```html
+    <!-- TodoForm.vue -->
+    <template>
+      <div>
+        <form @submit.prevent="createTodo(todoText)" ref="formElem">
+          <input type="text" v-model="todoText">
+          <input type="submit">
+        </form>
+      </div>
+    </template>
+    
+    <script setup>
+      ...
+      const formElem = ref(null)
+    
+      const createTodo = function (todoText) {
+        store.addTodo(todoText)
+        formElem.value.reset()
+      }
+    </script>
+    ```
+    
+
+### Pinia 실습 - Delete Todo
+
+- todos 목록에서 특정 todo를 삭제하는 deleteTodo 액션 정의
+    - 전달받은 todo의 id를 활용해 선택된 todo의 인덱스를 구함
+    - 특정 인덱스 todo를 삭제 후 todos 배열을 재설정
+    
+    ```jsx
+    // stores/counter.js
+    ...
+    const deleteTodo = function (todoId) {
+      const index = todos.value.findIndex((todo) => todo.id === todoId)
+      todos.value.splice(index, 1)
+    }
+    
+    return { todos, addTodo, deleteTodo }
+    ```
+    
+- 각 todo에 삭제 버튼을 작성
+- 버튼을 클릭하면 선택된 todo의 id를 인자로 전달해 deleteTodo 메서드 호출
+    
+    ```html
+    <!-- TodoListItem.vue -->
+    <template>
+      <div>
+        <span>{{ todo.text }}</span>
+        <button @click="store.deleteTodo(todo.id)">Delete</button>
+      </div>
+    </template>
+    
+    <script setup>
+      import { useCounterStore } from '../stores/counter';
+    
+      const store = useCounterStore()
+    
+      defineProps({
+        todo: Object
+      })
+    </script>
+    ```
+    
+
+### Pinia 실습 - Update Todo
+
+- 각 todo 상태의 isDone 속성을 변경하여 todo의 완료 유무 처리하기
+- 완료된 todo에는 취소선 스타일 적용하기
+- todos 목록에서 특정 todo의 isDone 속성을 변경하는 updateTodo 액션 정의
+    - 전달 받은 todo의 id 값을 활용해 선택된 todo와 동일 todo를 목록에서 검색
+    - 일치하는 todo 데이터의 isDone 속성 값을 반대로 재할당 후 새로운 todo 목록 반환
+    
+    ```jsx
+    // stores/counter.js
+    ...
+    const updateTodo = function (todoId) {
+      todos.value = todos.value.map(todo => {
+        if (todo.id === todoId) {
+          todo.isDone = !todo.isDone
+        }
+        return todo
+      })
+    }
+    return { todos, addTodo, deleteTodo, updateTodo }
+    ...
+    ```
+    
+- todo 내용을 클릭하면 선택된 todo의 id를 인자로 전달해 updateTodo 메서들 ㄹ호출
+    
+    ```html
+    <!-- TodoListItem.vue -->
+    <template>
+      <div>
+        <span @click="store.updateTodo(todo.id)">
+          {{ todo.text }}
+        </span>
+        <button @click="store.deleteTodo(todo.id)">Delete</button>
+      </div>
+    </template>
+    
+    <script>
+    	...
+    </script>
+    ```
+    
+- todo 객체의 isDone 속성 값에 따라 스타일 바인딩 적용하기
+    
+    ```html
+    <!-- TodoListItem.vue -->
+    <template>
+      <div>
+        <span @click="store.updateTodo(todo.id)" :class="{'is-done': todo.isDone}">
+          {{ todo.text }}
+        </span>
+        <button @click="store.deleteTodo(todo.id)">Delete</button>
+      </div>
+    </template>
+    
+    ...
+    
+    <style scoped>
+      .is-done {
+        text-decoration: line-through;
+      }
+    </style>
+    ```
+    
+
+### Pinia 실습 - Computed Todo
+
+- todos 배열의 길이 값을 반환하는 함수 doneTodosCount 작성(getters)
+    
+    ```jsx
+    // stores/counter.js
+    ...
+    const doneTodosCount = computed(() => {
+      return todo.value.filter(todo => todo.isDone)
+    })
+    
+    return { todos, addTodo, deleteTodo, updateTodo, doneTodosCount }
+    ```
+    
+- App 컴포넌트에서 doneTodosCount getter를 참조
+    
+    ```html
+    <!-- App.vue -->
+    <script setup>
+      import TodoForm from '@/components/TodoForm.vue'
+      import TodoList from '@/components/TodoList.vue'
+      import { useCounterStore } from './stores/counter'
+    
+      const store = useCounterStore()
+    </script>
+    
+    <template>
+      <div>
+        <h1>Todo Project</h1>
+        <h2>완료된 Todo : {{ store.doneTodosCount }}</h2>
+        <TodoList />
+        <TodoForm />
+      </div>
+    </template>
+    ```
+    
+
+### Pinia 실습 - Local Storage
+
+- `Local Storage`
+    - 브라우저 내에 Key-value 쌍을 저장하는 웹 스토리지 객체
+    - 특징
+        - 페이지를 새로 고침하고 브라우저를 다시 실행해도 데이터가 유지
+        - 쿠키와 다르게 네트워크 요청 시 서버로 전송되지 않음
+        - 여러 탭이나 창 간에 데이터를 공유 할 수 있음
+    - 사용 목적
+        - 웹 애플리케이션에서 사용자 설정, 상태 정보, 캐시 데이터 등을 클라이언트 측에서 보관하여 웹사이트의 성능을 향상시키고 사용자 경험을 개선하기 위함
+- pinia-plugin-persistedstate
+    - Pinia의 플러그인(plugin) 중 하나
+    - 웹 애플리케이션의 상태(state)를 브라우저의 local storage나 session storage에 영구적으로 저장하고 복원하는 기능을 제공
+    - [https://prazdevs.github.io/pinia-plugin-persistedstate/](https://prazdevs.github.io/pinia-plugin-persistedstate/)
+    - 설치 및 등록
+        
+        ```bash
+        npm i pinia-plugin-persistedstate
+        ```
+        
+        ```jsx
+        // main.js
+        import { createApp } from 'vue'
+        import { createPinia } from 'pinia'
+        import App from './App.vue'
+        import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+        
+        const app = createApp(App)
+        const pinia = createPinia()
+        
+        pinia.use(piniaPluginPersistedstate)
+        
+        // app.use(createPinia())
+        app.use(pinia)
+        
+        app.mount('#app')
+        ```
+        
+    - 활용
+        - defineStore의 3번째 인자로 관련 객체 추가
+            
+            ```jsx
+            // stores/counter.js
+            
+            export const useCounterStore = defineStore('counter', () => {
+              ...
+              return { todos, addTodo, deleteTodo, updateTodo, doneTodosCount }
+            }, { persist: true })
+            ```
+            
+    - 적용 결과
+        - 브라우저의 LocalStorage에 todos의 상태가 저장됨
+
 # 참고
 
 ### Ref Unwrap 주의 사항
@@ -2331,3 +3358,35 @@ const submitForm = function(email, password) {
 	emit('submit', { email, password })
 }
 ```
+
+## Router 관련
+
+### Lazy Loading Routes
+
+```jsx
+path: '/about',
+name: 'about',
+// route level code-splitting
+// this generates a separate chunk (About.[hash].js) for this route
+// which is lazy-loaded when the route is visited
+component: () => import('../views/AboutView.vue')
+```
+
+- 첫 빌드 시 해당 컴포넌트를 로드 하지 않고, 해당 경로를 처음으로 방문할 때만 컴포넌트를 로드 하는 것
+    - 앱을 빌드할 때 앱의 크기에 따라 페이지 로드 시간이 길어질 수 있기 때문
+- 기존에 “정적 가져오기 방식”을 “동적 가져오기 방식”으로 변경하는 것과 같음
+
+## 상태 관리 관련
+
+### 모든 데이터를 store에서 관리해야 할까?
+
+- Pinia를 사용한다고 해서 모든 데이터를 state에 넣어야 하는 것은 아님
+- 필요한 경우 pass props, emit event를 사용하여 상태를 관리할 수 있음
+- 상황에 따라 적절하게 사용하는 것이 필요
+
+### Pinia를 사용해야 하는 경우
+
+- Pinia는 공유된 상태를 관리하는 데 유용하지만, 개념에 대한 이해와 시작하는 비용이 큼
+- 애플리케이션이 단순하다면 Pinia가 없는 것이 더 효율적일 수 있음
+- 그러나 중대형 규모의 SPA를 구축하는 경우 Pinia는 자연스럽게 선택할 수 있는 단계가 오게 됨
+- 결과적으로 역할에 적절한 상황에서 활용 했을 때 Pinia 효용을 극대화 할 수 있음
