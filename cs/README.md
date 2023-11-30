@@ -6,3 +6,4 @@
 
 - <a href="./network/osi7layer.md">OSI 7계층과 각 계층에 대해 아는대로 설명해주세요.</a>
 - <a href="./network/tcpudp.md">TCP/UDP 방식의 차이가 무엇인지 설명해주세요.</a>
+- <a href="./network//http.md">HTTP/HTTPS의 차이점이 무엇인지 설명해주세요.</a>
