@@ -1,3 +1,5 @@
+# OSI 7계층
+
 <img src="./img/layer.png" />
 
 ## 1) 물리(Physical)
