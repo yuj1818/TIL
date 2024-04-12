@@ -10,7 +10,7 @@ for _ in range(T):
     else:
         nums = deque(input().replace('[', '').replace(']', '').split(','))
     sig = False
-    f = True # True: 앞, False: 뒤
+    f = True # True: 앞, False: 뒤 
 
     for c in p:
         if c == 'R':
