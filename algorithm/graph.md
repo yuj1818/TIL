@@ -595,3 +595,61 @@ def dijkstra(start):
 dijkstra(0)
 print(distance)
 ```
+
+### 플로이드-워셜 알고리즘(**Floyd-Warshall)**
+
+- 모든 지점에서 다른 모든 지점까지의 최단 경로를 구해야 하는 경우 사용
+- ‘거쳐가는 노드’ 기준으로 알고리즘 수행
+- 점화식
+
+$$
+D_{ab}=min(D_{ab},D_{ak}+D_{kb})
+$$
+
+- 과정
+    - 그래프의 노드와 간선에 따라 최단 거리 테이블 갱신
+        
+        ![image.png](https://github.com/user-attachments/assets/6a7063bf-07c5-437c-8f74-18f1f35f413f)
+        
+    - [1, …, n]번 노드를 거쳐 가는 경우의 최단 거리 테이블 갱신
+        
+        ![1번 노드를 거쳐 가는 경우의 최단 거리 테이블 갱신](https://github.com/user-attachments/assets/fbbf2c25-74ff-4480-8228-2d3f463a5ba9)
+        
+        | 1번 노드를 거쳐 가는 경우의 최단 거리 테이블 갱신
+        
+        ![2번 노드를 거쳐 가는 경우의 최단 거리 테이블 갱신(n번까지 계속 갱신)](https://github.com/user-attachments/assets/954057d4-c221-481b-a3a7-419081b7380e)
+        
+        | 2번 노드를 거쳐 가는 경우의 최단 거리 테이블 갱신(n번까지 계속 갱신)
+        
+
+```python
+# input 예시
+# 1 2 4
+# 1 4 6
+# 2 1 3
+# 2 3 7
+# 3 1 5
+# 3 4 4
+# 4 3 2
+
+INF = int(1e9)
+
+n = 4  # 노드 개수
+m = 7  # 간선 개수
+
+graph = [[INF] * (n - 1) for _ in range(n+1)]
+
+for a in range(1, n + 1):
+	for b in range(1, n + 1):
+		if a == b:
+			graph[a][b] = 0
+			
+for _ in range(m):
+	a, b, c = map(int, input().split())
+	graph[a][b] = c
+	
+for k in range(1, n + 1):
+	for a in range(1, n + 1):
+		for b in range(1, n + 1):
+			graph[a][b] = min(graph[a][b], graph[a][k] + graph[k][b])
+```
