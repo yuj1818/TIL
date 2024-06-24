@@ -653,3 +653,60 @@ for k in range(1, n + 1):
 		for b in range(1, n + 1):
 			graph[a][b] = min(graph[a][b], graph[a][k] + graph[k][b])
 ```
+
+### 벨만 포드 알고리즘(Bellman-Ford)
+
+- 특정 출발 노드에서 다른 **모든 노드**까지의 최단 경로 탐색
+- 음수 가중치가 있을 때 사용
+- 음수 사이클 존재의 여부를 알 수 있음
+- 과정
+    - 시작 정점에서 다른 정점들까지의 거리를 무한대로 초기화
+        
+        ![image.png](https://github.com/user-attachments/assets/a4a8842c-1653-44b2-bb39-febcd21ef474)
+        
+    - 시작 정점에서 갈 수 있는 정점들(2 ~ 5)을 탐색하며 최단 거리 갱신(V - 1번 반복)
+        
+        ![image.png](https://github.com/user-attachments/assets/244b2cb4-8bc2-4cc2-b062-cd364adbe57f)
+        
+    - V-1번 반복 후에도 거리가 갱신되는 경우가 있다면 음수 사이클이 존재한다는 의미
+
+```python
+INF = int(1e9)
+# 노드의 개수, 간선의 개수
+n, m = map(int, input().split())
+# 모든 간선에 대한 정보
+edges = []
+distance = [INF] * (n + 1)
+
+for _ in range(m):
+    a, b, c = map(int, input().split())
+    edges.append((a, b, c))
+
+def bf(start):
+    distance[start] = 0
+    # n - 1번 반복
+    for i in range(n):
+        모든 간선 확인
+        for j in range(m):
+		        now, nxt, cost = edges[j]
+            if distance[now] != INF and distance[nxt] > distance[now] + cost:
+                distance[nxt] = distance[now] + cost
+                # n번째에서도 값이 갱신되면 음수 사이클이 존재
+                if i == n - 1:
+                    return True
+    return False
+
+negative_cycle = bf(1)
+
+if negative_cycle:
+    print("-1")
+else:
+    # 1번 노드를 제외한 다른 모든 노드로 가기 위한 최단 거리를 출력
+    for i in range(2, n + 1):
+        # 도달할 수 없는 경우, -1을 출력
+        if distance[i] == INF:
+            print("-1")
+        # 도달할 수 있는 경우 거리를 출력
+        else:
+            print(distance[i])
+```
