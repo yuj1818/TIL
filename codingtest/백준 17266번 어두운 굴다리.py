@@ -1,0 +1,5 @@
+n = int(input())
+m = int(input())
+lights = list(map(int, input().split()))
+h = max((b - f + 1 for f, b in zip(lights, lights[1:])), default=0)
+print(max(lights[0], n - lights[-1], h // 2))
