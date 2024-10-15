@@ -1,0 +1,5 @@
+n = int(input())
+balls = input()
+r = balls.count('R')
+b = balls.count('B')
+print(min(r - n + len(balls.rstrip('R')), b - n + len(balls.rstrip('B')), r - n + len(balls.lstrip('R')), b - n + len(balls.lstrip('B'))))
