@@ -1,0 +1,1 @@
+n = int(input()); print('1.00' if n else 'divide by zero')
