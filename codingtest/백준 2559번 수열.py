@@ -1,11 +1,14 @@
-N, K = map(int, input().split())
-temp_list = list(map(int, input().split()))
-init_sum = sum(temp_list[:K])
-max_temp = init_sum
-idx = K
-for i in range(K, N):
-    init_sum = init_sum - temp_list[i - K] + temp_list[i]
-    if max_temp < init_sum:
-        max_temp = init_sum
-    idx += 1
-print(max_temp)
+import sys
+input = sys.stdin.readline
+
+def solution(n, k, temps):
+    acc_sum = sum(temps[:k])
+    mx_temp = acc_sum
+    for i in range(k, n):
+        acc_sum += temps[i] - temps[i - k]
+        if mx_temp < acc_sum: mx_temp = acc_sum
+    print(mx_temp)
+
+n, k = map(int, input().split())
+temps = list(map(int, input().split()))
+solution(n, k, temps)
