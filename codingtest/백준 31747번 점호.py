@@ -1,31 +1,23 @@
-import sys
 from collections import deque
+import sys
 input = sys.stdin.readline
 
 def main():
     n, k = map(int, input().split())
     a = deque(map(int, input().split()))
-    tmp = [deque() for _ in range(3)]
-    ans, cnt, p = 0, k, n
-    for _ in range(k):
-        x = a.popleft()
-        tmp[x].append(1)
-    while tmp[1] or tmp[2]:
-        if cnt == min(k, p):
-            if tmp[1] and tmp[2]:
-                tmp[1].popleft()
-                tmp[2].popleft()
-                cnt -= 2
-                p -= 2
-            else:
-                if tmp[1]: tmp[1].popleft()
-                else: tmp[2].popleft()
-                cnt -= 1
-                p -= 1
-            ans += 1
-        if a:
-            cnt += 1
-            tmp[a.popleft()].append(1)
+    tmp = deque()
+    ans = 0
+    while 1:
+        ans += 1
+        while a and len(tmp) < k:
+            x = a.popleft()
+            if x == 1: tmp.appendleft(1)
+            else: tmp.append(2)
+        if tmp[0] == tmp[-1]: tmp.popleft()
+        else:
+            tmp.popleft()
+            tmp.pop()
+        if not tmp and not a: break
     print(ans)
 
 main()
