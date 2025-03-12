@@ -18,3 +18,4 @@
 ## ② Web
 
 - <a href="./web/csr&ssr.md">CSR/SSR의 차이를 설명해주세요.</a>
+- <a href="./web/rest api.md">REST API에 대해서 설명해주세요.</a>
