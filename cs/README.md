@@ -13,4 +13,8 @@
 
 ### `운영체제`
 
-- <a href="./os/operationSystem.md">운영체제가 무엇인지 설명해주세요</a>
+- <a href="./os/operationSystem.md">운영체제가 무엇인지 설명해주세요.</a>
+
+## ② Web
+
+- <a href="./web/csr&ssr.md">CSR/SSR의 차이를 설명해주세요.</a>
