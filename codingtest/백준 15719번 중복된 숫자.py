@@ -1,15 +1,10 @@
-import sys
-n = int(sys.stdin.readline())
-t = sum(range(1, n))
-a = list(map(int, input().split()))
-cur = 0
-tmp = ''
-
-for x in a:
-    if x.isdigit(): tmp += x
-    else:
-        cur += int(tmp)
-        tmp = ''
-
-if tmp: cur += int(tmp)
-print(cur - t)
+n = int(input())
+a = input()
+i, t = 0, 0
+while i < len(a):
+    j = i + 1
+    while j < len(a) and a[j] != ' ':
+        j += 1
+    t += int(a[i:j])
+    i = j + 1
+print(t - (n * (n - 1) // 2))
