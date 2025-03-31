@@ -613,3 +613,122 @@ while len(max_heap) > 0:
         - 우선 순위 큐를 구현하는 가장 효율적인 방법
         - 노드 하나의 추가/삭제가 시간 복잡도가 O(logN)이고 최대값/최소값을 O(1)에 구할 수 있음
     - 정렬
+
+## Trie
+
+- 문자열 검색 최적화된 자료구조
+- 입력되는 문자열을 Tree 형식으로 만들어 진행
+- 문자열 검색 문제 중 입력되는 문자열이 많을 경우 사용
+- 시간 복잡도 짧음
+    - O(m) (m: 문자열 길이)
+- 검색어 자동 완성 및 검색어 추천 기능에서 많이 사용
+
+```python
+"""
+노드에는 문자열의 끝을 알리는 flag가 존재
+"""
+
+class Node(object):
+    def __init__(self, key, data=None):
+        self.key = key
+        self.data = data
+        self.children = {}
+        
+class Trie:
+    def __init__(self):
+        self.head = Node(None)
+
+    def insert(self, string):
+        current_node = self.head
+
+        for char in string:
+            if char not in current_node.children:
+                current_node.children[char] = Node(char)
+            current_node = current_node.children[char]
+        current_node.data = string
+
+    def search(self, string):
+        current_node = self.head
+
+        for char in string:
+            if char in current_node.children:
+                current_node = current_node.children[char]
+            else:
+                return False
+
+        if current_node.data:
+            return True
+        else:
+            return False
+
+    def starts_with(self, prefix):
+        current_node = self.head
+        words = []
+
+        for p in prefix:
+            if p in current_node.children:
+                current_node = current_node.children[p]
+            else:
+                return None
+
+        current_node = [current_node]
+        next_node = []
+        while True:
+            for node in current_node:
+                if node.data:
+                    words.append(node.data)
+                next_node.extend(list(node.children.values()))
+            if len(next_node) != 0:
+                current_node = next_node
+                next_node = []
+            else:
+                break
+
+        return words
+```
+
+### 예제(백준 14725 개미굴)
+
+```python
+import sys
+input = sys.stdin.readline
+
+class Trie:
+    def __init__(self):
+        self.root = dict()
+
+    def add(self, a):
+        cur = self.root
+        for f in a:
+            if f not in cur: cur[f] = dict()
+            cur = cur[f]
+        cur[0] = True
+
+    def search(self, d, cur):
+        if 0 in cur: return
+        child = sorted(cur)
+        for c in child:
+            print('--' * d + c)
+            self.search(d + 1, cur[c])
+
+n = int(input())
+arr = []
+data = Trie()
+for _ in range(n):
+    _, *a = input().strip().split()
+    data.add(a)
+data.search(0, data.root)
+
+"""
+입력값
+----------------
+3
+1 B
+3 A A A
+3 A B A
+---------------
+
+문자열의 끝을 알리는 flag를 {0: True}로 사용
+print(data.root)의 결과 => {'B': {0: True}, 'A': {'A': {'A': {0: True}}, 'B': {'A': {0: True}}}}
+"""
+```

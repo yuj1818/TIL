@@ -244,6 +244,8 @@ def BruteForce(p, t):
 
 <center><img src="https://github.com/yuj1818/TIL/assets/95585314/c9f30cbf-5457-44fa-ac75-95d426a07eab" width=88% /></center>
 
+### [Trie 알고리즘](./tree.md#trie)
+
 ### 문자열 매칭 알고리즘 비교
 
 - 찾고자 하는 문자열 패턴의 길이 m, 총 문자열 길이 n
