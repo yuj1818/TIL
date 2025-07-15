@@ -545,3 +545,166 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       );
     }
     ```
+
+## Next Auth 인증
+
+### [NextAuth.js](https://next-auth.js.org/)
+
+- Next.js 애플리케이션을 위한 인증 및 세션 관리 라이브러리
+    - next 환경에서 회원 데이터를 손쉽게 관리할 수 있도록 하는 라이브러리
+- Apple, FaceBook, Google, Email 인증 방식 지원
+
+### 구글 로그인 설정
+
+- pages/api/auth/[…nextauth].tsx 에서 로그인 Provider 설정
+    - 구글 API 서비스에서 클라이언트 생성하여 클라이언트 ID, secret `.env`에 설정
+    - 어떤 Provider를 사용할 것인지와 callback 함수 설정 가능
+    
+    ```tsx
+    import NextAuth from 'next-auth';
+    import GoogleProvider from 'next-auth/providers/google';
+    import { User } from '@models/user';
+    
+    export default NextAuth({
+      providers: [
+        GoogleProvider({
+          clientId: process.env.GOOGLE_ID as string,
+          clientSecret: process.env.GOOGLE_SECRET as string,
+        }),
+      ],
+      callbacks: {
+        session({ session, token }) {
+          console.log('session', session);
+          console.log('token', token);
+    
+          if (session.user) {
+            (session.user as User).id = token.sub as string;
+          }
+    
+          return session;
+        },
+      },
+      session: {
+        strategy: 'jwt',
+      },
+      pages: {
+        signIn: '/auth/signin',
+      },
+    });
+    ```
+    
+- _app.tsx에서 SessionProvider로 감싸줘야 사용 가능
+    
+    ```
+    import type { AppProps } from 'next/app';
+    import { SessionProvider } from 'next-auth/react';
+    import { Global } from '@emotion/react';
+    import { QueryClientProvider, QueryClient, Hydrate } from 'react-query';
+    import globalStyles from '@styles/globalStyles';
+    import Layout from '@shared/Layout';
+    
+    const client = new QueryClient({});
+    
+    export default function App({
+      Component,
+      pageProps: { dehydratedState, session, ...pageProps },
+    }: AppProps) {
+      return (
+        <Layout>
+          <Global styles={globalStyles} />
+          <SessionProvider session={session}>
+            <QueryClientProvider client={client}>
+              <Hydrate state={dehydratedState}>
+                <Component {...pageProps} />
+              </Hydrate>
+            </QueryClientProvider>
+          </SessionProvider>
+        </Layout>
+      );
+    }
+    ```
+    
+- providers를 서버 사이드로 미리 받아와서 유동적으로 설정한 Provider에 맞게 로그인 버튼을 생성할 수 있음
+    - `next-auth/react`의 `signIn` 함수를 onClick 함수와 연결하면 손쉽게 소셜 로그인 기능을 구현할 수 있음.
+    - 로그인한 사용자의 정보는 cookie session에 저장됨
+    
+    ```tsx
+    import { BuiltInProviderType } from 'next-auth/providers/index';
+    import {
+      ClientSafeProvider,
+      getProviders,
+      LiteralUnion,
+      signIn,
+    } from 'next-auth/react';
+    import Flex from '@shared/Flex';
+    import Text from '@shared/Text';
+    import Button from '@shared/Button';
+    import Spacing from '@shared/Spacing';
+    
+    function SigninPage({
+      providers,
+    }: {
+      providers: Record<LiteralUnion<BuiltInProviderType>, ClientSafeProvider>;
+    }) {
+      return (
+        <div>
+          <Spacing size={100} />
+          <Flex direction="column" align="center">
+            <Text bold={true}>My Account</Text>
+            <Spacing size={80} />
+            <ul>
+              {Object.values(providers).map((provider) => (
+                <li key={provider.id}>
+                  <Button onClick={() => signIn(provider.id, { callbackUrl: '/' })}>
+                    {provider.name} LOGIN
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          </Flex>
+        </div>
+      );
+    }
+    
+    export async function getServerSideProps() {
+      const providers = await getProviders();
+    
+      return {
+        props: {
+          providers,
+        },
+      };
+    }
+    
+    export default SigninPage;
+    ```
+    
+
+### withAuth hoc 컴포넌트로 인증 여부에 따라서 강제 페이지 이동
+
+- window.redirect 대신 useRouter의 replace 를 사용하여 인증이 필요한 페이지에 인증이 안 된 상태로 접근하면 강제로 로그인 페이지로 이동
+    
+    ```tsx
+    import { ComponentType } from 'react';
+    import { useSession } from 'next-auth/react';
+    import { useRouter } from 'next/router';
+    
+    function withAuth<Props = Record<string, never>>(
+      WrappedComponent: ComponentType<Props>,
+    ) {
+      return function AuthenticatedComponent(props: Props) {
+        const { data, status } = useSession();
+        const router = useRouter();
+    
+        if (status !== 'loading' && data == null) {
+          router.replace('/auth/signin');
+    
+          return null;
+        }
+    
+        return <WrappedComponent {...(props as any)} />;
+      };
+    }
+    
+    export default withAuth;
+    ```
