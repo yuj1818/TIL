@@ -1,0 +1,7 @@
+s = input().strip()
+sad = s.count(':-(')
+happy = s.count(':-)')
+if sad + happy == 0: print('none')
+elif sad == happy: print('unsure')
+elif happy > sad: print('happy')
+else: print('sad')
