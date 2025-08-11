@@ -708,3 +708,252 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     
     export default withAuth;
     ```
+
+## CSR, SSR, SSG
+
+### CSR(Client Side Rendering)
+
+- 서버 측에서 HTML, JS 파일을 클라이언트로 전송하여 클라이언트 측에서 JS 파일을 다운로드 받아 화면을 그리는 방식
+- 첫 페이지 렌더링 후 후속 탐색이 빠름
+    - 페이지 이동 시, 전체 HTML을 다시 로드하지 않기 때문
+    - 변경이 필요한 데이터의 경우는 필요한 데이터만 서버로 요청하여 화면 갱신
+- 검색 엔진 최적화 대응이 어려움
+    - 초기 HTML에 모든 컨텐츠가 포함되어 있지 않아서 SEO 어려움
+
+### SSR(Server Side Rendering)
+
+- 최초의 사용자에게 보여줄 페이지를 서버 측에서 생성하여 클라이언트로 전송
+- Layout Shift 줄일 수 있음
+- 최초 페이지 진입이 상황에 따라 빠를 수 있음
+    - 서버 작업이 지연되는 경우에는 그렇지 않음
+- 검색 엔진 최적화에 용이
+- 보안에 유리
+    - 인증이나 민감한 작업들을 서버 측에서 수행하고, 결과만 클라이언트에 전송되기 때문
+- 서버 코드를 고려해야 함
+
+### SSG(Static Site Generator)
+
+- Html 페이지를 사전에 빌드하여 정적 파일로 제공
+- 빠른 페이지 로드가 가능
+- 쉽게 데이터가 변하지 않는 정적 콘텐츠를 사용하는데 유리
+    - 예 ) 사전, 블로그
+- 예시
+    - `getStaticProps()` 함수를 정의하여 미리 faq 데이터를 가져온다.
+        
+        ```tsx
+        import { collection, getDocs } from 'firebase/firestore';
+        import { store } from '@remote/firebase';
+        import { COLLECTIONS } from '@constants/collection';
+        import ListRow from '@shared/ListRow';
+        
+        interface FAQ {
+          id: string;
+          question: string;
+          answer: string;
+        }
+        
+        function FAQPage({ faqs }: { faqs: FAQ[] }) {
+          return (
+            <div>
+              {faqs.map((faq) => (
+                <ListRow
+                  key={faq.id}
+                  contents={
+                    <ListRow.Texts title={faq.question} subTitle={faq.answer} />
+                  }
+                />
+              ))}
+            </div>
+          );
+        }
+        
+        export async function getStaticProps() {
+          const snapshot = await getDocs(collection(store, COLLECTIONS.FAQ));
+        
+          const faqs = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+        
+          return {
+            props: { faqs },
+          };
+        }
+        
+        export default FAQPage;
+        
+        ```
+        
+        - build 하면, 정적인 페이지가 바로 제공되는 것을 확인할 수 있음
+            
+            ![image.png](https://github.com/user-attachments/assets/ff303f8c-c58e-4698-9b3b-0c9564d21aa0)
+            
+
+## 프로젝트 최적화
+
+### Next Image, Link
+
+- `Next Image`
+    - 별도의 서버 도움 없이 그릴 사이즈에 맞게 이미지의 크기를 자동 조절 가능
+    - Lazy Load
+    - Layout Shift 방지
+- `Next Link`
+    - 사용자가 경로를 방문하기 전에, 백그라운드에서 다음 이동할 페이지에 대한 정보를 미리 로드(Prefetch)
+
+### SEO(Search Engine Optimization)
+
+- 검색 엔진 결과 페이지에서 상위에 노출될 수 있도록 최적화하는 프로세스
+- 상세 페이지 같은 곳에서 meta 태그를 설정하여 링크를 공유하였을 때, 내부 컨텐츠가 무엇인지 알 수 있게 설정 가능
+    
+    ```tsx
+    <SEO
+      title={`${corpName} ${name}`}
+      description={subTitle}
+      image="https://gl.chiikawa-pocket.com/ko/_astro/kv_sp.Cs2DsXBt.png"
+    />
+    ```
+    
+
+### 에러 관리
+
+- 404 페이지
+    - pages/404.tsx
+    
+    ![image.png](https://github.com/user-attachments/assets/1bccd05b-e39f-4ee3-b998-234ad3e3a9c2)
+    
+- error 페이지
+    - pages/_error.tsx
+    
+    ![image.png](https://github.com/user-attachments/assets/3846257d-2f4a-40ea-a74d-78c1893af40f)
+    
+- ErrorBoundary
+    
+    ```tsx
+    import React, { ErrorInfo } from 'react';
+    
+    interface Props {
+      children: React.ReactNode;
+      fallbackComponent?: React.ReactNode;
+    }
+    
+    interface State {
+      hasError: boolean;
+    }
+    
+    class ErrorBoundary extends React.Component<Props, State> {
+      constructor(props: Props) {
+        super(props);
+    
+        // 오류가 있는지 여부를 추적하는 상태 변수 정의
+        this.state = { hasError: false };
+      }
+      static getDerivedStateFromError(error: Error) {
+        // 다음 렌더링에서 폴백 UI를 표시하도록 상태 업데이트
+    
+        return { hasError: true };
+      }
+      componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+        // 여기에서 자체 오류 로깅 서비스를 사용할 수 있습니다
+        console.log({ error, errorInfo });
+      }
+      render() {
+        // 오류가 발생했는지 확인
+        if (this.state.hasError) {
+          // 사용자 정의 폴백 UI를 렌더링할 수 있습니다
+          if (this.props.fallbackComponent != null) {
+            return <>{this.props.fallbackComponent}</>;
+          }
+          return (
+            <div>
+              <h2>알 수 없는 문제가 발생했어요</h2>
+              <button
+                type="button"
+                onClick={() => this.setState({ hasError: false })}
+              >
+                재시도
+              </button>
+            </div>
+          );
+        }
+    
+        // 오류가 없는 경우 자식 컴포넌트를 반환
+    
+        return this.props.children;
+      }
+    }
+    
+    export default ErrorBoundary;
+    ```
+    
+
+## 최적화를 위한 3가지 핵심 요소
+
+### WebVital
+
+- 유저의 경험을 측정하기 위한 웹 성능 지표
+- 로딩 속도, 상호작용 시간, 페이지의 안정성 등을 측정하여 웹사이트 성능을 평가
+- 코어 웹 바이탈(LCP, INP, CLS)은 사용자 환경의 고유한 측면을 나타내며, 현장에서 측정 가능하며, 중요한 사용자 중심 결과의 실제 환경을 반영
+    - 측정 항목은 시간이 지남에 따라 진화
+    
+    ![image.png](https://github.com/user-attachments/assets/0f369261-260a-45a1-abb2-1248a8ad9e28)
+    
+
+### LCP(Largest Contentful Paint)
+
+- 로드 성능 측정
+- 최대 컨텐츠 렌더링 시간 2.5초 이내
+
+### INP(Interaction to Next Paint)
+
+- 상호작용 측정
+- 다음 페인트에 대한 상호작용 반응시간 200ms 이내
+
+### CLS(Cumulative Layout Shift)
+
+- 시각적 안정성 측정
+- 시각적 안정성 0.1 이하
+
+### `useReportWebVitals`
+
+- 웹 바이탈 리포트를 쉽게 만들 수 있는 함수
+  ```tsx
+  import type { AppProps } from 'next/app';
+  import { SessionProvider } from 'next-auth/react';
+  import { Global } from '@emotion/react';
+  import { QueryClientProvider, QueryClient, Hydrate } from 'react-query';
+  import globalStyles from '@styles/globalStyles';
+  import Layout from '@shared/Layout';
+  import Navbar from '@shared/Navbar';
+  import { AlertContextProvider } from '@contexts/AlertContext';
+  import ErrorBoundary from '@shared/ErrorBoundary';
+  import { useReportWebVitals } from 'next/web-vitals';
+
+  const client = new QueryClient({});
+
+  export default function App({
+    Component,
+    pageProps: { dehydratedState, session, ...pageProps },
+  }: AppProps) {
+    useReportWebVitals((metric) => {
+      console.log(metric);
+    });
+
+    return (
+      <Layout>
+        <Global styles={globalStyles} />
+        <SessionProvider session={session}>
+          <QueryClientProvider client={client}>
+            <Hydrate state={dehydratedState}>
+              <ErrorBoundary>
+                <AlertContextProvider>
+                  <Navbar />
+                  <Component {...pageProps} />
+                </AlertContextProvider>
+              </ErrorBoundary>
+            </Hydrate>
+          </QueryClientProvider>
+        </SessionProvider>
+      </Layout>
+    );
+  }
+  ```
