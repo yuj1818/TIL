@@ -14,12 +14,8 @@ npx create-next-app@latest
 
 - eslint, prettier 설정
     
-    <aside>
-    ⚠️
-    
-    설정 후에 꼭 `yarn dlx @yarnpkg/sdks vscode` 실행
-    
-    </aside>
+    >[!WARNING]
+    >설정 후에 꼭 `yarn dlx @yarnpkg/sdks vscode` 실행
     
     ```jsx
     // eslint.config.mjs

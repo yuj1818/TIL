@@ -114,3 +114,73 @@ revalidatePath(path: string, type?: ‘page’ | ‘layout’): void;
         - layout
             - 해당 **레이아웃 파일**과 그 **레이아웃을 공유하는 모든 하위 페이지** **전부**를 갱신
 - 캐싱된 데이터를 무효화시켜 최신 데이터로 갱신하기 위한 함수
+
+## 라우팅 & 페이지 렌더링
+
+### 병렬 라우트 & 중첩 라우트
+
+![image.png](https://github.com/user-attachments/assets/874a6903-eeec-455b-8e0a-9229210c4048)
+
+- 동일한 레이아웃 내에서 하나 이상의 페이지를 동시/조건부로 렌더링 가능
+    - 동일한 url이나, 분리된 코드
+- 위 이미지처럼 `@folder` 로 정의하며, `slots` 이라고 부름
+    - 각 slot은 하나의 layout을 공유하며 layout의 props로 전달됨
+- 각 slot에 대해 독립적인 오류 및 로드 상태를 정의할 수 있음
+- A slot에서 중첩 라우팅을 사용하는데, B slot에서는 해당 중첩 라우팅이 필요 없는 경우에는 `default.js`를 사용
+    - `/settings`로 이동하면, `team` slot에서는 `settings`의 page가 렌더링 되며, `analytics` slot에서는 `default.js`를 렌더링
+    
+    ![image.png](https://github.com/user-attachments/assets/87ed743c-4683-426e-86dc-bb3edc7a52cf)
+    
+
+### Catch-all 세그먼트
+
+- 동적 세그먼트는 대괄호 안에 줄임표를 추가하여, 모든 후속 세그먼트를 포괄하도록 확장 가능
+    - `[…folderName]`
+    - 예시
+        
+        
+        | Route | URL | params |
+        | --- | --- | --- |
+        | app/archive/[…filter]/page.js | /archive/year | { filter: [’year’] } |
+        |  | /archive/year/month | { filter: [’year’, ‘month’] } |
+- 선택적 Catch-all 세그먼트
+    - 이중 대괄호를 포함하여 **선택 사항**으로 만들 수 있음
+        - `[[…filter]]`
+            - 일반적인 catch-all과 선택적 catch-all의 차이점은 **매개변수가 없어도 경로는 일치한다**는 점
+            
+            | Route | URL | params |
+            | --- | --- | --- |
+            | app/archive/[…filter]/page.js | /archive | {} |
+            |  | /archive/year | { filter: [’year’] } |
+            |  | /archive/year/month | { filter: [’year’, ‘month’] } |
+            
+
+### Intercepting 라우트
+
+- 현재 레이아웃 내에서 애플리케이션의 다른 부분의 라우트를 로드할 수 있음
+    - Modal을 띄울 때 자주 사용
+- 컨벤션
+    - 상대 경로 규칙과 비슷하게 `(경로)가로챌 페이지` 로 디렉토리를 생성
+        
+        ![image.png](https://github.com/user-attachments/assets/09271112-6371-4ebf-a3f6-e12282afe1c5)
+        
+- 병렬 라우트와 같이 사용하는 예시
+    
+    ![image.png](https://github.com/user-attachments/assets/ce92dafc-850d-47a3-acbc-99dd78c690b5)
+    
+    - `news/[slug]/image` 로 바로 접속할 경우(url 공유를 통해 접속할 때)에는 전체 사진 페이지가 렌더링
+    - `news/[slug]` 에서 이미지를 클릭하여 `news/[slug]/image` 로 접근하는 경우는 해당 라우트를 가로채서 `news/[slug]` 위에 오버레이하여 모달로 사진을 띄울 수 있음
+
+### 라우트 그룹
+
+- **URL 경로에 영향을 주지 않고** 경로를 그룹화하기 위해 사용
+- 같은 세그먼트에서 **일부 경로에만** layout을 주고 싶을 때 유용
+- 컨벤션
+    - 폴더 이름을 괄호로 묶어 생성
+    - 최상위 `layout.js` 파일 없이 그룹 별 루트 레이아웃을 사용하는 경우, 홈 `page.js`는 그룹 중 하나에 정의되어야 함
+        - 다만, 여러 루트 레이아웃 간의 내비게이션은 전체 페이지 로드를 유발
+
+
+>[!NOTE]
+>다른 그룹이더라도 같은 URL 경로를 가지면 안됨
+>예) `(content)/about/page.js` , `(marketing)/about/page.js` 이렇게 사용하면 X

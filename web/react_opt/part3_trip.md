@@ -179,12 +179,8 @@
 - google maps platform에서 계정 인증 및 등록
 - 키 및 사용자 인증 정보에서 api key 가져와 `.env`에 등록
 - `@react-google-maps/api` 라이브러리 사용하여 지도 렌더링
-    <aside>
-    ⚠️
-    
-    Marker 는 AdvancedMarkerElement로 변경해서 사용해야 하나, 임시로 Marker 사용
-    
-    </aside>
+    >[!NOTE]
+    >Marker 는 AdvancedMarkerElement로 변경해서 사용해야 하나, 임시로 Marker 사용
     
     ```tsx
     import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
