@@ -184,3 +184,118 @@ revalidatePath(path: string, type?: ‘page’ | ‘layout’): void;
 >[!NOTE]
 >다른 그룹이더라도 같은 URL 경로를 가지면 안됨
 >예) `(content)/about/page.js` , `(marketing)/about/page.js` 이렇게 사용하면 X
+
+## Data Mutation
+
+### Server Action
+
+- `useFormStatus`
+    - ReactJS에서 제공하는 마지막 폼 제출의 상태 정보를 제공하는 Hook
+        - pending, data, method, action을 반환
+    - 반드시 form 내부의 컴포넌트에서 호출해야 함
+    - 동일한 컴포넌트나 자식 컴포넌트에서 렌더링한 form의 상태 정보는 반환하지 않으면 **오직 상위 form의 상태 정보만 반환**
+    - form을 제출하는 동안 대기 중인 상태를 표시하기 위해 많이 사용
+- `useActionState`
+    - ReactJS에서 제공하는 폼 액션 결과를 기반으로 State를 업데이트할 수 있도록 제공하는 Hook
+    - 폼 액션 함수와 초기 State를 전달 받고, 폼에서 사용할 새로운 액션과 최신 폼 State, isPending 여부를 반환
+        - `useActionState(action, initialState, permalink?)`
+
+>[!WARNING]
+>“use server”는 **코드가 서버에서만 실행된다는 것을 의미하거나 보장하지 않음**
+>클라이언트 측에서 절대 실행되어서는 안 되는 코드가 있다면 server-only 패키지를 사용해야 함
+⚠️
+
+- 추가 인수 전달
+    
+    `bind`
+    
+    - bind를 사용하여 서버 함수에 추가 인수를 전달할 수 있음
+        - 예로, postId를 인수로 받는 서버 함수에 `togglePostLike(null, postId)` 로 postId를 전달할 수 있음
+
+### 낙관적 업데이트
+
+- `useOptimistic`
+    - UI를 낙관적으로 업데이트 할 수 있게 해주는 React Hook
+    - 비동기 작업이 진행 중일 때 다른 상태를 보여줄 수 있게 함
+        - 예를 들어, 좋아요 api를 요청하고 대기 중일 때, UI는 이미 좋아요가 눌러진 상태로 보여지게 만들 수 있음
+
+## 데이터 캐싱
+
+### [NextJS 캐싱 유형](https://nextjs-ko.org/docs/app/building-your-application/caching)
+
+- `Request Memoization`
+    - 동일한 설정을 가진 데이터 요청을 저장하여 중복 요청을 방지
+    - Next JS 서버에서 처리되는 단일 요청 동안에만 발생
+- `Data Cache`
+    - 데이터 소스에서 변경되지 않은 경우, 데이터를 저장하고 재사용
+    - 데이터가 변경되지 않는 한, 데이터 소스로의 불필요한 요청을 방지함으로써 애플리케이션 속도를 더 빠르게 함
+    - 사용자가 수동으로 재검증 할 때 까지 혹은 사용자가 설정한 특정 시간이 지나면 지속됨
+- `Full Route Cache`
+    - 페이지에서 사용될 수 있는 데이터를 캐싱/저장/재사용 할 뿐만 아니라 전체 페이지/HTML 코드 및 React 서버 컴포넌트 페이로드를 내부적으로 관리
+    - 전체 HTML 페이지가 리렌더링 되는 것을 방지
+        - 기존 페이지를 재사용할 수 있기 때문에 페이지 더 빠르게 만듦
+    - 데이터 캐시가 재검증 될 때 까지 지속됨
+        - 업데이트 된 데이터가 있으면 페이지가 리렌더링
+- `Router Cache`
+    - 브라우저의 메모리에 일부 React 서버 컴포넌트 페이로드를 저장하여 페이지 간의 이동이 더 빠르게 일어날 수 있도록 함
+    - 캐시된 페이지를 가져오기 위해 NextJS 서버에 요청을 보낼 때, 요청을 더 빠르게 처리하거나 페이지 데이터가 클라이언트 측에서 이미 관리되고 있는 경우 요청 자체를 방지할 수 있도록 함
+    - 서버에 의해 새로운 페이지가 렌더링되거나 웹 사이트를 벗어났다가 다시 돌아올 때 무효화 됨
+
+## NextJS 앱 최적화
+
+- [참고](https://nextjs-ko.org/docs/app/building-your-application/optimizing)
+
+### Image
+
+- <img> 요소를 확장하여 자동 이미지 최적화 기능을 제공
+    - 크기 최적화
+    - 시각적 안정성
+    - 빠른 페이지 로드
+    - Asset 유연성
+- `loaders`
+    - 이미지의 URL을 생성하는 함수
+    - 제공된 src를 수정하여 이미지를 다른 크기로 요청하는 여러 URL을 생성
+- `priority`
+    - 각 페이지의 Larget Contentful Pain 요소가 될 이미지에 추가하는 속성
+    - 이미지를 로드할 때 특별히 우선시하여 LCP를 의미 있게 향상 시킬 수 있음
+
+### Metadata
+
+- 정적 메타데이터 설정
+    
+    ```jsx
+    export const metadata = {
+      title: 'Latest Posts',
+      description: 'Browse our latest posts!',
+    };
+    
+    ...
+    
+    export default async function Home() {
+      return (
+        ...
+      );
+    }
+    ```
+    
+- 동적 메타데이터 설정
+    
+    ```jsx
+    import { getPosts } from '@/lib/posts';
+    
+    export async function generateMetadata() {
+      const posts = await getPosts();
+      const numberOfPosts = posts.length;
+      return {
+        title: `Browse all our ${numberOfPosts} posts.`,
+        description: 'Browse all our posts.',
+      };
+    }
+    
+    export default async function FeedPage() {
+      ...
+    }
+    ```
+    
+- 레이아웃 메타데이터 설정
+    - metadata가 설정되어 있는 페이지는 레이아웃의 메타데이터와 병합되고 설정되어 있지 않은 페이지는 레이아웃 메타데이터로 설정됨
