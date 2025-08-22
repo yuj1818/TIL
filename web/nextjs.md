@@ -299,3 +299,155 @@ revalidatePath(path: string, type?: ‘page’ | ‘layout’): void;
     
 - 레이아웃 메타데이터 설정
     - metadata가 설정되어 있는 페이지는 레이아웃의 메타데이터와 병합되고 설정되어 있지 않은 페이지는 레이아웃 메타데이터로 설정됨
+
+## 사용자 인증(Authentication)
+
+### 사용자 인증 방식
+
+1. 사용자 로그인
+    - 클라이언트(사용자)는 서버에 credential 정보(아이디 + 비밀번호)를 전송
+    - 서버는 credential 정보가 유효한지 확인
+    - 인증 세션을 발급하고 저장
+    - 세션 ID를 쿠키 형태로 사용자에게 다시 전송
+    - 클라이언트 측에서도 세션 쿠키를 저장
+2. 보호된 리소스에 접근
+    - 클라이언트 측에서 보호되어야 하는 경로에 요청을 보냄
+        - 이때, 저장되어 있던 세션 쿠키를 자동으로 요청에 추가하여 전송
+    - 서버는 쿠키의 유효성을 확인
+        - 쿠키가 유효하다면 요청 받은 리소스를 클라이언트로 전송
+        - 유효하지 않다면 에러를 전송
+
+### [Lucia Auth](https://lucia-auth.com/) 사용하여 인증 구현
+
+<aside>
+💡
+
+`@lucia-auth/adapter-sqlite` 설치할 때, `better-sqlite3` 버전 충돌 나면 node 버전을 20으로 다운그레이드 하면 된다(nvm 사용)
+
+</aside>
+
+- Lucia 인증 인스턴스 생성
+    
+    ```jsx
+    import { Lucia } from 'lucia';
+    import { BetterSqlite3Adapter } from '@lucia-auth/adapter-sqlite';
+    import db from './db';
+    
+    const adapter = new BetterSqlite3Adapter(db, {
+      user: 'users',
+      session: 'sessions',
+    });
+    
+    const lucia = new Lucia(adapter, {
+      sessionCookie: {
+        expires: false,
+        attributes: {
+          secure: process.env.NODE_ENV === 'production',
+        },
+      },
+    });
+    ```
+    
+- 세션 및 세션 쿠키 생성 및 저장
+    - `next/headers`의 `cookies` 로 세션 쿠키를 저장
+    
+    ```jsx
+    export async function createAuthSession(userId) {
+      const session = await lucia.createSession(userId, {});
+      const sessionCookie = lucia.createSessionCookie(session.id);
+      cookies().set(
+        sessionCookie.name,
+        sessionCookie.value,
+        sessionCookie.attributes,
+      );
+    }
+    ```
+    
+- 활성 인증 세션 확인
+    
+    ```jsx
+    export async function verifyAuth() {
+      const sessionCookie = cookies().get(lucia.sessionCookieName);
+    
+      if (!sessionCookie) {
+        return {
+          user: null,
+          session: null,
+        };
+      }
+    
+      const sessionId = sessionCookie.value;
+    
+      if (!sessionId) {
+        return {
+          user: null,
+          session: null,
+        };
+      }
+    
+      const result = await lucia.validateSession(sessionId);
+    
+      try {
+        if (result.session && result.session.fresh) {
+          const sessionCookie = lucia.createSessionCookie(result.session.id);
+          cookies().set(
+            sessionCookie.name,
+            sessionCookie.value,
+            sessionCookie.attributes,
+          );
+        }
+    
+        if (!result.session) {
+          const sessionCookie = lucia.createBlankSessionCookie();
+          cookies().set(
+            sessionCookie.name,
+            sessionCookie.value,
+            sessionCookie.attributes,
+          );
+        }
+      } catch (error) {}
+    
+      return result;
+    }
+    ```
+    
+- 로그인 액션 추가
+    - email 기반으로 유저 정보 가져오기
+        
+        ```jsx
+        export function getUserByEmail(email) {
+          return db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+        }
+        ```
+        
+    - 가져온 유저 정보와 사용자가 입력한 formData를 대조하여 올바른 정보인지 확인
+        
+        ```jsx
+        export async function login(prevState, formData) {
+          const email = formData.get('email');
+          const password = formData.get('password');
+        
+          const existingUser = getUserByEmail(email);
+        
+          if (!existingUser) {
+            return {
+              errors: {
+                email: 'Could not authenticate user, please check your credentials.',
+              },
+            };
+          }
+        
+          const isValidPassword = verifyPassword(existingUser.password, password);
+        
+          if (!isValidPassword) {
+            return {
+              errors: {
+                password: 'Could not authenticate user, please check your credentials.',
+              },
+            };
+          }
+        
+          await createAuthSession(existingUser.id);
+          redirect('/training');
+        }
+        ```
