@@ -319,12 +319,8 @@ revalidatePath(path: string, type?: ‘page’ | ‘layout’): void;
 
 ### [Lucia Auth](https://lucia-auth.com/) 사용하여 인증 구현
 
-<aside>
-💡
-
-`@lucia-auth/adapter-sqlite` 설치할 때, `better-sqlite3` 버전 충돌 나면 node 버전을 20으로 다운그레이드 하면 된다(nvm 사용)
-
-</aside>
+>[!NOTE]
+>`@lucia-auth/adapter-sqlite` 설치할 때, `better-sqlite3` 버전 충돌 나면 node 버전을 20으로 다운그레이드 하면 된다(nvm 사용)
 
 - Lucia 인증 인스턴스 생성
     
@@ -451,3 +447,55 @@ revalidatePath(path: string, type?: ‘page’ | ‘layout’): void;
           redirect('/training');
         }
         ```
+
+## 페이지 & 파일 기반 라우팅
+
+### 파일 기반 라우팅
+
+- 설정된 폴더 구조로부터 프로젝트의 라우트를 도출하는 라우팅 방식
+    - /pages
+        - index.js ⇒ (’/’ 시작 페이지)
+        - about.js ⇒ (’/about’)
+        - /products
+            - index.js ⇒ (’/products’)
+            - [id].js ⇒ (’/products/:id’)
+
+### 동적 경로 세그먼트 데이터 추출하기
+
+- `next/router`의 `useRouter` 훅을 사용하여 router 정보(pathname, query 등)를 가져올 수 있음
+- `router.query` 속성을 통해 세그먼트 데이터를 가져올 수 있음
+    - 예) [projectId].js 페이지에서 router.query.projectId로 값을 가져올 수 있음
+
+### 중첩된 동적 라우트 & 경로 구축
+
+![image.png](https://github.com/user-attachments/assets/24df77b0-7d15-4cda-b5ef-8e0eba445a4a)
+
+- `/clients/1/2` 페이지에서 useRouter를 통해 query 값을 가져오면 id, clientProejctId 값을 모두 가져올 수 있음
+    
+    ```json
+    {
+    	id: '1', 
+    	clientProjectId: '2'
+    }
+    ```
+    
+
+### Catch-All 라우트
+
+![image.png](https://github.com/user-attachments/assets/bc112cff-4c2d-41b3-a072-35e22a2a6f1c)
+
+- 파일명을 대괄호 안에 줄임표를 추가하여 […name].js 으로 명명하면 모든 후속 세그먼트를 포괄하도록 확장 가능
+- useRouter를 통해 query 값을 가져오면 ‘/’를 구분자로 split 한 배열로 모든 query 값을 가져올 수 있음
+    
+    ```json
+    slug: ['2020', '12']
+    ```
+    
+
+### Link
+
+- `next/link`의 `Link`를 통해 페이지 이동 가능
+    - <a> 태그는 페이지 이동 시, 전체 페이지를 로드하는 반면, Link는 부분적인 업데이트
+- 동적 라우팅 시, href 설정 방법
+    - 이동할 페이지 url 문자열로 입력
+    - pathname, query 로 이루어진 URL 객체 형태로 설정
