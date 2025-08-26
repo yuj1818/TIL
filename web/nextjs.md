@@ -645,3 +645,58 @@ revalidatePath(path: string, type?: ‘page’ | ‘layout’): void;
         (url) => fetch(url).then((res) => res.json()),
       );
     ```
+
+## API 라우트(페이지 라우터)
+
+>[!NOTE]
+>클라이언트 사이드에서 서버에서 데이터를 사져와야 할 때 사용
+>`getStaticProps`/`getServerSideProps`에서는 API route를 거치지 않음
+>=> 결국 같은 서버 안에서 실행되기 때문에 직접 접근하는 것이 더 효율적
+
+### API Route란?
+
+- 특수한 형태의 URL으로 Next.js 앱에 추가하여 데이터를 수집/사용하고 데이터베이스에 저장한 뒤 원하는 형태의 데이터를 반환하는 역할
+- API를 구축하여 REST API 같은 API를 Next.js 앱에 포함함으로써 도메인 뒤에 붙는 URL이나 경로를 통해 여러 가지 HTTP 요청을 받을 수 있게 해주는 역할
+- pages 폴더 안에 api 라는 이름의 폴더로 지정하여 작성해야 함
+    
+    ```jsx
+    import fs from 'fs';
+    import path from 'path';
+    
+    function buildFeedbackPath() {
+      return path.join(process.cwd(), 'data', 'feedback.json');
+    }
+    
+    function extractFeedback(filePath) {
+      const fileData = fs.readFileSync(filePath);
+      const data = JSON.parse(fileData);
+      return data;
+    }
+    
+    function handler(req, res) {
+      if (req.method === 'POST') {
+        const email = req.body.email;
+        const feedbackText = req.body.text;
+    
+        const newFeedback = {
+          id: new Date().toISOString(),
+          email,
+          text: feedbackText,
+        };
+    
+        const filePath = buildFeedbackPath();
+        const data = extractFeedback(filePath);
+        data.push(newFeedback);
+        fs.writeFileSync(filePath, JSON.stringify(data));
+    
+        res.status(201).json({ message: 'Success!', feedback: newFeedback });
+      } else {
+        const filePath = buildFeedbackPath();
+        const data = extractFeedback(filePath);
+        res.status(200).json({ feedback: data });
+      }
+    }
+    export default handler;
+    ```
+    
+- 컴포넌트 내에서 fetch(’/api/feedback’)과 같이 요청하면 서버측에서 CRUD 가능(클라이언트에 데이터 저장 로직 노출 X)

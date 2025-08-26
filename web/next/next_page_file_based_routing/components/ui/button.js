@@ -5,7 +5,7 @@ import classes from './button.module.css';
 function Button(props) {
   if (props.link) {
     return (
-      <Link className={classes.btn} href={props.link}>
+      <Link href={props.link} className={classes.btn}>
         {props.children}
       </Link>
     );
