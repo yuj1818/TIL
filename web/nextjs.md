@@ -499,3 +499,149 @@ revalidatePath(path: string, type?: ‘page’ | ‘layout’): void;
 - 동적 라우팅 시, href 설정 방법
     - 이동할 페이지 url 문자열로 입력
     - pathname, query 로 이루어진 URL 객체 형태로 설정
+
+## 페이지 사전 렌더링 & 데이터 페칭(페이지 라우터)
+
+### 정적 생성(getStaticProps / getStaticPaths)
+
+- 빌드하는 동안 페이지 사전 생성
+- 사전 생성된 페이지는 서버나 앱을 실행시키는 CDN을 통해 캐시로 저장됨
+- pages 폴더의 내의 컴포넌트에서 특수 비동기 함수 `getStaticProps` 를 통해 가져올 수 있음
+    - 클라이언트는 볼 수 없는 코드
+- `getStaticProps`
+    - 페이지 **컨텐츠**가 외부 데이터에 연동될 때 주로 사용
+    
+    ```jsx
+    import path from 'path';
+    import fs from 'fs/promises';
+    import { redirect } from 'next/dist/server/api-utils';
+    
+    function HomePage(props) {
+      const { products } = props;
+    
+      return (
+        <ul>
+          {products.map((product) => (
+            <li key={product.id}>{product.title}</li>
+          ))}
+        </ul>
+      );
+    }
+    
+    export async function getStaticProps() {
+      const filePath = path.join(process.cwd(), 'data', 'dummy-backend.json');
+      const jsonData = await fs.readFile(filePath);
+      const data = JSON.parse(jsonData);
+    
+      if (!data) {
+        return {
+          redirect: {
+            destination: '/no-data',
+          },
+        };
+      }
+    
+      if (data.products.length === 0) {
+        return { notFound: true };
+      }
+    
+      return {
+        props: {
+          products: data.products,
+        },
+      };
+    }
+    
+    export default HomePage;
+    
+    ```
+    
+- `getStaticPaths`
+    - 페이지 **경로**가 외부데이터에 연동될 때 주로 사용
+    
+    ```jsx
+    export async function getStaticPaths() {
+      return {
+        paths: [
+          { params: { pid: 'p1' } },
+          { params: { pid: 'p2' } },
+          { params: { pid: 'p3' } },
+        ],
+        fallback: false,
+      };
+    }
+    
+    ```
+    
+
+### `getServerSideProps`
+
+- 모든 요청에 대한 페이지를 사전 렌더링하거나 서버에 도달하는 특정 요청 객체(예: 쿠키)에 접근할 필요가 있을 때 사용
+- getStaticProps와 함께 사용할 수 없음. 둘 중 하나만 사용해야 함.
+- 동적 페이지에서 context를 통해 params, res, req를 가져올 수 있음
+    - getStaticPaths를 사용할 필요 없음
+    
+    ```jsx
+    function UserIdPage(props) {
+      return <h1>{props.id}</h1>;
+    }
+    
+    export default UserIdPage;
+    
+    export async function getServerSideProps(context) {
+      const { params } = context;
+    
+      const userId = params.uid;
+    
+      return {
+        props: {
+          id: 'userid-' + userId,
+        },
+      };
+    }
+    
+    ```
+    
+
+### Client-side 데이터 페칭
+
+- 사용하는 경우
+    - 갱신 주기가 잦은 데이터(예: 주가 데이터)
+    - 특정 유저에만 한정되는 데이터(예: 최근 주문 내역)
+    - 데이터의 일부분만 표시하는 경우(예: 대시보드)
+    
+    ```jsx
+    useEffect(() => {
+        setIsLoading(true);
+        fetch('api url')
+          .then((res) => res.json())
+          .then((data) => {
+            const transformedSales = [];
+    
+            for (const key in data) {
+              transformedSales.push({
+                id: key,
+                username: data[key].username,
+                volume: data[key].volume,
+              });
+            }
+    
+            setSales(transformedSales);
+            setIsLoading(false);
+          });
+      }, []);
+    
+    ```
+    
+- [`useSWR(Stale While Revalidate)`](https://swr.vercel.app/ko)
+    - 캐시된 데이터(Stale)를 우선적으로 사용하면서 fetch 요청(revalidate)을 하고, 최종적으로 최신화된 데이터를 가져오는 방식
+    - HTTP 요청을 보낼 때, fetch 코드를 간결히 사용할 수 있음
+    - 로컬 캐싱을 통해 데이터를 빠르게 로딩
+    - 데이터 가져오기를 실패하는 경우에 자동으로 재시도 요청
+    
+    ```jsx
+    const { data, error } = useSWR(
+        'api url',
+        (url) => fetch(url).then((res) => res.json()),
+      );
+    ```
