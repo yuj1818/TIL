@@ -54,7 +54,7 @@ npm run dev
 - 안정적이나 부분적으로 버그 존재
 - 리액트 서버 컴포넌트나 Server Actions 같은 다양한 최신 기능 사용 가능
 
-**파일 시스템을 사용한 경로 설정**
+#### 파일 시스템을 사용한 경로 설정
 
 - 프로젝트 폴더의 app 폴더에 폴더(ex. awesome)를 생성하고, 해당 폴더 내에 page.js 파일을 만들면 `loacalhost:{portNum}/awesome`에서 해당 페이지를 볼 수 있음
 
@@ -75,9 +75,16 @@ npm run dev
 
 ### 서버 컴포넌트
 
-- Next 앱에서는 기본적으로 모든 리액트 컴포넌트는 서버에서만 렌더링 됨
+- Next 앱에서는 <u>기본적으로 모든 리액트 컴포넌트는 서버에서만 렌더링</u> 됨
 - 서버에서 데이터를 가져오고 UI의 일부를 렌더링 가능
 - 선택적으로 결과를 캐시하고 클라이언트로 스트리밍 할 수 있음
+
+#### 주의 사항
+- 서버 컴포넌트에는 브라우저에서 실행될 코드가 포함되면 안됨
+- 클라이언트 컴포넌트는 클라이언트에서만 실행되지 않음
+    - 사전 렌더링(서버) + 하이드레이션(브라우저) ⇒ 서버, 클라이언트 모두에서 실행
+- 클라이언트 컴포넌트에서 서버 컴포넌트를 import 할 수 없음
+- 서버 컴포넌트에서 클라이언트 컴포넌트에게 직렬화 되지 않는 Props는 전달 불가
 
 ### 클라이언트 컴포넌트
 
@@ -223,23 +230,62 @@ revalidatePath(path: string, type?: ‘page’ | ‘layout’): void;
 
 ### [NextJS 캐싱 유형](https://nextjs-ko.org/docs/app/building-your-application/caching)
 
-- `Request Memoization`
-    - 동일한 설정을 가진 데이터 요청을 저장하여 중복 요청을 방지
-    - Next JS 서버에서 처리되는 단일 요청 동안에만 발생
-- `Data Cache`
-    - 데이터 소스에서 변경되지 않은 경우, 데이터를 저장하고 재사용
-    - 데이터가 변경되지 않는 한, 데이터 소스로의 불필요한 요청을 방지함으로써 애플리케이션 속도를 더 빠르게 함
-    - 사용자가 수동으로 재검증 할 때 까지 혹은 사용자가 설정한 특정 시간이 지나면 지속됨
-- `Full Route Cache`
-    - 페이지에서 사용될 수 있는 데이터를 캐싱/저장/재사용 할 뿐만 아니라 전체 페이지/HTML 코드 및 React 서버 컴포넌트 페이로드를 내부적으로 관리
-    - 전체 HTML 페이지가 리렌더링 되는 것을 방지
-        - 기존 페이지를 재사용할 수 있기 때문에 페이지 더 빠르게 만듦
-    - 데이터 캐시가 재검증 될 때 까지 지속됨
-        - 업데이트 된 데이터가 있으면 페이지가 리렌더링
-- `Router Cache`
-    - 브라우저의 메모리에 일부 React 서버 컴포넌트 페이로드를 저장하여 페이지 간의 이동이 더 빠르게 일어날 수 있도록 함
-    - 캐시된 페이지를 가져오기 위해 NextJS 서버에 요청을 보낼 때, 요청을 더 빠르게 처리하거나 페이지 데이터가 클라이언트 측에서 이미 관리되고 있는 경우 요청 자체를 방지할 수 있도록 함
-    - 서버에 의해 새로운 페이지가 렌더링되거나 웹 사이트를 벗어났다가 다시 돌아올 때 무효화 됨
+### Request Memoization
+
+- 동일한 설정을 가진 데이터 요청을 저장하여 <u>중복 요청을 방지</u>
+    - 하나의 페이지를 렌더링 하는 동안에 중복된 API 요청을 캐싱하기 위함
+- Next JS 서버에서 처리되는 단일 요청 동안에만 발생
+- 렌더링이 종료되면 모든 캐시가 소멸됨
+
+### Data Cache
+
+- fetch 메서드를 활용해 불러온 데이터를 Next 서버에 보관하는 기능
+- 데이터 소스에서 변경되지 않은 경우, 데이터를 저장하고 재사용
+- 데이터가 변경되지 않는 한, 데이터 소스로의 불필요한 요청을 방지함으로써 애플리케이션 속도를 더 빠르게 함
+- 사용자가 수동으로 재검증 할 때 까지 혹은 사용자가 설정한 특정 시간이 지나면 지속됨
+- 옵션
+    - `no-store`
+        - 데이터 페칭의 결과를 저장하지 않는 옵션
+        - 캐싱을 아예 하지 않도록 설정하는 옵션
+    - `force-cache`
+        - 요청의 결과를 무조건 캐싱
+        - 한 번 호출 된 이후에는 다시는 호출되지 않음
+    - `revalidate`
+        - 특정 시간을 주기로 캐시를 업데이트
+        - ≒ ISR(Page Router)
+    - `tags`
+        - On-Demand Revalidate
+        - 요청이 들어왔을 때 데이터를 최신화 함
+
+### Full Route Cache
+
+- Static Page에서만 적용 가능
+- Next 서버측에서 빌드 타임에 특정 페이지의 렌더링 결과를 캐싱하는 기능
+- 페이지에서 사용될 수 있는 데이터를 캐싱/저장/재사용 할 뿐만 아니라 전체 페이지/HTML 코드 및 React 서버 컴포넌트 페이로드를 내부적으로 관리
+- 전체 HTML 페이지가 리렌더링 되는 것을 방지
+    - 기존 페이지를 재사용할 수 있기 때문에 페이지 더 빠르게 만듦
+- 데이터 캐시가 재검증 될 때 까지 지속됨
+    - 업데이트 된 데이터가 있으면 페이지가 리렌더링
+- 동적 경로에 적용하는 방법
+    - `generateStaticParams`(≒ `getStaticProps`) 사용
+        
+        ```tsx
+        export function generateStaticParams() {
+          return [{ id: '1' }, { id: '2' }, { id: '3' }];
+        }
+        ```
+        
+- 참고
+    - Dynamic Page로 설정되는 기준
+        - 특정 페이지가 접속 요청을 받을 때 마다 매번 변화가 생기거나, 데이터가 달라질 경우
+        1. 캐시되지 않는 Data Fetching을 사용할 경우
+        2. 동적 함수(쿠키, 헤더, 쿼리스트링)을 사용하는 컴포넌트가 있을 때
+
+### Router Cache
+
+- 브라우저의 메모리에 일부 React 서버 컴포넌트 페이로드를 저장하여 페이지 간의 이동이 더 빠르게 일어날 수 있도록 함
+- 캐시된 페이지를 가져오기 위해 NextJS 서버에 요청을 보낼 때, 요청을 더 빠르게 처리하거나 페이지 데이터가 클라이언트 측에서 이미 관리되고 있는 경우 요청 자체를 방지할 수 있도록 함
+- 서버에 의해 새로운 페이지가 렌더링되거나 웹 사이트를 벗어났다가 다시 돌아올 때 무효화 됨
 
 ## NextJS 앱 최적화
 
@@ -495,16 +541,42 @@ revalidatePath(path: string, type?: ‘page’ | ‘layout’): void;
 ### Link
 
 - `next/link`의 `Link`를 통해 페이지 이동 가능
-    - <a> 태그는 페이지 이동 시, 전체 페이지를 로드하는 반면, Link는 부분적인 업데이트
+    - `<a>` 태그는 페이지 이동 시, 전체 페이지를 로드하는 반면, Link는 부분적인 업데이트
 - 동적 라우팅 시, href 설정 방법
     - 이동할 페이지 url 문자열로 입력
     - pathname, query 로 이루어진 URL 객체 형태로 설정
 
 ## 페이지 사전 렌더링 & 데이터 페칭(페이지 라우터)
 
+### 사전 렌더링(Pre Rendering)
+
+- 브라우저의 요청에 사전에 렌더링이 완료된 HTML을 응답하는 렌더링 방식
+- Client Side Rendering의 단점을 효율적으로 해결하는 기술
+    - **`CSR(Client Side Rendering)`**
+        - React.js 앱의 기본적인 렌더링 방식
+        - 클라이언트(브라우저)에서 직접 화면을 렌더링 하는 방식
+        - <mark>페이지 이동이 매우 빠르고 쾌적</mark>
+        - <mark>FCP(초기 접속 속도)가 느림</mark>
+
+#### 과정
+
+  1. 서버가 서버측에서 JS를 실행하여 모든 React 컴포넌트들을 HTML로 변환(사전 렌더링)
+  2. 렌더링 된 HTML을 브라우저로 전송
+  3. 전달 받은 HTML 파일을 화면에 렌더링
+      - 사용자 측에서 바로 화면이 보임
+          ⇒ FCP 단축
+      - 사용자 인터랙션 불가능
+  4. 서버가 React 앱을 JS로 번들링하여 브라우저로 전송
+  5. 서버로부터 받은 JS 코드를 실행하여 HTML 요소들과 연결(Hydration)
+      - 사용자 인터랙션 가능
+  6. 페이지 이동 요청이 들어오면 JS 실행(컴포넌트 교체)하여 페이지를 교체하여 클라이언트에게 보여줄 수 있음(CSR 방식)
+
+  <mark>**⇒ 빠른 FCP 달성 + 빠른 페이지 이동**</mark>
+
 ### 정적 생성(getStaticProps / getStaticPaths)
 
 - 빌드하는 동안 페이지 사전 생성
+    - <u>최신 데이터 반영은 어려움</u>
 - 사전 생성된 페이지는 서버나 앱을 실행시키는 CDN을 통해 캐시로 저장됨
 - pages 폴더의 내의 컴포넌트에서 특수 비동기 함수 `getStaticProps` 를 통해 가져올 수 있음
     - 클라이언트는 볼 수 없는 코드
@@ -558,6 +630,10 @@ revalidatePath(path: string, type?: ‘page’ | ‘layout’): void;
     
 - `getStaticPaths`
     - 페이지 **경로**가 외부데이터에 연동될 때 주로 사용
+    - `fallback` (없는 경로로 요청시 옵션)
+        - false ⇒ 404 Not Found 반환
+        - blocking ⇒ 즉시 생성 (≒SSR)
+        - true ⇒ props 없는 페이지만 미리 반환 + 즉시 생성 + props 따로 반환
     
     ```jsx
     export async function getStaticPaths() {
@@ -573,35 +649,95 @@ revalidatePath(path: string, type?: ‘page’ | ‘layout’): void;
     
     ```
     
+### 증분 정적 재생성(ISR, Incremental Static Regeneration)
 
-### `getServerSideProps`
-
-- 모든 요청에 대한 페이지를 사전 렌더링하거나 서버에 도달하는 특정 요청 객체(예: 쿠키)에 접근할 필요가 있을 때 사용
-- getStaticProps와 함께 사용할 수 없음. 둘 중 하나만 사용해야 함.
-- 동적 페이지에서 context를 통해 params, res, req를 가져올 수 있음
-    - getStaticPaths를 사용할 필요 없음
+- SSG 방식으로 생성된 정적 페이지를 일정 시간을 주기로 다시 생성하는 기술
+- `getStaticProps` 반환값에 revalidate를 설정하여 데이터의 유효기간 설정
     
-    ```jsx
-    function UserIdPage(props) {
-      return <h1>{props.id}</h1>;
-    }
-    
-    export default UserIdPage;
-    
-    export async function getServerSideProps(context) {
-      const { params } = context;
-    
-      const userId = params.uid;
+    ```tsx
+    export const getStaticProps = async () => {
+      const [allBooks, recoBooks] = await Promise.all([
+        fetchBooks(),
+        fetchRandomBooks(),
+      ]);
     
       return {
         props: {
-          id: 'userid-' + userId,
+          allBooks,
+          recoBooks,
         },
+        revalidate: 3,
       };
+    };
+    ```
+    
+
+#### `주문형 재검증(On-Demand ISR)`
+
+- 요청을 받을 때 마다 페이지를 다시 생성하는 기술
+    - 시간과 관계없이 사용자의 행동에 따라 데이터가 업데이트 되는 페이지(사건 기반 -  게시글 수정/삭제)는 ISR을 적용하기 어렵기 때문에 요청에 따라 재생성되도록 함
+- 데이터 revalidate할 API route handler 함수를 설정하고, 실행해보면 api 요청이 들어올 때 마다 페이지가 재생성 되는 것을 알 수 있음
+    
+    ```tsx
+    import { NextApiRequest, NextApiResponse } from 'next';
+    
+    export default async function handler(
+      req: NextApiRequest,
+      res: NextApiResponse,
+    ) {
+      try {
+        await res.revalidate('/');
+        return res.json({ revalidate: true });
+      } catch (err) {
+        console.error(err);
+        res.status(500).send('Revalidation Failed');
+      }
     }
     
     ```
+
+### 서버사이드 렌더링(SSR)
+- 가장 기본적인 사전 렌더링 방식
+- 요청이 들어올 때 마다 사전 렌더링을 진행
+- `getServerSideProps`
+    - 모든 요청에 대한 페이지를 사전 렌더링하거나 서버에 도달하는 특정 요청 객체(예: 쿠키)에 접근할 필요가 있을 때 사용
+    - getStaticProps와 함께 사용할 수 없음. 둘 중 하나만 사용해야 함.
+    - 동적 페이지에서 context를 통해 params, res, req를 가져올 수 있음
+        - getStaticPaths를 사용할 필요 없음
+        
+        ```jsx
+        function UserIdPage(props) {
+          return <h1>{props.id}</h1>;
+        }
+        
+        export default UserIdPage;
+        
+        export async function getServerSideProps(context) {
+          const { params } = context;
+        
+          const userId = params.uid;
+        
+          return {
+            props: {
+              id: 'userid-' + userId,
+            },
+          };
+        }
+        
+        ```
+    - getServerSide에서 미리 받아온 데이터를 prop으로 받을 때, 타입은 `InferGetServerSidePropsType`을 사용하여 지정
     
+        ```tsx
+        export default function Home({
+          data,
+        }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+          console.log(data);
+        
+          return (
+            ...
+          );
+        }
+        ```
 
 ### Client-side 데이터 페칭
 
