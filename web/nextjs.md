@@ -281,11 +281,65 @@ revalidatePath(path: string, type?: ‘page’ | ‘layout’): void;
         1. 캐시되지 않는 Data Fetching을 사용할 경우
         2. 동적 함수(쿠키, 헤더, 쿼리스트링)을 사용하는 컴포넌트가 있을 때
 
+### 라우트 세그먼트 옵션
+
+- 특정 페이지의 유형을 강제로 Static, Dynamic 페이지로 설정
+    ```tsx
+    export const dynamic = 'auto';
+
+    export default function Page() {
+      return <div></div>
+    }
+    ```
+- `auto`
+    - 기본값, 아무것도 강제하지 않음
+- `force-dynamic`
+    - 페이지를 강제로 Dynamic 페이지로 설정
+- `force-static`
+    - 페이지를 강제로 Static 페이지로 설정
+- `error`
+    - 페이지를 강제로 Static 페이지로 설정
+    - Static 페이지로 설정하면 안되는 이유가 있으면 빌드 오류를 발생시킴
+
 ### Router Cache
 
 - 브라우저의 메모리에 일부 React 서버 컴포넌트 페이로드를 저장하여 페이지 간의 이동이 더 빠르게 일어날 수 있도록 함
 - 캐시된 페이지를 가져오기 위해 NextJS 서버에 요청을 보낼 때, 요청을 더 빠르게 처리하거나 페이지 데이터가 클라이언트 측에서 이미 관리되고 있는 경우 요청 자체를 방지할 수 있도록 함
 - 서버에 의해 새로운 페이지가 렌더링되거나 웹 사이트를 벗어났다가 다시 돌아올 때 무효화 됨
+
+## 스트리밍
+
+### 스트리밍이란?
+
+- 서버에서 클라이언트로 어떠한 대용량 데이터를 넘겨줘야 할 때 데이터를 잘게 쪼개서 하나씩 클라이언트에게 전송하는 기술
+- 모든 데이터를 다 불러오지 않은 상태에서도 지금까지 전달받은 데이터에 접근할 수 있으므로 사용자에게 긴 로딩 없이 서비스를 제공 가능
+
+### 페이지 스트리밍
+
+- Dynamic 페이지에 자주 사용
+- 오래 걸리는 컴포넌트의 렌더링을 사용자가 좀 더 좋은 환경에서 기다릴 수 있도록 빨리 렌더링 할 수 있는 컴포넌트들을 미리 내주는 것
+- `loading.tsx` 를 설정하여 로딩되는 동안 미리 보여줄 컴포넌트를 설정할 수 있음
+    - <u>비동기 **페이지** 컴포넌트</u>에만 적용이 됨
+
+### 컴포넌트 스트리밍
+
+- `Suspense`를 사용
+    - 쿼리 스트링이 바뀔 때 마다 컴포넌트 자체를 새로운 컴포넌트로 인식하도록 하기 위해 key 값을 설정
+    ```tsx
+    export default async function Page({
+      searchParams,
+    }: {
+      searchParams: Promise<{ q?: string }>;
+    }) {
+      const { q } = await searchParams;
+
+      return (
+        <Suspense key={q || ''} fallback={<div>Loading ...</div>}>
+          <SearchResult q={q || ''} />
+        </Suspense>
+      );
+    }
+    ```
 
 ## NextJS 앱 최적화
 
