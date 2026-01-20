@@ -1,0 +1,6 @@
+N = int(input())
+print(N, end=' ')
+for i in range(1, N // 2): print(i, N - i, end=' ')
+if N == 1: exit()
+print(N // 2, end=' ')
+if N % 2 == 1: print(N // 2 + 1)
