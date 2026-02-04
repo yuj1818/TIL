@@ -7,3 +7,4 @@
 ## [VueJS](./vue.md)
 ## [NextJS](./nextjs.md)
 ## [React 최적화](./react_optimization_fast.md)
+## [CS 공부](/cs/README.md)

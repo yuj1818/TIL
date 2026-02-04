@@ -20,3 +20,4 @@
 - <a href="./web/csr&ssr.md">CSR/SSR의 차이를 설명해주세요.</a>
 - <a href="./web/rest api.md">REST API에 대해서 설명해주세요.</a>
 - <a href="./web/hoisting.md">호이스팅에 대해서 설명해주세요.</a>
+- <a href="./web/this_binding.md">Javascript에서의 this 바인딩에 대해서 설명해주세요.</a>
