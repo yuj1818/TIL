@@ -1,5 +1,5 @@
 import sys
-sys.setrecursionlimit(10**6)
+sys.setrecursionlimit(2500)
 input = sys.stdin.readline
 
 def dfs(y, x):
