@@ -12,19 +12,18 @@ def dfs(y, x):
 d = [(0, 1), (1, 0), (0, -1), (-1, 0)]
 n, m = map(int, input().split())
 grid = [list(map(int, input().split())) for _ in range(n)]
-rk, rc = 1, 0
-k, sig = 1, 1
-while sig:
-    sig, cnt = 0, 0
+s = sorted(set(x for row in grid for x in row))
+if s[0] - 1 > 0: s = [s[0] - 1] + s
+ak, ac = 0, -1
+for k in s:
+    cnt = 0
     visited = [[0] * m for _ in range(n)]
     for i in range(n):
         for j in range(m):
             if grid[i][j] > k and not visited[i][j]:
-                sig = 1
-                cnt += 1
                 visited[i][j] = 1
+                cnt += 1
                 dfs(i, j)
-    if cnt > rc:
-        rk, rc = k, cnt
-    k += 1
-print(rk, rc)
+    if cnt > ac:
+        ak, ac = k, cnt
+print(ak, ac)
