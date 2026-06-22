@@ -5,8 +5,6 @@ ans = MAX
 dp = [[MAX] * n for _ in range(n)]
 
 def init_dp():
-    for i in range(n):
-        for j in range(n): dp[i][j] = MAX
     dp[0][0] = grid[0][0]
     for x in range(1, n):
         dp[x][0] = max(dp[x - 1][0], grid[x][0])
