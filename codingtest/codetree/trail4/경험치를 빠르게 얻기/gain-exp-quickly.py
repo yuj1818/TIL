@@ -6,7 +6,7 @@ for e, t in quests: mv += t
 dp = [[MIN] * (mv + 1) for _ in range(n + 1)]
 dp[0][0] = 0
 for i, (e, t) in enumerate(quests):
-    for j in range(mv + 1):
+    for j in range(mv, -1, -1):
         if j >= t: dp[i + 1][j] = max(dp[i + 1][j], dp[i][j - t] + e)
         dp[i + 1][j] = max(dp[i + 1][j], dp[i][j])
 ans = float('inf')
