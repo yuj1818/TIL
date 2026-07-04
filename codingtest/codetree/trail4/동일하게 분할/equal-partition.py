@@ -4,9 +4,11 @@ t = sum(arr)
 if t % 2:
     print('No')
     exit()
-v = t // 2
-dp = set([0])
+MAX = t // 2
+dp = [0] * (MAX + 1)
+dp[0] = 1
 for x in arr:
-    dp |= {prev + x for prev in dp if prev + x <= v}
-if v in dp: print('Yes')
+    for i in range(MAX, x - 1, -1):
+        if dp[i - x]: dp[i] = 1
+if dp[-1]: print('Yes')
 else: print('No')
