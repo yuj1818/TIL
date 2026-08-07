@@ -12,8 +12,7 @@ for i in range(n):
 ans = 0
 for i in range(n):
     for j in range(n):
-        t = C[i] + D[j]
-        v = -1 * t
-        if v in counter:
-            ans += counter[v]
+        t = (C[i] + D[j]) * -1
+        if t in counter:
+            ans += counter[t]
 print(ans)
