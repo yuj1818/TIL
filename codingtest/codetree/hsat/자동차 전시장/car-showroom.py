@@ -4,14 +4,14 @@ edges = [[] for _ in range(n + 1)]
 for _ in range(m):
     x, y = map(int, input().split())
     edges[x].append(y)
-start_points = list(map(int, input().split()))
-max_dist_to = [0] * (n + 1)
-reach_count = [0] * (n + 1)
-for p in start_points:
+points = list(map(int, input().split()))
+max_dist = [0] * (n + 1)
+cnt = [0] * (n + 1)
+for p in points:
     dist = [-1] * (n + 1)
-    q = deque([p])
     dist[p] = 0
-    
+    q = deque([p])
+
     while q:
         x = q.popleft()
         for nxt in edges[x]:
@@ -20,22 +20,16 @@ for p in start_points:
                 q.append(nxt)
     
     for i in range(1, n + 1):
-        if dist[i] != -1:
-            reach_count[i] += 1
-            if dist[i] > max_dist_to[i]:
-                max_dist_to[i] = dist[i]
+        if dist[i] == -1: continue
+        cnt[i] += 1
+        if dist[i] > max_dist[i]: max_dist[i] = dist[i]
 
-ans = float('inf')
-best_loc = -1
+MAX = float('inf')
+ans = MAX
 
 for i in range(1, n + 1):
-    if reach_count[i] == k:
-        if max_dist_to[i] < ans:
-            ans = max_dist_to[i]
-            best_loc = i
-        elif max_dist_to[i] == ans:
-            if best_loc == -1 or i < best_loc:
-                best_loc = i
+    if cnt[i] != k: continue
+    if max_dist[i] < ans: ans = max_dist[i]
 
-if ans == float('inf'): print(-1)
+if ans == MAX: print(-1)
 else: print(ans)
